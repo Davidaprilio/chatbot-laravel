@@ -14,14 +14,15 @@ return new class extends Migration
         Schema::create('chats', function (Blueprint $table) {
             $table->id();
             $table->foreignId('chat_session_id')->constrained('chat_sessions');
-            $table->boolean('from_me');
             $table->string('message_id');
+            $table->string('reference_message_id')->foreign('message_id')->nullable();
             $table->string('timestamp');
             $table->string('attachment')->nullable();
             $table->enum('type', [
                 'prompt',
                 'chat',
             ])->default('chat');
+            $table->boolean('from_me');
             $table->longText('text')->nullable();
             $table->string('response')->nullable()->comment('saved value if message is clickable response');
             $table->timestamps();

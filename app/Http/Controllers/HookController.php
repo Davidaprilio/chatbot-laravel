@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Wa;
+use App\Models\ActionReply;
+use App\Models\Chat;
 use App\Models\ChatSession;
 use App\Models\Customer;
+use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -36,21 +39,57 @@ class HookController extends Controller
 
         $session->chat()->create([
             'message_id' => $request->id,
-            'from_me' => $request->fromMe,
+            'from_me' => 0,
             'text' => $request->message,
+            'type' => 'chat',
             'timestamp' => $request->timestamp,
         ]);
 
+        $promtNotAnswered = $session->chat()->where('from_me', 1)->orderBy('id', 'desc')->where('type', 'prompt')->where('response', null)->first();
 
         // create response message kirim menu
-        
-        $res = Wa::send([
-            'phone' => $request->phone,
-            'message' => 'Halo, terimakasih telah menghubungi kami. Silahkan pilih menu dibawah ini',
-        ]);
+        if ($session->chat()->count() == 1) {
+            $messages = Message::where('hook', 'welcome')->get();
+            foreach ($messages as $message) {
+                $this->replyMsg($session, $request, $message);
+            }
+        }
+        // promt not answered
+        else if ($promtNotAnswered) {
+            $this->Log->info('Promt', [$promtNotAnswered]);
+
+            $action_reply = ActionReply::where('type', 'prompt_await')->where('prompt_message_id', $promtNotAnswered->reference_message_id)->where('prompt_response', $request->message)->first();
+
+            if ($action_reply) {
+                $this->Log->info('Promt Match', [$promtNotAnswered]);
+                $promtNotAnswered->update([
+                    'response' => $request->message,
+                ]);
+                $this->replyMsg($session, $request, $action_reply->replyMessage);
+            } else {
+                $this->Log->info('Promt Not Match', [$promtNotAnswered]);
+                $this->replyMsg($session, $request, new Message([
+                    'text' => 'Maaf, pilihan tidak tersedia silahkan pilih menu yang tersedia',
+                    'type' => 'chat',
+                ]));
+            }
+        } else {
+            $action_reply = ActionReply::where('type', 'auto_reply')->where('prompt_response', $request->message)->first();
+            if ($action_reply) {
+                $this->Log->info('Auto Reply Match', [$action_reply]);
+                $this->replyMsg($session, $request, $action_reply->replyMessage);
+            } else {
+                $this->Log->info('Auto Reply Not Match', [$action_reply]);
+                $this->replyMsg($session, $request, new Message([
+                    'text' => 'Maaf, saya tidak mengerti maksud anda',
+                    'type' => 'chat',
+                ]));
+                $this->replyMsg($session, $request, Message::find(2));
+            }
+        }
 
 
-        $this->Log->info('Session', [$session]);
+        $this->Log->info('Session', [$session, $promtNotAnswered]);
 
         return response()->json([
             'success' => true,
@@ -61,6 +100,22 @@ class HookController extends Controller
     {
         
         
+    }
+
+    protected function replyMsg(ChatSession $session, Request $request, Message $message)
+    {
+        $res = Wa::send([
+            'phone' => $request->phone,
+            'message' => $message->text,
+        ]);
+        $session->chat()->create([
+            'message_id' => $res['data']['messageid'],
+            'reference_message_id' => $message->id,
+            'from_me' => true,
+            'text' => $message->text,
+            'timestamp' => now()->timestamp,
+            'type' => $message->type,
+        ]);
     }
 
 
@@ -88,50 +143,6 @@ class HookController extends Controller
 
     public function test(Request $request)
     {
-        // {"status":true,"type":"conversation","server_phone":"628884966841","id":"338C2354498664AFDC1AE834E99BC693","fromMe":false,"phone":"6285231028718","name":"</David>","message":"Hui","profilePic":null,"timestamp":1684302833,"selectedButtonId":null,"selectedDisplayText":null,"selectedRowId":null,"selectedTitle":null,"token":"dev_chat","payload":{"key":{"remoteJid":"6285231028718@s.whatsapp.net","fromMe":false,"id":"338C2354498664AFDC1AE834E99BC693"},"messageTimestamp":1684302833,"pushName":"</David>","broadcast":false,"message":{"conversation":"Hui","messageContextInfo":{"deviceListMetadata":{"senderKeyHash":"yIu1uKQE1CtJQg==","senderTimestamp":"1684240111","recipientKeyHash":"F3AZNFQNM/0xHw==","recipientTimestamp":"1684301832"},"deviceListMetadataVersion":2}}}} 
-
-        // send to webhook
-        $response = Http::post('http://192.168.1.120:8000/api/hook/whatsapp', [
-            'status' => true,
-            'type' => 'conversation',
-            'server_phone' => '628884966841',
-            'id' => '338C2354498664AFDC1AE834E99BC693',
-            'fromMe' => false,
-            'phone' => '6285231028718',
-            'name' => '</David>',
-            'message' => 'Hui',
-            'profilePic' => null,
-            'timestamp' => 1684302833,
-            'selectedButtonId' => null,
-            'selectedDisplayText' => null,
-            'selectedRowId' => null,
-            'selectedTitle' => null,
-            'token' => 'dev_chat',
-            'payload' => [
-                'key' => [
-                    'remoteJid' => '6285231028718@s.whatsapp.net',
-                    'fromMe' => false,
-                    'id' => '338C2354498664AFDC1AE834E99BC693'
-                ],
-                'messageTimestamp' => 1684302833,
-                'pushName' => '</David>',
-                'broadcast' => false,
-                "message" => [
-                    "conversation" => "Halo pak",
-                    "messageContextInfo" => [
-                        "deviceListMetadata" => [
-                            "senderKeyHash" => "yIu1uKQE1CtJQg==",
-                            "senderTimestamp" => "1684240111",
-                            "recipientKeyHash" => "F3AZNFQNM/0xHw==",
-                            "recipientTimestamp" => "1684301832"
-                        ],
-                        "deviceListMetadataVersion" => 2
-                    ]
-                ]
-            ]
-
-        ]);
-
-        return $response->json();
+        return ActionReply::where('type', 'prompt_await')->where('prompt_message_id', 2)->where('prompt_response', '3')->first();
     }
 }

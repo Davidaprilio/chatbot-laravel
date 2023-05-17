@@ -21,6 +21,10 @@ return new class extends Migration
                 'end_chat',
             ])->nullable();
             $table->longText('text');
+            $table->enum('type', [
+                'prompt',
+                'chat',
+            ])->default('chat');
             $table->string('attachment')->nullable();
             $table->json('buttons')->nullable();
             $table->json('lists')->nullable();
