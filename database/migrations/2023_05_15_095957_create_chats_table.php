@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('chat_session_id')->constrained('chat_sessions');
             $table->string('message_id');
-            $table->string('reference_message_id')->foreign('message_id')->nullable();
+            $table->foreignId('reference_message_id')->nullable()->constrained('messages')->nullOnDelete();
             $table->string('timestamp');
             $table->string('attachment')->nullable();
             $table->enum('type', [

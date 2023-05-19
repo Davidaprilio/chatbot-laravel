@@ -67,11 +67,23 @@ class DummySeeder extends Seeder
             [
                 'text' => 'Iya pak ada yang bisa kami bantu
                 || berikut menu yang bapak bisa pilih',
+                'next_message' => 2
+            ],
+            [
+                'type' => 'prompt',
+                'trigger_event' => 'save_response',
+                'event_value' => 'customers:name',
+                'text' => 'baik dengan siapa? tolong tuliskan namanya',
+            ],
+            [
+                'hook' => 'dont_understand',
+                'text' => 'maaf saya tidak mengerti maksud anda',
+                'next_message' => 2
             ]
         ];
 
         foreach ($messages as $message) {
-            $message['text'] = $this->parseText($message['text']);
+            $message['text'] = parseText($message['text']);
             Message::create($message);
         }
 
@@ -144,16 +156,5 @@ class DummySeeder extends Seeder
         foreach ($action_replies as $action_reply) {
             ActionReply::create($action_reply);
         }
-
-
-    }
-
-    protected function parseText(string $text)
-    {
-        $texts = explode('||', $text);
-        foreach ($texts as $key => $text) {
-            $texts[$key] = trim($text);
-        }
-        return implode("\n", $texts);
     }
 }

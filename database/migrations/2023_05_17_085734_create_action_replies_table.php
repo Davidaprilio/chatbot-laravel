@@ -18,10 +18,11 @@ return new class extends Migration
                 'button_selected',
                 'option_selected',
                 'auto_reply',
+                'skip_message'
             ]);
-            $table->bigInteger('prompt_message_id')->foreignId('message_id')->nullable();
+            $table->foreignId('prompt_message_id')->nullable()->constrained(table: 'messages');
             $table->string('prompt_response')->nullable();
-            $table->bigInteger('reply_message_id')->foreignId('message_id');
+            $table->foreignId('reply_message_id')->constrained(table: 'messages');
             $table->timestamps();
         });
     }

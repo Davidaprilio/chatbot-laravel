@@ -15,4 +15,9 @@ class ChatSession extends Model
     {
         return $this->hasMany(Chat::class);
     }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
 }

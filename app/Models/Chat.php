@@ -10,4 +10,9 @@ class Chat extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
+
+    public function reference_message()
+    {
+        return $this->belongsTo(Message::class, 'reference_message_id');
+    }
 }
