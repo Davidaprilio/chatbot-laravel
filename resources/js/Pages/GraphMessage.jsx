@@ -1,3 +1,4 @@
+import ContextMenu from '@/Components/ContextMenu';
 import { Button, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { Head } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
@@ -34,52 +35,13 @@ export default function GraphMessage({ auth, laravelVersion, phpVersion }) {
                 {JSON.stringify(ctxMenuPosition || { x: null, y: null })}
                 <Button>Button</Button>
 
-                <ContextMenu position={ctxMenuPosition} onClose={closeCtxMenu} closeOnSelect={(...e) => {
-                    console.log(e);
-                }}>
-                    {({ isOpen }) => (
-                        <>
-                            <MenuButton style={{ display: 'none' }} isActive={isOpen} as={Button}></MenuButton>
-                            <MenuList>
-                                <MenuItem command='⌘T'>New Tab</MenuItem>
-                                <MenuItem command='⌘N'>New Window</MenuItem>
-                                <MenuItem command='⌘⇧N'>Open Closed Tab</MenuItem>
-                                <MenuItem command='⌘O'>Open File...</MenuItem>
-                            </MenuList>
-                        </>
-                    )}
+                <ContextMenu position={ctxMenuPosition} onClose={closeCtxMenu}>
+                    <MenuItem onClick={() => console.log('New Tab')} command='⌘T'>New Tab</MenuItem>
+                    <MenuItem onClick={() => console.log('New Window')} command='⌘N'>New Window</MenuItem>
+                    <MenuItem onClick={() => console.log('Open Closed')} command='⌘⇧N'>Open Closed Tab</MenuItem>
+                    <MenuItem onClick={() => console.log('Open File')} command='⌘O'>Open File...</MenuItem>
                 </ContextMenu>
             </div>
         </>
     );
-}
-
-const ContextMenu = (props) => {
-    const menu = useRef()
-
-    if (props.position) {
-        if ((props.position.x + menu.current.offsetWidth) >= window.innerWidth) props.position.x -= (menu.current.offsetWidth + 10)
-        if ((props.position.y + menu.current.offsetHeight) >= window.innerHeight) props.position.y -= (menu.current.offsetHeight + 10)
-    }
-
-    return (
-        <Menu {...props} isOpen={props.position} >
-            {({ isOpen }) => (
-                <>
-                    <MenuButton style={{ display: 'none' }} isActive={isOpen} as={Button}></MenuButton>
-                    <MenuList ref={menu} className={props.position ? 'ctx-visible' : 'ctx-hidden'} style={{
-                        position: 'fixed',
-                        zIndex: 9999,
-                        top: props.position?.y,
-                        left: props.position?.x
-                    }}>
-                        <MenuItem command='⌘T'>New Tab</MenuItem>
-                        <MenuItem command='⌘N'>New Window</MenuItem>
-                        <MenuItem command='⌘⇧N'>Open Closed Tab</MenuItem>
-                        <MenuItem command='⌘O'>Open File...</MenuItem>
-                    </MenuList>
-                </>
-            )}
-        </Menu>
-    )
 }
