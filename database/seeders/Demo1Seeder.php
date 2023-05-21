@@ -125,7 +125,24 @@ class Demo1Seeder extends Seeder
                 'text' => 'Baik kak bisa pilih menu ini ya',
                 'next_message' => 8
             ],
+            [
+                'type' => 'prompt',
+                'text' => 'Untuk pendataan bisa kirimkan lokasi anda saat ini kak [name]
+                || menggunakan share lokasi whatsapp!',
+                'trigger_event' => 'save_response',
+                'event_value' => 'customers.location',
+            ],
+            [
+                'text' => 'Terimakasih telah memberi lokasi kak [name]',
+                'next_message' => 5
+            ],
+            [
+                'text' => 'maaf kak [name] tolong kirimkan lokasi kakak dengan shareloc wa',
+            ],
         ];
+
+
+
 
         foreach ($messages as $message) {
             $message['text'] = parseText($message['text']);
@@ -133,6 +150,18 @@ class Demo1Seeder extends Seeder
         }
 
         $action_replies = [
+            [
+                'type' => 'prompt_await',
+                'prompt_message_id' => 22,
+                'prompt_response' => '{:location:}', // match with sharlock
+                'reply_message_id' => 5,
+            ],
+            [
+                'type' => 'prompt_await',
+                'prompt_message_id' => 22,
+                'prompt_response' => '{!*}',
+                'reply_message_id' => 24,
+            ],
             [
                 'type' => 'prompt_await',
                 'prompt_message_id' => 2,
@@ -143,7 +172,7 @@ class Demo1Seeder extends Seeder
                 'type' => 'prompt_await',
                 'prompt_message_id' => 4,
                 'prompt_response' => '["iya", "boleh", "oke", "baik", "y", "ya"]', // match available options response
-                'reply_message_id' => 5,
+                'reply_message_id' => 22 , // 5 - 22
             ],
             [
                 'type' => 'prompt_await',

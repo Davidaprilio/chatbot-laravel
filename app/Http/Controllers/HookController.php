@@ -27,12 +27,31 @@ class HookController extends Controller
         ]);
     }
 
+    public function parseWhatsappCallback(Request $request)
+    {
+        $inbox =  (object) [
+            'type' => 'text',
+            'content' => '',
+        ];
+        if (in_array($request->type, ['extendedTextMessage', 'conversation'])) {
+            $inbox->type = 'text';
+            $inbox->content = $request->message;
+        } else if (in_array($request->type, ['locationMessage'])) {
+            $inbox->type = 'location';
+            $inbox->content = "{$request->payload['message']['locationMessage']['degreesLatitude']},{$request->payload['message']['locationMessage']['degreesLongitude']}";
+        } else {
+        }
+
+        return $inbox;
+    }
+
     public function callback(Request $request)
     {
         if ($request->fromMe) return true;
 
         $this->Log->info('Hook Recived', $request->all());
 
+        $inbox = $this->parseWhatsappCallback($request);
         $_cust = $this->getCustomer($request->phone, $request->name);
         
         $this->Log->info('Customer', $_cust);
@@ -72,9 +91,9 @@ class HookController extends Controller
         else if ($promtNotAnswered) {
             $this->Log->info('Promt', [$promtNotAnswered]);
 
-            $match_action_reply = self::getActionMatch($promtNotAnswered->reference_message_id, $request->message);
+            $match_action_reply = self::getActionMatch($promtNotAnswered->reference_message_id, $request->message, $inbox);
 
-            if ($match_action_reply) {
+            if ($match_action_reply && $match_action_reply->prompt_response !== '{!*}') {
                 $this->Log->info('Promt Match', [$promtNotAnswered]);
                 if ($promtNotAnswered->reference_message && $promtNotAnswered->reference_message->trigger_event == 'save_response') {
                     [$tableName, $columnName] = explode('.', $promtNotAnswered->reference_message->event_value);
@@ -83,7 +102,7 @@ class HookController extends Controller
                         'column' => $columnName
                     ]);
                     DB::table($tableName)->update([
-                        $columnName => $request->message
+                        $columnName => $inbox->content
                     ]);
                 }
                 $promtNotAnswered->update([
@@ -246,7 +265,7 @@ class HookController extends Controller
             'message' => 'tidak'
         ];
 
-        dd(self::getActionMatch(5, $request->message));
+        // dd(self::getActionMatch(5, $request->message));
 
 
         $msg = Message::find(11);
@@ -255,15 +274,19 @@ class HookController extends Controller
         return $msg->getRelationValue('next_message');
     }
 
-    static public function getActionMatch(int|Message $promt_message, string $keyword): ?ActionReply
+    static public function getActionMatch(int|Message $promt_message,  ?string $keyword, object $inbox): ?ActionReply
     {
         $query = ActionReply::where('type', 'prompt_await')->where('prompt_message_id', is_int($promt_message) ? $promt_message : $promt_message->id);
 
-        if($keyword === '{*}') {
+        
+        if(in_array($keyword, ['{*}', '{:location:}'])) {
             $action_reply = (clone $query)->where('prompt_response', '{!*}')->first();
             return $action_reply;
         }
-
+        
+        // casting
+        if ($inbox->type === 'location') $keyword = '{:location:}';
+        Log::info('inbox', [$inbox]);
 
         $action_reply = (clone $query)->where('prompt_response', $keyword)->first();
         if ($action_reply) return $action_reply;
@@ -272,7 +295,7 @@ class HookController extends Controller
         foreach ($action_replies as $reply) {
             $array = json_decode($reply->prompt_response);
             foreach ($array as $value) {
-                if ($value === $keyword) {
+                if (strtolower($value) === strtolower($keyword)) {
                     return $reply;
                 }
             }
