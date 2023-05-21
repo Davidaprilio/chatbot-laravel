@@ -57,7 +57,13 @@ function MessageNode({ data, isConnectable }) {
       <Stack spacing={3} className='px-3 pb-3'>
         <div>
           <Text fontSize='xs' color='gray.400' mt='5px' mb='-5px'>Title</Text>
-          <Input onChange={onChange} placeholder='Enter Title' size='sm' variant='flushed' />
+          <Input 
+            onChange={onChange} 
+            placeholder='Enter Title' 
+            size='sm' 
+            variant='flushed'
+            value={messageData. n} 
+          />
         </div>
         <div>
           <Text fontSize='xs' color='gray.400' mb='2px'>Text</Text>
@@ -85,7 +91,7 @@ function MessageNode({ data, isConnectable }) {
         className='react-flow__handle-lg'
         type="source"
         position={Position.Bottom}
-        id="b"
+        id="action_reply"
         isConnectable={isConnectable}
       />
     </Card>

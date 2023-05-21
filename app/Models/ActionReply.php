@@ -15,4 +15,15 @@ class ActionReply extends Model
     {
         return $this->belongsTo(Message::class, 'reply_message_id');
     }
+
+    public function getEdgeOptionAttribute($key)
+    {
+        return [
+            "id" => (string) $this->id,
+            "source" => (string) $this->prompt_message_id,
+            "target" => (string) $this->reply_message_id,
+            "label" => $this->title,
+            // "type" => '' 
+        ];
+    }
 }

@@ -39,10 +39,16 @@ function Flow({ ziggy }) {
     // set default base url axios
     axios.defaults.baseURL = `${ziggy.url}/api`;
 
-    const onEdgeConnect = useCallback(
-        (connection) => setEdges((eds) => addEdge(connection, eds)),
-        [setEdges]
-    );
+    const onEdgeConnect = useCallback(async(connection) => {
+        try {
+            const response = await axios.post('/graph/action-reply', {
+                ...connection
+            })
+            setEdges((eds) => addEdge(response.data, eds))
+        } catch (error) {
+
+        }
+    }, [setEdges]);
 
     const addMessageNode = useCallback(async () => {
         try {
@@ -68,12 +74,15 @@ function Flow({ ziggy }) {
 
     const restoreFlow = async () => {
         const flow = JSON.parse(localStorage.getItem(flowKey));
-        const response = await axios.get('/graph/message')
-        const nodes = response.data
+        const [messages, replys] = await axios.all([
+            await axios.get('/graph/message'),
+            await axios.get('/graph/action-reply'),
+        ]);
+        console.log(messages, replys);
         if (flow) {
             const { x = 0, y = 0, zoom = 1 } = flow.viewport;
-            setNodes(nodes || []);
-            setEdges(flow.edges || []);
+            setNodes(messages.data || []);
+            setEdges(replys.data || []);
             setViewport({ x, y, zoom });
         }
     };
@@ -123,6 +132,8 @@ function Flow({ ziggy }) {
                 onEdgesChange={onEdgesChange}
                 onConnect={onEdgeConnect}
                 onInit={setRfInstance}
+                minZoom={0.1}
+                maxZoom={2}
                 onResize={() => console.log('resize')}
                 onNodeDragStop={(ev, node, nodes) => {
                     if (node.type === 'messageNode') {

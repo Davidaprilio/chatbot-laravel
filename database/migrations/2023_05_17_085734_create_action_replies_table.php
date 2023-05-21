@@ -20,10 +20,15 @@ return new class extends Migration
                 'auto_reply',
                 'skip_message'
             ]);
-            $table->foreignId('prompt_message_id')->nullable()->constrained(table: 'messages');
+            $table->string('title')->nullable();
             $table->string('prompt_response')->nullable();
+            $table->foreignId('prompt_message_id')->nullable()->constrained(table: 'messages');
             $table->foreignId('reply_message_id')->constrained(table: 'messages');
             $table->timestamps();
+            $table->unique([
+                'prompt_message_id',
+                'reply_message_id'
+            ]);
         });
     }
 

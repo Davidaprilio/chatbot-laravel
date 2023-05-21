@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActionReply;
 use App\Models\GraphNode;
 use App\Models\Message;
 use Illuminate\Http\Request;
@@ -12,6 +13,12 @@ class GraphController extends Controller
     {
         $messages = Message::with('node')->get();
         return $messages->map(fn(Message $message) => $message->node_option);
+    }
+
+    public function getActionReply(Request $request)
+    {
+        $action_replies = ActionReply::all();
+        return $action_replies->map(fn(ActionReply $action_reply) => $action_reply->edge_option);
     }
 
     public function saveMessage(Request $request)
@@ -33,6 +40,19 @@ class GraphController extends Controller
         $node_option = $msg->node_option;
         $node_option['selected'] = true;
         return $node_option;
+    }
+
+    public function saveActionReply(Request $request)
+    {
+        if($request->type) $request->merge(['type' => 'prompt_await']);
+        $act_reply = ActionReply::updateOrCreate([
+            'prompt_message_id' => $request->source,
+            'reply_message_id' => $request->target,
+        ], $request->only([
+            'prompt_message',
+            'type'
+        ]));
+        return $act_reply->edge_option;
     }
 
     public function nodeMessageStore(Request $request)

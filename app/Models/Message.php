@@ -40,7 +40,7 @@ class Message extends Model
     public function getNodeOptionAttribute(): array
     {
         return [
-            'id' => $this->id,
+            'id' => (string) $this->id,
             'type' => 'messageNode',
             'selected' => false,
             'data' => [
@@ -50,7 +50,7 @@ class Message extends Model
             'position' => ['x' => $this->node->position_x,'y' => $this->node->position_y],
             'positionAbsolute' => ['x' => $this->node->position_x,'y' => $this->node->position_y],
             "width" => 393,
-            "height" => 127,
+            "height" => 327,
             "dragging" => false,
             "dragHandle" => ".custom-drag-handle",
         ];

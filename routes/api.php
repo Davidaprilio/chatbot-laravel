@@ -26,4 +26,6 @@ Route::any('hook/whatsapp/test', [HookController::class, 'test']);
 
 Route::get('graph/message', [GraphController::class, 'index']);
 Route::post('graph/message', [GraphController::class, 'saveMessage']);
+Route::get('graph/action-reply', [GraphController::class, 'getActionReply']);
+Route::post('graph/action-reply', [GraphController::class, 'saveActionReply']);
 Route::post('graph/message/node', [GraphController::class, 'nodeMessageStore']);
