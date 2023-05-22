@@ -2,7 +2,7 @@
     <div class="header__inner">
         <div class="container-fluid">
             <div class="header__row row justify-content-between">
-                <div class="header__col-left col d-flex align-items-center">
+                {{-- <div class="header__col-left col d-flex align-items-center">
                     <div class="header__left-toggle">
                         <button class="header__toggle-menu toggle-sidebar" type="button">
                             <svg class="icon-icon-menu">
@@ -25,39 +25,12 @@
                             </div>
                         </form>
                     </div>
-                </div>
+                </div> --}}
                 <div class="header__col-right col d-flex align-items-center">
                     <div class="header__language dropdown">
-                        <button class="header__toggle-language" type="button" data-toggle="dropdown"
-                            data-tippy-content="Language" data-tippy-placement="bottom">
-                            <svg class="icon-icon-language">
-                                <use xlink:href="#icon-language"></use>
-                            </svg> <span class="icon-arrow-down">
-                                <svg class="icon-icon-arrow-down">
-                                    <use xlink:href="#icon-arrow-down"></use>
-                                </svg></span>
-                        </button>
-                        <div class="lang-menu dropdown-menu">
-                            <button class="lang-menu__button dropdown-menu__item" tabindex="0">
-                                <img class="lang-menu__icon" src="assets/img/content/flags/us.svg" alt="#" /><span
-                                    class="lang-menu__text">En</span>
-                            </button>
-                            <button class="lang-menu__button dropdown-menu__item" tabindex="0">
-                                <img class="lang-menu__icon" src="assets/img/content/flags/gb.svg" alt="#" /><span
-                                    class="lang-menu__text">Gb</span>
-                            </button>
-                            <button class="lang-menu__button dropdown-menu__item" tabindex="0">
-                                <img class="lang-menu__icon" src="assets/img/content/flags/ru.svg" alt="#" /><span
-                                    class="lang-menu__text">Ru</span>
-                            </button>
-                            <button class="lang-menu__button dropdown-menu__item" tabindex="0">
-                                <img class="lang-menu__icon" src="assets/img/content/flags/cn.svg" alt="#" /><span
-                                    class="lang-menu__text">Cn</span>
-                            </button>
-                            <div class="lang-menu__separate"></div><a
-                                class="lang-menu__button lang-menu__button--all dropdown-menu__item" href="#"
-                                tabindex="0">Learn</a>
-                        </div>
+                        <a href="{{ route('graph-message') }}" class="header__toggle-language btn btn-sm border" type="button" data-tippy-content="Open&nbsp;Graph&nbsp;Message" data-tippy-placement="bottom">
+                            <i class="fa fa-diagram-project"></i>
+                        </a>
                     </div>
                     <div class="header__tools">
                         <div class="header__notes header__tools-item">
@@ -381,7 +354,7 @@
                                 </svg></span>
                         </a>
                         <div class="profile-dropdown dropdown-menu dropdown-menu--right">
-                            <a class="profile-dropdown__item dropdown-menu__item" href="#" tabindex="0"><span
+                            <a class="profile-dropdown__item dropdown-menu__item" href="{{ url('profile') }}" tabindex="0"><span
                                     class="profile-dropdown__icon">
                                     <svg class="icon-icon-user">
                                         <use xlink:href="#icon-user"></use>

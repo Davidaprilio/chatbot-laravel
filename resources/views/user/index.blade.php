@@ -39,19 +39,20 @@
                 </div>
             </div>
         </div>
+        @include('layouts.alerts')
         <div class="card">
             <div class="card__wrapper">
-                <div class="card__container pl-2 pr-2">
+                <div class="card__container pl-4 pr-4">
                     <div class="card__body">
                         <div class="table-wrapper">
                             <table class="table table--lines" id="datatables-user">
                                 <thead class="table__header">
                                     <tr class="table__header-row text-center">
                                         <th style="width: 50px;"><span>No</span></th>
-                                        <th class="table__th-sort d-none d-lg-table-cell"><span class="align-middle">Nama</span></th>
-                                        <th class="table__th-sort d-none d-lg-table-cell"><span class="align-middle">Kontak</span></th>
-                                        <th class="table__th-sort"><span class="align-middle">Status</span></th>
-                                        <th class="table__th-sort d-none d-lg-table-cell">
+                                        <th class="" style="text-align: center"><span class="align-middle">Nama</span></th>
+                                        <th class="" style="text-align: center"><span class="align-middle">Kontak</span></th>
+                                        <th class="" style="text-align: center"><span class="align-middle">Status</span></th>
+                                        <th class="" style="text-align: center">
                                             <span class="align-middle">Role</span>
                                         </th>
                                         <th class="table__actions"></th>
@@ -73,7 +74,7 @@
                                             @endif
                                         </td>
                                         <td class="table__td">
-                                            @if ($item->status == 1)
+                                            @if ($item->role_id == 1)
                                                 <div class="label label--primary">Admin</div>
                                             @else
                                                 <div class="label label--teal text-white color-teal">Client</div>
@@ -99,7 +100,7 @@
                                                                 </a>
                                                             </li>
                                                             <li class="dropdown-items__item">
-                                                                <a class="dropdown-items__link" href="{{ url('user/remove?id='.$item->id) }}">
+                                                                <a class="dropdown-items__link" href="javascript:void(0)" onclick="hapusUser('{{url('user/remove?id='.$item->id)}}')">
                                                                     <span class="dropdown-items__link-icon">
                                                                         <svg class="icon-icon-trash">
                                                                             <use xlink:href="#icon-trash"></use>
@@ -126,70 +127,42 @@
 @endsection
 @section('js')
     <script>
-        $('#example').DataTable({
+        $('#datatables-user').DataTable({
             "ordering": false
         });
-        // Users datatable
-        // var table_user = $('#datatables-user').DataTable({
-        //     processing: 'Loading...',
-        //     serverSide: true,
-        //     deferRender: true,
-        //     ajax: document.location.href,
-        //     columns: [{
-        //             defaultContent: '-',
-        //             className: 'text-center',
-        //         },
-        //         {
-        //             data: 'title',
-        //             defaultContent: '-',
-        //             render: (data, type, row, meta) => {
-        //                 return `<div class="d-flex flex-column" style="width: 150px;">
-        //             ${row.title ?? '-'}
-        //             </div>`
-        //             }
-        //         },
-        //         {
-        //             data: 'komisi',
-        //             defaultContent: '-',
-        //             className: 'text-center',
-        //             render: (data, type, row, meta) => {
-        //                 return `<div class="d-flex flex-column" style="max-width: 600px;">
-        //                 Rp. ${new Intl.NumberFormat().format(row.komisi) ?? '-'}
-        //             </div>`
-        //             }
-        //         },
-        //         {
-        //             data: 'note',
-        //             defaultContent: '-',
-        //             className: 'text-center',
-        //             render: (data, type, row, meta) => {
-        //                 return `<div class="d-flex flex-column" style="max-width: 600px;">
-        //                 <span class="text-truncate">${row.note ?? '-'}</span>
-        //             </div>`
-        //             }
-        //         },
-        //         {
-        //             className: 'text-center',
-        //             render: (data, type, row, meta) => {
-        //                 return `<div class="w-100 text-center"><div class="btn-group ms-auto">
-        //                 <a type="button" href="{{ url('setting/komisi/credit?id=${row.id}') }}" class="btn btn-sm btn-primary waves-effect waves-light text-white edit-record" data-bs-target="#offcanvasAddUser" data-bs-toggle="offcanvas">
-        //                     Edit <i class="fa-solid fa-pen-to-square p-1"></i>
-        //                 </a>
-        //                 <a type="button" href="{{ url('setting/komisi/remove?id=${row.id}') }}" class="btn btn-danger btn-sm text-white delete-record">Delete <i class="fa-solid fa-trash p-1"></i></a>
-        //             </div>
-        //             </div>`
-        //             }
-        //         },
-        //     ],
-        // });
-
-        // table_user.on('draw.dt', function() {
-        //     var PageInfo = $('#datatables-user').DataTable().page.info();
-        //     table_user.column(0, {
-        //         page: 'current'
-        //     }).nodes().each(function(cell, i) {
-        //         cell.innerHTML = i + 1 + PageInfo.start;
-        //     });
-        // });
+        
+        function hapusUser(url) {
+            Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: function(res) {
+                        Swal.fire(
+                            'Deleted!',
+                            'Your file has been deleted.',
+                            'success'
+                        ).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = location.href;
+                            }
+                        })
+                    },
+                    error: function(err) {
+                        toastr.error(err.responseJSON.message ??
+                            'Something went wrong');
+                    }
+                })
+            }
+            })
+        }
     </script>
 @endsection

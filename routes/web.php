@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
@@ -38,18 +39,20 @@ Route::middleware('auth')->group(function () {
     Route::prefix('/user')->controller(UserController::class)->group(function () {
         Route::get('/', 'index')->name('user');
         Route::get('/credit', 'credit')->name('user.credit');
+        Route::any('/store', 'store')->name('user.store');
+        Route::any('/remove', 'remove')->name('user.remove');
     });
 
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::prefix('/chat')->controller(MessageController::class)->group(function () {
+        Route::get('/', 'chat')->name('chat');
+    });
+
+    Route::prefix('/profile')->controller(ProfileController::class)->group(function () {
+        Route::get('/', 'index')->name('profile');
+        Route::get('/edit_password', 'index')->name('profile.edit_password');
+    });
 });
 
 Route::get('/graph-message', function () {
-    return Inertia::render('GraphMessage', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+    return Inertia::render('GraphMessage');
 })->name('graph-message');

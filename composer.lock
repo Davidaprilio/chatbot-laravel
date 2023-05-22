@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8e6e7fe5fd9d19060838a2fee2857ca4",
+    "content-hash": "fff3989b4ea19d928730fc4640abb1ed",
     "packages": [
         {
             "name": "brick/math",
@@ -60,6 +60,54 @@
                 }
             ],
             "time": "2023-01-15T23:15:59+00:00"
+        },
+        {
+            "name": "davidarl/api-daerah-indonesia",
+            "version": "v1.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Davidaprilio/laravel-api-daerah.git",
+                "reference": "9a8689f3e7a5275492ead8eb9f47b9bb08a33cb8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Davidaprilio/laravel-api-daerah/zipball/9a8689f3e7a5275492ead8eb9f47b9bb08a33cb8",
+                "reference": "9a8689f3e7a5275492ead8eb9f47b9bb08a33cb8",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1 || ^8.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "DavidArl\\ApiDaerah\\ApiDaerahServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "DavidArl\\ApiDaerah\\": "src/",
+                    "DavidArl\\ApiDaerah\\Database\\Seeders\\": "database/seeders"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Davidaprilio",
+                    "email": "david1.aprilio4@gmail.com"
+                }
+            ],
+            "description": "Package Laravel yang menyediakan api daerah seperti provinsi,kabupaten dan kecamatan.",
+            "support": {
+                "issues": "https://github.com/Davidaprilio/laravel-api-daerah/issues",
+                "source": "https://github.com/Davidaprilio/laravel-api-daerah/tree/v1.0.4"
+            },
+            "time": "2023-05-18T15:01:21+00:00"
         },
         {
             "name": "dflydev/dot-access-data",
