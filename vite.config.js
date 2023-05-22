@@ -6,7 +6,11 @@ export default defineConfig({
     plugins: [
         laravel({
             input: 'resources/js/app.jsx',
-            refresh: true,
+            refresh: [
+                'resources/js/**',
+                // 'resources/views/app.blade.php',
+            ],
+            // refresh: true,
         }),
         react(),
     ],

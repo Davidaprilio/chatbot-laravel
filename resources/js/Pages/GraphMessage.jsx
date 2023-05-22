@@ -31,7 +31,7 @@ function Flow({ ziggy }) {
     const [ctxMenuPosition, setCtxMenuPosition] = useState(null)
     const { setViewport } = useReactFlow();
     const reactFlowInstance = useReactFlow();
-    
+
     const flowKey = 'example-flow';
     const nodeTypes = useMemo(() => ({ messageNode: MessageNode }), []);
     const edgeTypes = useMemo(() => ({ buttonEdge: ButtonEdge }), []);
@@ -87,10 +87,21 @@ function Flow({ ziggy }) {
         }
     };
 
+    const selectAllNode = useCallback(() => {
+        setNodes((nds) => nds.map((node) => {
+            node.selected = true;
+            return node;
+        }));
+    }, [setNodes]);
+
     const onRestore = useCallback(() => {
         restoreFlow();
     }, [setEdges, setNodes, setViewport]);
 
+    useHotkeys('ctrl+a', (e) => {
+        e.preventDefault();
+        selectAllNode();
+    })
     useHotkeys('-', () => reactFlowInstance.zoomOut())
     useHotkeys('=', () => reactFlowInstance.zoomIn())
 
@@ -132,6 +143,7 @@ function Flow({ ziggy }) {
                 onEdgesChange={onEdgesChange}
                 onConnect={onEdgeConnect}
                 onInit={setRfInstance}
+                onError={(code, message) => console.log('error', code, message)}
                 minZoom={0.1}
                 maxZoom={2}
                 onResize={() => console.log('resize')}
