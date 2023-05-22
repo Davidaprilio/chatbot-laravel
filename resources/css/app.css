@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.ctx-visible {
+    visibility: visible !important;
+}
+
+.ctx-hidden {
+    visibility: hidden !important;
+}

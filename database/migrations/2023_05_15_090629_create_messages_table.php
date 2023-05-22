@@ -37,6 +37,7 @@ return new class extends Migration
                 'save_response',
             ])->nullable();
             $table->string('event_value')->nullable();
+            $table->string('title')->default('Untitled message');
             $table->longText('text');
             $table->enum('type', [
                 'prompt',

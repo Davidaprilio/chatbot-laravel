@@ -26,4 +26,33 @@ class Message extends Model
     {
         return $query->orderBy('order_sending', 'ASC');
     }
+
+    public function node()
+    {
+        return $this->hasOne(GraphNode::class)->withDefault([
+            'message_id' => $this->id,
+            'position_x' => 0,
+            'position_y' => 0,
+            'type' => 'messageNode'
+        ]);
+    }
+
+    public function getNodeOptionAttribute(): array
+    {
+        return [
+            'id' => (string) $this->id,
+            'type' => 'messageNode',
+            'selected' => false,
+            'data' => [
+                'label' => 'Judul Pesan',
+                'message' => $this->setHidden(['created_at', 'updated_at', 'id']),
+            ],
+            'position' => ['x' => $this->node->position_x,'y' => $this->node->position_y],
+            'positionAbsolute' => ['x' => $this->node->position_x,'y' => $this->node->position_y],
+            "width" => 393,
+            "height" => 327,
+            "dragging" => false,
+            "dragHandle" => ".custom-drag-handle",
+        ];
+    }
 }

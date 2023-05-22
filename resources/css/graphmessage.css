@@ -1,0 +1,51 @@
+html,
+body,
+#app {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.btn-action {
+  position: absolute;
+  z-index: 10;
+  top: 10px;
+}
+.btn-add {
+  left: 10px;
+}
+
+.react-flow__handle.react-flow__handle-lg {
+  width: 12px !important;
+  height: 12px !important;
+  background-color: #a8a8a8 !important;
+}
+
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+.fs-7 {
+  font-size: 0.7rem !important;
+}
+
+.scroll-mini {
+  cursor:auto;
+}
+.scroll-mini::-webkit-scrollbar {
+  width: 5px;
+}
+
+.scroll-mini::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(161, 161, 161, 0.3);
+}
+
+.scroll-mini::-webkit-scrollbar-thumb {
+  background-color: rgb(185, 185, 185);
+}
+
+.react-flow__panel.react-flow__attribution {
+  display: none;
+}
