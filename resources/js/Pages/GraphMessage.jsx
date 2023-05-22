@@ -11,9 +11,7 @@ import ReactFlow, {
     useNodesState,
     useEdgesState,
     Panel,
-    useOnViewportChange,
     ReactFlowProvider,
-    useViewport,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import "../../css/graphmessage.css";
@@ -25,11 +23,9 @@ import axios from 'axios';
 function Flow({ ziggy }) {
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-    const [rfInstance, setRfInstance] = useState(null);
     const [clipboard, setClipboard] = useState(null)
     const [selectedNode, setSelectedNode] = useState(null)
     const [ctxMenuPosition, setCtxMenuPosition] = useState(null)
-    const { setViewport } = useReactFlow();
     const reactFlowInstance = useReactFlow();
 
     const flowKey = 'example-flow';
@@ -39,7 +35,7 @@ function Flow({ ziggy }) {
     // set default base url axios
     axios.defaults.baseURL = `${ziggy.url}/api`;
 
-    const onEdgeConnect = useCallback(async(connection) => {
+    const onEdgeConnect = useCallback(async (connection) => {
         try {
             const response = await axios.post('/graph/action-reply', {
                 ...connection
@@ -65,12 +61,10 @@ function Flow({ ziggy }) {
     }, [setNodes, nodes.length]);
 
     const onSave = useCallback(() => {
-        if (rfInstance) {
-            console.log('Save Viewport');
-            const flow = rfInstance.toObject();
-            localStorage.setItem(flowKey, JSON.stringify(flow));
-        }
-    }, [rfInstance]);
+        console.log('Save Viewport');
+        const flow = reactFlowInstance.toObject();
+        localStorage.setItem(flowKey, JSON.stringify(flow));
+    }, []);
 
     const restoreFlow = async () => {
         const flow = JSON.parse(localStorage.getItem(flowKey));
@@ -78,12 +72,12 @@ function Flow({ ziggy }) {
             await axios.get('/graph/message'),
             await axios.get('/graph/action-reply'),
         ]);
-        console.log(messages, replys);
+        console.log('Restore:', messages, replys, flow);
         if (flow) {
-            const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+            const {x = 334, y = 400, zoom = 1 } = flow.viewport;
             setNodes(messages.data || []);
             setEdges(replys.data || []);
-            setViewport({ x, y, zoom });
+            reactFlowInstance.setViewport({ x, y, zoom })
         }
     };
 
@@ -94,9 +88,7 @@ function Flow({ ziggy }) {
         }));
     }, [setNodes]);
 
-    const onRestore = useCallback(() => {
-        restoreFlow();
-    }, [setEdges, setNodes, setViewport]);
+    const onRestore = useCallback(restoreFlow, [setEdges, setNodes, reactFlowInstance.setViewport]);
 
     useHotkeys('ctrl+a', (e) => {
         e.preventDefault();
@@ -104,12 +96,6 @@ function Flow({ ziggy }) {
     })
     useHotkeys('-', () => reactFlowInstance.zoomOut())
     useHotkeys('=', () => reactFlowInstance.zoomIn())
-
-    useOnViewportChange({
-        onStart: useCallback(() => setCtxMenuPosition(null), []),
-        // onChange: useCallback((viewport) => console.log('change', viewport), []),
-        onEnd: useCallback(onSave, []),
-    });
 
     const storeNodePosition = async (node) => {
         await axios.post('graph/message/node', {
@@ -121,28 +107,24 @@ function Flow({ ziggy }) {
     }
 
     useEffect(() => {
-        restoreFlow()
+        onRestore()
     }, [onRestore])
-
-    const { zoom } = useViewport();
-
-    useEffect(() => {
-        onSave()
-    }, [zoom]);
 
     const closeCtxMenu = () => setCtxMenuPosition(null)
 
     return (
         <>
             <ReactFlow
+                onMoveStart={closeCtxMenu}
+                onMoveEnd={onSave}
                 nodes={nodes}
                 edges={edges}
                 nodeTypes={nodeTypes}
                 edgeTypes={edgeTypes}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
+                defaultViewport={reactFlowInstance.getViewport()}
                 onConnect={onEdgeConnect}
-                onInit={setRfInstance}
                 onError={(code, message) => console.log('error', code, message)}
                 minZoom={0.1}
                 maxZoom={2}
@@ -174,7 +156,7 @@ function Flow({ ziggy }) {
                         zoom: reactFlowInstance.getZoom()
                     })
                 }} />
-                <Controls />
+                <Controls onZoomIn={onSave} onZoomOut={onSave} />
                 <Background />
                 <Panel position='top-left'>
                     <Button onClick={addMessageNode} size='sm' colorScheme='blue'>Add Node</Button>
