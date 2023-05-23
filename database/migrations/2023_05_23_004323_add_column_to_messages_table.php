@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('messages', function (Blueprint $table) {
-            $table->foreignId('flow_chat_id')->after('id')->constrained();
+            $table->foreignId('flow_chat_id')->after('id')->constrained()->cascadeOnDelete();
         });
     }
 

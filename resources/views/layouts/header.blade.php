@@ -2,20 +2,20 @@
     <div class="header__inner">
         <div class="container-fluid">
             <div class="header__row row justify-content-between">
-                {{-- <div class="header__col-left col d-flex align-items-center">
+                <div class="header__col-left col d-flex align-items-center">
                     <div class="header__left-toggle">
                         <button class="header__toggle-menu toggle-sidebar" type="button">
                             <svg class="icon-icon-menu">
                                 <use xlink:href="#icon-menu"></use>
                             </svg>
                         </button>
-                        <button class="header__toggle-search toggle-search">
+                        {{-- <button class="header__toggle-search toggle-search">
                             <svg class="icon-icon-search">
                                 <use xlink:href="#icon-search"></use>
                             </svg>
-                        </button>
+                        </button> --}}
                     </div>
-                    <div class="header__search">
+                    {{-- <div class="header__search">
                         <form class="form-search" action="#" method="GET">
                             <div class="form-search__container"><span class="form-search__icon-left">
                                     <svg class="icon-icon-search">
@@ -24,11 +24,13 @@
                                 <input class="form-search__input" type="text" placeholder="Search..." />
                             </div>
                         </form>
-                    </div>
-                </div> --}}
+                    </div> --}}
+                </div>
                 <div class="header__col-right col d-flex align-items-center">
                     <div class="header__language dropdown">
-                        <a href="{{ route('graph-message') }}" class="header__toggle-language btn btn-sm border" type="button" data-tippy-content="Open&nbsp;Graph&nbsp;Message" data-tippy-placement="bottom">
+                        <a href="{{ route('graph-message') }}" class="header__toggle-language btn btn-sm border"
+                            type="button" data-tippy-content="Open&nbsp;Graph&nbsp;Message"
+                            data-tippy-placement="bottom">
                             <i class="fa fa-diagram-project"></i>
                         </a>
                     </div>
@@ -43,8 +45,8 @@
                             <div class="dropdown-menu">
                                 <div class="dropdown-menu__top dropdown-menu__item"><span
                                         class="dropdown-menu__title">Notifications</span><span
-                                        class="badge badge--red">5</span><a class="dropdown-menu__clear-all" href="#"
-                                        role="button">Clear All</a>
+                                        class="badge badge--red">5</span><a class="dropdown-menu__clear-all"
+                                        href="#" role="button">Clear All</a>
                                 </div>
                                 <div class="dropdown-menu__items scrollbar-thin scrollbar-visible"
                                     data-simplebar="data-simplebar">
@@ -150,7 +152,8 @@
                                     </div>
                                 </div>
                                 <div class="dropdown-menu__divider"></div><a
-                                    class="dropdown-menu__item dropdown-menu__link-all" href="#">View all Notifications
+                                    class="dropdown-menu__item dropdown-menu__link-all" href="#">View all
+                                    Notifications
                                     <svg class="icon-icon-keyboard-right">
                                         <use xlink:href="#icon-keyboard-right"></use>
                                     </svg></a>
@@ -166,8 +169,8 @@
                             <div class="dropdown-menu">
                                 <div class="dropdown-menu__top dropdown-menu__item"><span
                                         class="dropdown-menu__title">Messages</span><span
-                                        class="badge badge--red">7</span><a class="dropdown-menu__clear-all" href="#"
-                                        role="button">Clear All</a>
+                                        class="badge badge--red">7</span><a class="dropdown-menu__clear-all"
+                                        href="#" role="button">Clear All</a>
                                 </div>
                                 <div class="dropdown-menu__items scrollbar-thin scrollbar-visible"
                                     data-simplebar="data-simplebar">
@@ -181,7 +184,8 @@
                                             <div class="dropdown-menu__item-left">
                                                 <div class="dropdown-menu__item-icon color-teal">
                                                     <div class="dropdown-menu__item-icon-text">MA</div>
-                                                    <img src="assets/img/content/humans/item-4.jpg" alt="#" />
+                                                    <img src="{{ url('/') }}/assets/img/content/humans/item-4.jpg"
+                                                        alt="#" />
                                                 </div>
                                                 <div class="badge-signal badge-signal--green"></div>
                                             </div>
@@ -205,7 +209,8 @@
                                             <div class="dropdown-menu__item-left">
                                                 <div class="dropdown-menu__item-icon color-orange-dark">
                                                     <div class="dropdown-menu__item-icon-text">JT</div>
-                                                    <img src="assets/img/content/humans/item-1.jpg" alt="#" />
+                                                    <img src="{{ url('/') }}/assets/img/content/humans/item-1.jpg"
+                                                        alt="#" />
                                                 </div>
                                                 <div class="badge-signal badge-signal--green"></div>
                                             </div>
@@ -228,7 +233,8 @@
                                             <div class="dropdown-menu__item-left">
                                                 <div class="dropdown-menu__item-icon color-orange">
                                                     <div class="dropdown-menu__item-icon-text">SA</div>
-                                                    <img src="assets/img/content/humans/item-5.jpg" alt="#" />
+                                                    <img src="{{ url('/') }}/assets/img/content/humans/item-5.jpg"
+                                                        alt="#" />
                                                 </div>
                                                 <div class="badge-signal"></div>
                                             </div>
@@ -251,7 +257,8 @@
                                             <div class="dropdown-menu__item-left">
                                                 <div class="dropdown-menu__item-icon color-red">
                                                     <div class="dropdown-menu__item-icon-text">WS</div>
-                                                    <img src="assets/img/content/humans/item-6.jpg" alt="#" />
+                                                    <img src="{{ url('/') }}/assets/img/content/humans/item-6.jpg"
+                                                        alt="#" />
                                                 </div>
                                                 <div class="badge-signal badge-signal--red"></div>
                                             </div>
@@ -274,7 +281,8 @@
                                             <div class="dropdown-menu__item-left">
                                                 <div class="dropdown-menu__item-icon color-blue">
                                                     <div class="dropdown-menu__item-icon-text">SA</div>
-                                                    <img src="assets/img/content/humans/item-5.jpg" alt="#" />
+                                                    <img src="{{ url('/') }}/assets/img/content/humans/item-5.jpg"
+                                                        alt="#" />
                                                 </div>
                                                 <div class="badge-signal badge-signal--green"></div>
                                             </div>
@@ -297,7 +305,8 @@
                                             <div class="dropdown-menu__item-left">
                                                 <div class="dropdown-menu__item-icon color-green">
                                                     <div class="dropdown-menu__item-icon-text">JH</div>
-                                                    <img src="assets/img/content/humans/item-7.jpg" alt="#" />
+                                                    <img src="{{ url('/') }}/assets/img/content/humans/item-7.jpg"
+                                                        alt="#" />
                                                 </div>
                                                 <div class="badge-signal"></div>
                                             </div>
@@ -320,7 +329,8 @@
                                             <div class="dropdown-menu__item-left">
                                                 <div class="dropdown-menu__item-icon color-orange">
                                                     <div class="dropdown-menu__item-icon-text">RH</div>
-                                                    <img src="assets/img/content/humans/item-8.jpg" alt="#" />
+                                                    <img src="{{ url('/') }}/assets/img/content/humans/item-8.jpg"
+                                                        alt="#" />
                                                 </div>
                                                 <div class="badge-signal badge-signal--red"></div>
                                             </div>
@@ -335,7 +345,8 @@
                                     </div>
                                 </div>
                                 <div class="dropdown-menu__divider"></div><a
-                                    class="dropdown-menu__item dropdown-menu__link-all" href="#">View all Messages
+                                    class="dropdown-menu__item dropdown-menu__link-all" href="#">View all
+                                    Messages
                                     <svg class="icon-icon-keyboard-right">
                                         <use xlink:href="#icon-keyboard-right"></use>
                                     </svg></a>
@@ -345,7 +356,7 @@
                     <div class="header__profile dropdown">
                         <a class="header__profile-toggle dropdown__toggle" href="#" data-toggle="dropdown">
                             <div class="header__profile-image"><span class="header__profile-image-text">MA</span>
-                                <img src="assets/img/content/humans/item-4.jpg" alt="#" />
+                                <img src="{{ url('/') }}/assets/img/content/humans/item-4.jpg" alt="#" />
                             </div>
                             <div class="header__profile-text"><span>{{ auth()->user()->name ?? 'User' }}</span>
                             </div><span class="icon-arrow-down">
@@ -354,8 +365,8 @@
                                 </svg></span>
                         </a>
                         <div class="profile-dropdown dropdown-menu dropdown-menu--right">
-                            <a class="profile-dropdown__item dropdown-menu__item" href="{{ url('profile') }}" tabindex="0"><span
-                                    class="profile-dropdown__icon">
+                            <a class="profile-dropdown__item dropdown-menu__item" href="{{ url('profile') }}"
+                                tabindex="0"><span class="profile-dropdown__icon">
                                     <svg class="icon-icon-user">
                                         <use xlink:href="#icon-user"></use>
                                     </svg></span><span>My Profile</span></a>
@@ -364,7 +375,8 @@
                                     <svg class="icon-icon-chat">
                                         <use xlink:href="#icon-chat"></use>
                                     </svg></span><span>My chat</span></a>
-                            <a class="profile-dropdown__item dropdown-menu__item" href="#" tabindex="0">
+                            <a class="profile-dropdown__item dropdown-menu__item" href="{{ route('logout') }}"
+                                tabindex="0">
                                 <span class="profile-dropdown__icon">
                                     <svg class="icon-icon-logout">
                                         <use xlink:href="#icon-logout"></use>

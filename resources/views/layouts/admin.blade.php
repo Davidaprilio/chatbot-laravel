@@ -442,6 +442,9 @@
         @include('layouts.sidebar')
         @yield('content')
     </div>
+
+    @stack('modals')
+
     <script src="{{ url('/') }}/assets/js/gsap/gsap.min.js"></script>
     <script src="{{ url('/') }}/assets/js/gsap/ScrollToPlugin.min.js"></script>
     <script src="{{ url('/') }}/assets/js/gsap/ScrollTrigger.min.js"></script>
@@ -481,6 +484,107 @@
     <script>
         $(".alert-dismissible").fadeTo(2000, 500).slideUp(500, function(){
             $(".alert-dismissible").slideUp(500);
+        });
+
+        function url(path = null, params = {}) {
+            if (path === null) path = window.location.pathname;
+            path = !path.startsWith('/') ? ('/' + path) : path;
+            path = window.location.origin + path;
+        
+            // if no search params
+            if (window.location.search != '') {
+                 path = path + window.location.search;
+            }
+        
+            const url = new URL(path);
+            // merge or replace params with 
+            // undefined value as removed
+            // null value as empty string
+            for (let [key, value] of Object.entries(params)) {
+                if (value === undefined) {
+                    url.searchParams.delete(key);
+                } else {
+                    if (value === null) value = '';
+                    url.searchParams.set(key, value);
+                }
+            }
+            return url.toString();
+        }
+
+        function ajaxPromise(options, method) {
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    ...options,
+                    type: method || 'GET',
+                    success: (res) => {
+                        resolve(res)
+                    },
+                    error: (err) => {
+                        reject(err)
+                    }
+                })
+            })
+        }
+
+        Swal.confirm = function (option) {  
+            return Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, continue!',
+                ...option
+            }).then((result) => result.value);
+        };
+
+        function refreshContent(selector, ajaxOption, loadingContent) {
+            if (!loadingContent) {
+                loadingContent = `<div class="w-100 text-center mt-5">
+                <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+                </div>`;
+            }
+            $(selector).html(loadingContent);
+            return $.ajax({
+                url: window.location.href,
+                ...ajaxOption,
+            }).done(function(documentHtml) {
+                var newHtml = $(selector, documentHtml).html();
+                $(selector).html(newHtml);
+            });
+        }
+
+        
+        $('body').on('click', 'a[prevent-default="on"]', function (e) {
+            e.preventDefault();
+            const target = $(this).attr('data-target');
+            const form = $(target);
+            // check in form have button submit
+            if (form.find('button[type="submit"]').length > 0) {
+                form.find('button[type="submit"]').click();
+            } else {
+                form.submit();
+            }
+        });
+
+        $('body').on('click', 'form[confirm]', async function (e) {
+            const form = $(this);
+            const isConfirmed = form.attr('confirm');
+            if (isConfirmed !== 'true') {
+                e.preventDefault();
+                const isConfirm = await Swal.confirm({
+                    title: form.attr('confirm-title') || 'Yakin ingin melanjutkan?',
+                    text: form.attr('confirm-text') || undefined,
+                    confirmButtonText: form.attr('button-confirm') || 'Ya, lanjutkan!',
+                    cancelButtonText: form.attr('button-cancel') || 'Tidak, batalkan!',
+                })
+
+                if (isConfirm) {
+                    form.attr('confirmed', 'true');
+                    form.submit();
+                }
+            }
         });
     </script>
     @yield('js')

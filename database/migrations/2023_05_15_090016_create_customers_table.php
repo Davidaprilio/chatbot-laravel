@@ -18,6 +18,10 @@ return new class extends Migration
             $table->string('phone')->nullable()->unique();
             $table->string('pushname')->nullable();
             $table->longText('notes')->nullable();
+            $table->integer('usia')->nullable();
+            $table->string('golongan_darah', 10)->nullable();
+            $table->enum('jenis_kelamin', ['L', 'P'])->nullable();
+            $table->text('alamat')->nullable();
             $table->timestamps();
         });
     }

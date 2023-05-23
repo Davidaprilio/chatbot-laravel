@@ -16,6 +16,11 @@ class Device extends Model
         return $this->belongsTo(Server::class);
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function flow_chat()
     {
         return $this->belongsTo(FlowChat::class);

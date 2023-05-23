@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\ActionReply;
+use App\Models\FlowChat;
 use App\Models\Message;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -16,6 +17,11 @@ class Demo1Seeder extends Seeder
     public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+        $flow_chat = FlowChat::create([
+            'name' => 'Flow 1',
+            'active' => 1,
+        ]);
 
         $messages = [
             [
@@ -146,7 +152,9 @@ class Demo1Seeder extends Seeder
 
         foreach ($messages as $message) {
             $message['text'] = parseText($message['text']);
-            Message::create($message);
+            Message::create(array_merge($message, [
+                'flow_chat_id' => $flow_chat->id
+            ]));
         }
 
         $action_replies = [
