@@ -455,7 +455,7 @@
                                     <div class="auth-logo__text">Chatbot</div>
                                 </div>
                             </div>
-                            <img class="auth-card__bg auth-bg-image-light" src="assets/img/content/auth-bg.jpg" alt="#">
+                            <img class="auth-card__bg auth-bg-image-light" src="https://www.einfochips.com/blog/wp-content/uploads/2018/08/a-complete-guide-to-chatbot-development-from-tools-to-best-practices-featured.jpg" alt="#">
                             <img class="auth-card__bg auth-bg-image-dark" src="assets/img/content/auth-bg-dark.jpg" alt="#">
                         </div>
                         <form class="auth-card__right" action="{{ url('login/store') }}" method="POST">
@@ -467,17 +467,17 @@
                             @include('layouts.alerts')
                             <div class="auth-card__body">
                                 <div class="form-group">
-                                    <label for="">Email</label>
+                                    <label for="">Username</label>
                                     <div class="input-group input-group--prepend"><span class="input-group__prepend">
                                         <svg class="icon-icon-user"><use xlink:href="#icon-user"></use></svg></span>
-                                        <input class="input" type="email" name="email" placeholder="example@mail.com" required>
+                                        <input class="input" type="text" name="username" placeholder="xyz" value="admin" required>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="">Password</label>
                                     <div class="input-group input-group--prepend"><span class="input-group__prepend">
                                         <svg class="icon-icon-password"><use xlink:href="#icon-password"></use></svg></span>
-                                        <input class="input" type="password" name="password" placeholder="123456" required>
+                                        <input class="input" type="password" name="password" placeholder="123456" value="12345678" required>
                                     </div>
                                 </div>
                                 <div class="row align-items-center">

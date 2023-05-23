@@ -101,9 +101,9 @@ class HookController extends Controller
                         'table' => $tableName,
                         'column' => $columnName
                     ]);
-                    DB::table($tableName)->update([
-                        $columnName => $inbox->content
-                    ]);
+                    // DB::table($tableName)->update([
+                    //     $columnName => $inbox->content
+                    // ]);
                 }
                 $promtNotAnswered->update([
                     'response' => $request->message,
