@@ -3,7 +3,7 @@
     <main class="page-content">
         <div class="container">
             <div class="page-header">
-                <h1 class="page-header__title">Data User</h1>
+                <h1 class="page-header__title">Data Customer</h1>
             </div>
             <div class="page-tools">
                 <div class="page-tools__breadcrumbs">
@@ -20,7 +20,7 @@
                                         </svg>
                                     </a>
                                 </li>
-                                <li class="breadcrumbs__item active"><span class="breadcrumbs__link">Data User</span>
+                                <li class="breadcrumbs__item active"><span class="breadcrumbs__link">Data Customer</span>
                                 </li>
                             </ol>
                         </div>
@@ -29,12 +29,12 @@
                 <div class="page-tools__right">
                     <div class="page-tools__right-row">
                         <div class="page-tools__right-item">
-                            <a class="button button--secondary" type="button" href="{{ url('user/credit') }}">
+                            <a class="button button--secondary" type="button" href="{{ url('customer/credit') }}">
                                 <span class="button__icon button__icon--left"><svg class="icon-icon-plus">
                                         <use xlink:href="#icon-plus"></use>
                                     </svg>
                                 </span>
-                                <span class="button__text">Tambah User</span>
+                                <span class="button__text">Tambah Customer</span>
                             </a>
                         </div>
                     </div>
@@ -46,47 +46,34 @@
                     <div class="card__container pl-4 pr-4">
                         <div class="card__body">
                             <div class="table-wrapper">
-                                <table class="table table--lines" id="datatables-user">
+                                <table class="table table--lines" id="datatables-customer">
                                     <thead class="table__header">
                                         <tr class="table__header-row text-center">
                                             <th style="width: 50px;"><span>No</span></th>
                                             <th class="" style="text-align: center"><span
                                                     class="align-middle">Nama</span></th>
                                             <th class="" style="text-align: center"><span
-                                                    class="align-middle">Kontak</span></th>
+                                                    class="align-middle">Data</span></th>
                                             <th class="" style="text-align: center"><span
-                                                    class="align-middle">Status</span></th>
-                                            <th class="" style="text-align: center">
-                                                <span class="align-middle">Role</span>
-                                            </th>
+                                                    class="align-middle">Alamat</span></th>
                                             <th class="table__actions"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($user as $item)
+                                        @foreach ($customer as $item)
                                             <tr class="table__row text-center">
                                                 <td class="table__td"><span class="text-grey">{{ $loop->iteration }}</span>
                                                 </td>
                                                 <td class="table__td">{{ $item->name ?? '-' }}</td>
-                                                <td class="table__td"><span class="text-grey">{{ $item->email ?? '-' }} <br>
-                                                        {{ $item->phone ?? '-' }}</span>
+                                                <td class="table__td">
+                                                    <small>
+                                                        Usia: {{ $item->usia ?? '-' }} <br>
+                                                        Jenis Kelamin: {{ $item->jenis_kelamin ?? '-' }} <br>
+                                                        Golongan Darah: {{ $item->golongan_darah ?? '-' }}
+                                                    </small>
                                                 </td>
                                                 <td class="table__td">
-                                                    @if ($item->status == 1)
-                                                        <div class="table__status"><span
-                                                                class="table__status-icon color-green"></span>Aktif</div>
-                                                    @else
-                                                        <div class="table__status"><span
-                                                                class="table__status-icon color-red"></span>Tidak Aktif
-                                                        </div>
-                                                    @endif
-                                                </td>
-                                                <td class="table__td">
-                                                    @if ($item->role_id == 1)
-                                                        <div class="label label--primary">Admin</div>
-                                                    @else
-                                                        <div class="label label--teal text-white color-teal">Client</div>
-                                                    @endif
+                                                    <small>{{ $item->alamat ?? '-' }}</small>
                                                 </td>
                                                 <td class="table__td table__actions">
                                                     <div class="items-more">
@@ -100,7 +87,7 @@
                                                                 <ul class="dropdown-items__list">
                                                                     <li class="dropdown-items__item">
                                                                         <a class="dropdown-items__link"
-                                                                            href="{{ url('user/credit?id=' . $item->id) }}">
+                                                                            href="{{ url('customer/credit?id=' . $item->id) }}">
                                                                             <span class="dropdown-items__link-icon">
                                                                                 <svg class="icon-icon-view">
                                                                                     <use xlink:href="#icon-view"></use>
@@ -111,7 +98,7 @@
                                                                     <li class="dropdown-items__item">
                                                                         <a class="dropdown-items__link"
                                                                             href="javascript:void(0)"
-                                                                            onclick="hapusUser('{{ url('user/remove?id=' . $item->id) }}')">
+                                                                            onclick="removeCustomer('{{ url('customer/remove?id=' . $item->id) }}')">
                                                                             <span class="dropdown-items__link-icon">
                                                                                 <svg class="icon-icon-trash">
                                                                                     <use xlink:href="#icon-trash"></use>
@@ -138,41 +125,36 @@
 @endsection
 @section('js')
     <script>
-        $('#datatables-user').DataTable({
+        $('#datatables-customer').DataTable({
             ordering: false,
             // scrollX: true,
         });
 
-        function hapusUser(url) {
+        function removeCustomer(url) {
             Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
+                title: 'Ingin menghapus data?',
+                text: "Data akan terhapus permanen!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
+                confirmButtonText: 'Ya, Hapus!'
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
                         url: url,
-                        type: 'GET',
-                        success: function(res) {
+                        success: function() {
                             Swal.fire(
-                                'Deleted!',
-                                'Your file has been deleted.',
+                                'Terhapus!',
+                                'Data berhasil dihapus.',
                                 'success'
                             ).then((result) => {
                                 if (result.isConfirmed) {
                                     window.location.href = location.href;
                                 }
                             })
-                        },
-                        error: function(err) {
-                            toastr.error(err.responseJSON.message ??
-                                'Something went wrong');
                         }
-                    })
+                    });
                 }
             })
         }
