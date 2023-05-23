@@ -28,7 +28,7 @@
                 </div>
                 <div class="header__col-right col d-flex align-items-center">
                     <div class="header__language dropdown">
-                        <a href="{{ route('graph-message') }}" class="header__toggle-language btn btn-sm border"
+                        <a href="{{ url('graph-message') }}" class="header__toggle-language btn btn-sm border"
                             type="button" data-tippy-content="Open&nbsp;Graph&nbsp;Message"
                             data-tippy-placement="bottom">
                             <i class="fa fa-diagram-project"></i>

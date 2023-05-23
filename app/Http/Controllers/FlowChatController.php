@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\ActionReply;
 use App\Models\FlowChat;
+use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
 
 class FlowChatController extends Controller
 {
@@ -61,5 +63,22 @@ class FlowChatController extends Controller
         }
 
         return redirect()->back()->with('success', 'FlowChat deleted successfully!');
+    }
+
+    public function graph_view(FlowChat $flowChat, Request $request)
+    {
+        $messages = Message::with('node')->where('flow_chat_id', $flowChat->id)->get();
+        $nodes = $messages->map(fn(Message $message) => $message->node_option);
+
+        $id_messages = $messages->pluck('id');
+        $action_replies = ActionReply::whereIn('prompt_message_id', $id_messages)->orWhereIn('reply_message_id', $id_messages)->get();
+        $edges = $action_replies->map(fn(ActionReply $action_reply) => $action_reply->edge_option);
+        $data = [
+            'flowChat' => $flowChat,
+            'nodes' => $nodes,
+            'edges' => $edges,
+        ];
+
+        return Inertia::render('GraphMessage', $data);
     }
 }

@@ -20,7 +20,7 @@ import ButtonEdge from '@/Components/Edges/ButtonEdge';
 import { useHotkeys } from "react-hotkeys-hook";
 import axios from 'axios';
 
-function Flow({ ziggy }) {
+function Flow({ ziggy, flowChat, edges: edgesProp, nodes: nodesProp }) {
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const [clipboard, setClipboard] = useState(null)
@@ -60,25 +60,26 @@ function Flow({ ziggy }) {
         }
     }, [setNodes, nodes.length]);
 
-    const onSave = useCallback(() => {
+    const onSaveViewport = useCallback(() => {
         console.log('Save Viewport');
         const flow = reactFlowInstance.toObject();
         localStorage.setItem(flowKey, JSON.stringify(flow));
+        axios.post('graph/flowchat/' + flowChat.id, {
+            viewport_x: flow.viewport.x,
+            viewport_y: flow.viewport.y,
+            viewport_zoom: flow.viewport.zoom,
+        })
     }, []);
 
     const restoreFlow = async () => {
-        const flow = JSON.parse(localStorage.getItem(flowKey));
-        const [messages, replys] = await axios.all([
-            await axios.get('/graph/message'),
-            await axios.get('/graph/action-reply'),
-        ]);
-        console.log('Restore:', messages, replys, flow);
-        if (flow) {
-            const {x = 334, y = 400, zoom = 1 } = flow.viewport;
-            setNodes(messages.data || []);
-            setEdges(replys.data || []);
-            reactFlowInstance.setViewport({ x, y, zoom })
-        }
+        const {x = 334, y = 400, zoom = 1 } = {
+            x: flowChat.viewport_x,
+            y: flowChat.viewport_y,
+            zoom: flowChat.viewport_zoom,
+        };
+        setNodes(nodesProp || []);
+        setEdges(edgesProp || []);
+        reactFlowInstance.setViewport({ x, y, zoom })
     };
 
     const selectAllNode = useCallback(() => {
@@ -116,7 +117,7 @@ function Flow({ ziggy }) {
         <>
             <ReactFlow
                 onMoveStart={closeCtxMenu}
-                onMoveEnd={onSave}
+                onMoveEnd={onSaveViewport}
                 nodes={nodes}
                 edges={edges}
                 nodeTypes={nodeTypes}
@@ -156,7 +157,7 @@ function Flow({ ziggy }) {
                         zoom: reactFlowInstance.getZoom()
                     })
                 }} />
-                <Controls onZoomIn={onSave} onZoomOut={onSave} />
+                <Controls onZoomIn={onSaveViewport} onZoomOut={onSaveViewport} />
                 <Background />
                 <Panel position='top-left'>
                     <Button onClick={addMessageNode} size='sm' colorScheme='blue'>Add Node</Button>
@@ -173,14 +174,22 @@ function Flow({ ziggy }) {
 }
 
 
-export default function GraphMessage({ auth, laravelVersion, phpVersion, ziggy }) {
+export default function GraphMessage({ auth, laravelVersion, phpVersion, ziggy, ...more }) {
+
+    console.log('GraphMessage', {
+        auth,
+        laravelVersion,
+        phpVersion,
+        ziggy,
+        ...more
+    });
 
     return (
         <>
             <Head title="Graph Message" />
             <ReactFlowProvider>
                 {/* <div id="root-graph"> */}
-                <Flow ziggy={ziggy} />
+                <Flow ziggy={ziggy} auth={auth} {...more} />
                 {/* </div> */}
             </ReactFlowProvider>
         </>

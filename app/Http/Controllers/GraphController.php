@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ActionReply;
+use App\Models\FlowChat;
 use App\Models\GraphNode;
 use App\Models\Message;
 use Illuminate\Http\Request;
@@ -64,5 +65,16 @@ class GraphController extends Controller
             'position_y' => $request->position_y,
             'type' => 'messageNode'
         ]);
+    }
+
+    public function updateFlowChat(FlowChat $flowChat, Request $request)
+    {
+        return $flowChat->update($request->only([
+            'name',
+            'description',
+            'viewport_y',
+            'viewport_x',
+            'viewport_zoom',
+        ]));
     }
 }

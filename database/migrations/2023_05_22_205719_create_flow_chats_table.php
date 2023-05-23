@@ -16,9 +16,9 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->boolean('active')->default(false);
-            $table->integer('viewport_x')->default(0);
-            $table->integer('viewport_y')->default(0);
-            $table->integer('viewport_zoom')->default(1);
+            $table->float('viewport_x')->default(0);
+            $table->float('viewport_y')->default(0);
+            $table->float('viewport_zoom')->default(1);
             $table->timestamps();
         });
     }

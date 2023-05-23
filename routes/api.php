@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\GraphController;
 use App\Http\Controllers\HookController;
+use App\Http\Controllers\TestController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +22,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
+Route::any('/testing', [TestController::class, 'index']);
+
 Route::any('hook/whatsapp', [HookController::class, 'callback']);
 Route::any('hook/whatsapp/test', [HookController::class, 'test']);
 
@@ -29,3 +32,4 @@ Route::post('graph/message', [GraphController::class, 'saveMessage']);
 Route::get('graph/action-reply', [GraphController::class, 'getActionReply']);
 Route::post('graph/action-reply', [GraphController::class, 'saveActionReply']);
 Route::post('graph/message/node', [GraphController::class, 'nodeMessageStore']);
+Route::post('graph/flowchat/{flowChat:id}', [GraphController::class, 'updateFlowChat']);

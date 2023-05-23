@@ -67,7 +67,7 @@
                                                     </a>
                                                 </li>
                                                 <li class="dropdown-items__item">
-                                                    <a class="dropdown-items__link">
+                                                    <a class="dropdown-items__link" href="{{ route('flowchat.graph', ['flowChat' => $flow->id]) }}">
                                                         <span class="dropdown-items__link-icon">
                                                             <i class="fa fa-diagram-project"></i>
                                                         </span>

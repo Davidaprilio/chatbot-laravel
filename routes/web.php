@@ -8,10 +8,8 @@ use App\Http\Controllers\FlowChatController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,6 +60,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/{flowChat:id}', 'show')->name('flowchat.show');
             Route::post('/save', 'save')->name('flowchat.save');
             Route::delete('/{flowChat:id}', 'delete')->name('flowchat.delete');
+            Route::get('/{flowChat:id}/graph', 'graph_view')->name('flowchat.graph');
         });
     });
 
@@ -91,6 +90,3 @@ Route::middleware('auth')->group(function () {
     });
 });
 
-Route::get('/graph-message', function () {
-    return Inertia::render('GraphMessage');
-})->name('graph-message');
