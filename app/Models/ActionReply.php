@@ -16,6 +16,11 @@ class ActionReply extends Model
         return $this->belongsTo(Message::class, 'reply_message_id');
     }
 
+    public function promptMessage()
+    {
+        return $this->belongsTo(Message::class, 'prompt_message_id');
+    }
+
     public function getEdgeOptionAttribute($key)
     {
         return [

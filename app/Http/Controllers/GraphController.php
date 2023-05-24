@@ -7,6 +7,9 @@ use App\Models\FlowChat;
 use App\Models\GraphNode;
 use App\Models\Message;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Action;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class GraphController extends Controller
 {
@@ -54,6 +57,69 @@ class GraphController extends Controller
             'type'
         ]));
         return $act_reply->edge_option;
+    }
+
+    public function deleteActionReply(FlowChat $flowChat, Request $request)
+    {
+        $action_replies_id = collect($request->edges)->pluck('id');
+        $action_replies = ActionReply::with(['replyMessage', 'promptMessage'])->whereIn('id', $action_replies_id)->get();
+
+        // verify if all action replies are in the same flow chat
+        $verified = $action_replies->every(function (ActionReply $action_reply) use ($flowChat) {
+            return (
+                $action_reply->replyMessage->flow_chat_id === $flowChat->id &&
+                $action_reply->promptMessage->flow_chat_id === $flowChat->id
+            );
+        });
+
+        if (!$verified) {
+            Log::error('Action replies are not in the same flow chat', $action_replies->toArray());
+            throw new \Exception('Action replies are not in the same flow chat');
+        }
+
+        $deleted = ActionReply::whereIn('id', $action_replies_id)->delete();
+      
+        return [
+            'deleted' => $deleted,
+            'flowChat' => $flowChat
+        ];
+    }
+
+    public function deleteMessage(FlowChat $flowChat, Request $request)
+    {
+        $forced = $request->forced ?? false; 
+        $messages_id = collect($request->nodes)->pluck('id');
+        $messages = Message::whereIn('id', $messages_id)->get();
+
+        // verify if all messages are in the same flow chat
+        $verified = $messages->every(fn (Message $message) => $message->flow_chat_id === $flowChat->id);
+
+        if (!$verified) {
+            Log::error('Messages are not in the same flow chat', $messages->toArray());
+            throw new \Exception('Messages are not in the same flow chat');
+        }
+
+        if ($forced) {
+            // remove nested action replies and set null next message
+
+        }
+
+        try {
+            $deleted = Message::whereIn('id', $messages_id)->delete();
+        } catch (\Throwable $th) {
+            // if erroro reason is foreign key constraint
+            if ($th->getCode() === '23000' && $forced === false) {
+                return response()->json([
+                    'message' => 'this message is in used/connected with action reply or next message, check your flow chat again',
+                ], 400);
+            }
+            throw $th;
+        }
+
+        return [
+            'deleted' => $deleted,
+            'flowChat' => $flowChat
+        ];
     }
 
     public function nodeMessageStore(Request $request)

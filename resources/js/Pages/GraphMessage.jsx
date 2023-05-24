@@ -1,7 +1,7 @@
 import ContextMenu from '@/Components/ContextMenu';
-import { Button, MenuItem } from '@chakra-ui/react';
+import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Button, MenuItem, Spinner, useDisclosure, useToast } from '@chakra-ui/react';
 import { Head } from '@inertiajs/react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ReactFlow, {
     addEdge,
     MiniMap,
@@ -12,6 +12,7 @@ import ReactFlow, {
     useEdgesState,
     Panel,
     ReactFlowProvider,
+    applyEdgeChanges,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import "../../css/graphmessage.css";
@@ -21,12 +22,14 @@ import { useHotkeys } from "react-hotkeys-hook";
 import axios from 'axios';
 
 function Flow({ ziggy, flowChat, edges: edgesProp, nodes: nodesProp }) {
-    const [nodes, setNodes, onNodesChange] = useNodesState([]);
-    const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+    const [nodes, setNodes] = useNodesState([]);
+    const [edges, setEdges] = useEdgesState([]);
     const [clipboard, setClipboard] = useState(null)
     const [selectedNode, setSelectedNode] = useState(null)
     const [ctxMenuPosition, setCtxMenuPosition] = useState(null)
+    const [showOverlayLoad, setShowOverlayLoad] = useState(false)
     const reactFlowInstance = useReactFlow();
+    const toast = useToast();
 
     const flowKey = 'example-flow';
     const nodeTypes = useMemo(() => ({ messageNode: MessageNode }), []);
@@ -60,6 +63,100 @@ function Flow({ ziggy, flowChat, edges: edgesProp, nodes: nodesProp }) {
         }
     }, [setNodes, nodes.length]);
 
+
+    const handleOnEdgesChange = useCallback(async (changesEdge) => {
+        // get type of change
+        const type = changesEdge[0].type;
+        try {
+            if (type === 'remove') await onDeleteEdges(changesEdge)
+        } catch (error) {
+            return console.error(error);
+        }
+
+        setEdges((eds) => applyEdgeChanges(changesEdge, eds))
+    }, []);
+
+    const handleOnNodeChange = useCallback(async (changesNode) => {
+        // get type of change
+        const type = changesNode[0].type;
+        try {
+            if (type === 'remove') await onDeleteNode(changesNode)
+        } catch (error) {
+            return console.error(error);
+        }
+
+        setNodes((nds) => applyEdgeChanges(changesNode, nds))
+    }, []);
+
+    const onDeleteEdges = useCallback(async (edges) => {
+        setShowOverlayLoad(true)
+        try {
+            await axios.delete(`graph/${flowChat.id}/action-reply`, {
+                data: {
+                    edges
+                }
+            })
+            console.log('onEdgesDelete', edges, 'Deleted');
+        } catch (error) {
+            toast({
+                title: 'Opps, Failed Delete Action Reply',
+                description: `Your Action Reply has not been deleted.`,
+                status: 'error',
+                duration: 7000,
+                isClosable: true,
+            })
+            setShowOverlayLoad(false)
+            throw error;
+        }
+        setShowOverlayLoad(false)
+        toast({
+            title: 'Action Reply Deleted',
+            description: `${edges.length} Action Reply has been deleted.`,
+            status: 'success',
+            duration: 3000,
+            isClosable: true,
+        })
+    }, [flowChat.id]);
+
+    const onDeleteNode = useCallback(async (nodes, force = false) => {
+        setShowOverlayLoad(true)
+        try {
+            await axios.delete(`graph/${flowChat.id}/message`, {
+                data: {
+                    nodes,
+                    force,                    
+                }
+            })
+            console.log('onNodeDelete', nodes, 'Deleted');
+        } catch (error) {
+            // if error status 400
+            if (error.response.status === 400 && force === false) {
+                if (confirm('This message has been used, are you need to force delete message?')) {
+                    console.log('force delete');
+                    return await onDeleteNode(nodes, true);
+                }
+                return
+            }
+            toast({
+                title: 'Opps, Failed Delete Message',
+                description: `Your Message has not been deleted.`,
+                status: 'error',
+                duration: 7000,
+                isClosable: true,
+            })
+            setShowOverlayLoad(false)
+            throw error;
+        }
+        setShowOverlayLoad(false)
+        toast({
+            title: 'Message Deleted',
+            description: `${nodes.length} Message has been deleted.`,
+            status: 'success',
+            duration: 3000,
+            isClosable: true,
+        })
+    }, [flowChat.id]);
+
     const onSaveViewport = useCallback(() => {
         console.log('Save Viewport');
         const flow = reactFlowInstance.toObject();
@@ -72,7 +169,7 @@ function Flow({ ziggy, flowChat, edges: edgesProp, nodes: nodesProp }) {
     }, []);
 
     const restoreFlow = async () => {
-        const {x = 334, y = 400, zoom = 1 } = {
+        const { x = 334, y = 400, zoom = 1 } = {
             x: flowChat.viewport_x,
             y: flowChat.viewport_y,
             zoom: flowChat.viewport_zoom,
@@ -107,6 +204,16 @@ function Flow({ ziggy, flowChat, edges: edgesProp, nodes: nodesProp }) {
         console.log('Save Node Position');
     }
 
+    const showConfirm = ({title, description, onConfirm, textButtonConfirm}) => {
+        return new Promise((resolve, reject) => {
+            confirm({
+                title,
+                description,
+                onConfirm,
+            })
+        })
+    }
+
     useEffect(() => {
         onRestore()
     }, [onRestore])
@@ -116,14 +223,15 @@ function Flow({ ziggy, flowChat, edges: edgesProp, nodes: nodesProp }) {
     return (
         <>
             <ReactFlow
+                deleteKeyCode={['Backspace', 'Delete']}
                 onMoveStart={closeCtxMenu}
                 onMoveEnd={onSaveViewport}
                 nodes={nodes}
                 edges={edges}
                 nodeTypes={nodeTypes}
                 edgeTypes={edgeTypes}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
+                onNodesChange={handleOnNodeChange}
+                onEdgesChange={handleOnEdgesChange}
                 defaultViewport={reactFlowInstance.getViewport()}
                 onConnect={onEdgeConnect}
                 onError={(code, message) => console.log('error', code, message)}
@@ -147,9 +255,6 @@ function Flow({ ziggy, flowChat, edges: edgesProp, nodes: nodesProp }) {
                     setSelectedNode(node)
                     console.log('onNodeContextMenu', ev, node);
                 }}
-                onNodesDelete={(nodes) => {
-                    console.log('onNodesDelete', nodes)
-                }}
             >
                 <MiniMap pannable onNodeClick={(_, node) => {
                     console.log(node);
@@ -159,10 +264,12 @@ function Flow({ ziggy, flowChat, edges: edgesProp, nodes: nodesProp }) {
                 }} />
                 <Controls onZoomIn={onSaveViewport} onZoomOut={onSaveViewport} />
                 <Background />
+                <OverlayLoader show={showOverlayLoad} />
                 <Panel position='top-left'>
                     <Button onClick={addMessageNode} size='sm' colorScheme='blue'>Add Node</Button>
                 </Panel>
             </ReactFlow>
+            <ConfirmAlert  />
             <ContextMenu position={ctxMenuPosition} onClose={closeCtxMenu}>
                 <MenuItem onClick={() => console.log('New Tab')} command='⌘T'>New Tab</MenuItem>
                 <MenuItem onClick={() => console.log('New Window')} command='⌘N'>New Window</MenuItem>
@@ -173,6 +280,63 @@ function Flow({ ziggy, flowChat, edges: edgesProp, nodes: nodesProp }) {
     )
 }
 
+
+function ConfirmAlert({ onConfirm, title, description, buttonText = 'Confirm' }) {
+    const { isOpen, onOpen, onClose } = useDisclosure()
+    const cancelRef = useRef()
+
+    return (
+        <>
+            <Button colorScheme='red' onClick={onOpen}>
+                Delete Customer
+            </Button>
+
+            <AlertDialog
+                isOpen={isOpen}
+                leastDestructiveRef={cancelRef}
+                onClose={onClose}
+            >
+                <AlertDialogOverlay>
+                    <AlertDialogContent>
+                        <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+                            {title || 'Confirm Your Action'}
+                        </AlertDialogHeader>
+
+                        <AlertDialogBody>
+                            {description || 'Are you sure? You can not undo this action afterwards.'}
+                        </AlertDialogBody>
+
+                        <AlertDialogFooter>
+                            <Button ref={cancelRef} onClick={() => {
+                                onConfirm(false)
+                                onClose()
+                            }}>
+                                Cancel
+                            </Button>
+                            <Button colorScheme='red' onClick={() => {
+                                onConfirm(true)
+                                onClose()
+                            }} ml={3}>
+                                {buttonText}
+                            </Button>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialogOverlay>
+            </AlertDialog>
+        </>
+    )
+}
+
+const OverlayLoader = ({ show = false }) => {
+    if (!show) return null;
+    return (
+        <div className="absolute top-0 left-0 right-0 bottom-0 flex items-center flex-col z-50" onContextMenu={(e) => e.preventDefault()}>
+            <div className='mt-10 text-center bold select-none bg-white bg-opacity-75 px-10 py-3 rounded'>
+                <Spinner className='mx-auto block' />
+            </div>
+        </div>
+    )
+}
 
 export default function GraphMessage({ auth, laravelVersion, phpVersion, ziggy, ...more }) {
 
