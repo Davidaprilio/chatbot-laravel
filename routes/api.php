@@ -28,7 +28,7 @@ Route::any('hook/whatsapp', [HookController::class, 'callback']);
 Route::any('hook/whatsapp/test', [HookController::class, 'test']);
 
 Route::get('graph/message', [GraphController::class, 'index']);
-Route::post('graph/message', [GraphController::class, 'saveMessage']);
+Route::post('graph/{flowChat:id}/message', [GraphController::class, 'saveMessage']);
 Route::delete('graph/{flowChat:id}/message', [GraphController::class, 'deleteMessage']);
 Route::get('graph/action-reply', [GraphController::class, 'getActionReply']);
 Route::post('graph/action-reply', [GraphController::class, 'saveActionReply']);

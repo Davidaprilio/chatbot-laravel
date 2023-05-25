@@ -2,19 +2,63 @@ import { useCallback, useState } from 'react';
 import { Handle, NodeToolbar, Position } from 'reactflow';
 import './messageNode.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEnvelope } from '@fortawesome/free-regular-svg-icons';
+import { faEnvelope, faSave } from '@fortawesome/free-regular-svg-icons';
 // import { Dropdown } from 'react-bootstrap';
 import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
-import { Card, Input, Stack, Text, Textarea } from '@chakra-ui/react';
+import { Button, Card, Input, Stack, Text, Textarea, useToast } from '@chakra-ui/react';
+import useDialog from '../AlertDialogProvider';
+import axios from 'axios';
 
 const handleStyle = { left: 10 };
 
-function MessageNode({ data, isConnectable }) {
+function MessageNode({ data, id, isConnectable }) {
 
   const [messageData, setMessageData] = useState(data.message || {})
   const onChange = useCallback((evt) => {
-    // console.log(evt.target.value);
+    if (messageData[evt.target.name] === undefined) return console.error('Invalid key name');
+    setMessageData((prev) => ({
+      ...prev,
+      [evt.target.name]: evt.target.value
+    }))
+    setIsSaved(false)
   }, []);
+  const [isSaved, setIsSaved] = useState(true)
+
+  const dialog = useDialog()
+  const toast = useToast()
+
+  const cancelMessageChanges = async () => {
+    const confirm = await dialog.confirm({
+      title: 'Cancel Edit Message',
+      message: 'Are you sure you want to cancel editing this message?'
+    })
+    if (!confirm) return
+    setMessageData(data.message)
+    setIsSaved(true)
+  }
+
+  const saveMessageChanges = async () => {
+    try {
+      await axios.post(`/graph/${messageData.flow_chat_id}/message`, { id, ...messageData })
+    } catch (error) {
+      setIsSaved(false)
+      return toast({
+        title: 'Opps! Something went wrong.',
+        description: error.response?.data?.message || 'Please try again later.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      })
+    }
+    setIsSaved(true)
+    toast({
+      title: 'Message Updated',
+      description: 'Message has been updated successfully.',
+      status: 'success',
+      duration: 2000,
+      isClosable: true,
+    })
+  }
 
   const [nextMsgConnected, setNextMsgConnected] = useState(false)
 
@@ -28,9 +72,23 @@ function MessageNode({ data, isConnectable }) {
         isConnectable={isConnectable}
       />
       <div className="bg-neutral-100 border-b py-1 px-2 d-flex align-items-center justify-content-between custom-drag-handle cursor-grab active:cursor-grabbing">
+        <div className='flex justify-between items-center'>
+          <div>
+            <FontAwesomeIcon className='me-1' icon={faEnvelope} />
+            <small className="m-0 text-uppercase font-monospace fs-7">Message{messageData.hook && `: ${messageData.hook}`}</small>
+          </div>
+          <div>
+            {!isSaved && (
+              <>
+                <Button size='xs' className="m-0 text-uppercase font-monospace fs-7" onClick={saveMessageChanges}>Save</Button>
+                <Button size='xs' className="m-0 text-uppercase font-monospace fs-7" onClick={cancelMessageChanges}>Cancel</Button>
+              </>
+            )}
+          </div>
+        </div>
+
         <div>
-          <FontAwesomeIcon className='me-1' icon={faEnvelope} />
-          <small className="m-0 text-uppercase font-monospace fs-7">Message{messageData.hook && `: ${messageData.hook}`}</small>
+          <small className="m-0 text-uppercase font-monospace fs-7">ID: {id}</small>
         </div>
 
         {/* <Dropdown>
@@ -57,12 +115,13 @@ function MessageNode({ data, isConnectable }) {
       <Stack spacing={3} className='px-3 pb-3'>
         <div>
           <Text fontSize='xs' color='gray.400' mt='5px' mb='-5px'>Title</Text>
-          <Input 
-            onChange={onChange} 
-            placeholder='Enter Title' 
-            size='sm' 
+          <Input
+            onChange={onChange}
+            placeholder='Enter Title'
+            size='sm'
+            name='title'
             variant='flushed'
-            value={messageData. n} 
+            value={messageData.title}
           />
         </div>
         <div>
@@ -72,6 +131,7 @@ function MessageNode({ data, isConnectable }) {
             className='scroll-mini'
             placeholder='Here is a sample placeholder'
             size='sm'
+            name='text'
             value={messageData.text}
           />
         </div>

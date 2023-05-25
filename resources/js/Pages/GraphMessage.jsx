@@ -20,8 +20,10 @@ import MessageNode from '@/Components/Nodes/MessageNode';
 import ButtonEdge from '@/Components/Edges/ButtonEdge';
 import { useHotkeys } from "react-hotkeys-hook";
 import axios from 'axios';
+import useDialog, { AlertDialogProvider } from '@/Components/AlertDialogProvider';
+import ErrorClient from '@/Commons/ErrorClient';
 
-function Flow({ ziggy, flowChat, edges: edgesProp, nodes: nodesProp }) {
+function Flow({ flowChat, edges: edgesProp, nodes: nodesProp }) {
     const [nodes, setNodes] = useNodesState([]);
     const [edges, setEdges] = useEdgesState([]);
     const [clipboard, setClipboard] = useState(null)
@@ -30,13 +32,11 @@ function Flow({ ziggy, flowChat, edges: edgesProp, nodes: nodesProp }) {
     const [showOverlayLoad, setShowOverlayLoad] = useState(false)
     const reactFlowInstance = useReactFlow();
     const toast = useToast();
+    const dialog = useDialog()
 
     const flowKey = 'example-flow';
     const nodeTypes = useMemo(() => ({ messageNode: MessageNode }), []);
     const edgeTypes = useMemo(() => ({ buttonEdge: ButtonEdge }), []);
-
-    // set default base url axios
-    axios.defaults.baseURL = `${ziggy.url}/api`;
 
     const onEdgeConnect = useCallback(async (connection) => {
         try {
@@ -51,7 +51,7 @@ function Flow({ ziggy, flowChat, edges: edgesProp, nodes: nodesProp }) {
 
     const addMessageNode = useCallback(async () => {
         try {
-            const response = await axios.post('/graph/message', {
+            const response = await axios.post(`/graph/${flowChat.id}/message`, {
                 text: '',
             })
             const message = response.data
@@ -70,6 +70,7 @@ function Flow({ ziggy, flowChat, edges: edgesProp, nodes: nodesProp }) {
         try {
             if (type === 'remove') await onDeleteEdges(changesEdge)
         } catch (error) {
+            if (error instanceof ErrorClient) return;
             return console.error(error);
         }
 
@@ -82,6 +83,7 @@ function Flow({ ziggy, flowChat, edges: edgesProp, nodes: nodesProp }) {
         try {
             if (type === 'remove') await onDeleteNode(changesNode)
         } catch (error) {
+            if (error instanceof ErrorClient) return;
             return console.error(error);
         }
 
@@ -119,6 +121,15 @@ function Flow({ ziggy, flowChat, edges: edgesProp, nodes: nodesProp }) {
     }, [flowChat.id]);
 
     const onDeleteNode = useCallback(async (nodes, force = false) => {
+        if (force === false) {
+            const confirmDelete = await dialog.confirm({
+                title: 'Confirm Delete Message',
+                message: `Are you sure you want to delete ${nodes.length > 1 ? 'messages' : 'this message'}?`,
+                okText: 'Yes, Delete',
+            })
+            if (confirmDelete === false) throw new ErrorClient('Delete Cancelled')
+        }
+
         setShowOverlayLoad(true)
         try {
             await axios.delete(`graph/${flowChat.id}/message`, {
@@ -131,15 +142,22 @@ function Flow({ ziggy, flowChat, edges: edgesProp, nodes: nodesProp }) {
         } catch (error) {
             // if error status 400
             if (error.response.status === 400 && force === false) {
-                if (confirm('This message has been used, are you need to force delete message?')) {
-                    console.log('force delete');
+                const isConfirmed = await dialog.confirm({
+                    title: 'Force Delete Message?',
+                    message: error.response.data.message,
+                    okText: 'Yes, Force Delete',
+                    cancelText: 'No, Cancel',
+                })
+                console.log('Force Delete Cancelled', isConfirmed);
+                if (isConfirmed) {
                     return await onDeleteNode(nodes, true);
                 }
-                return
+                setShowOverlayLoad(false)
+                throw new ErrorClient('Force Delete Cancelled')
             }
             toast({
-                title: 'Opps, Failed Delete Message',
-                description: `Your Message has not been deleted.`,
+                title: `Opps, Failed ${force && 'Force '}Delete Message`,
+                description: force ? 'maybe you can delete the relationship manually first' : 'Your Message has not been deleted.',
                 status: 'error',
                 duration: 7000,
                 isClosable: true,
@@ -191,6 +209,15 @@ function Flow({ ziggy, flowChat, edges: edgesProp, nodes: nodesProp }) {
     useHotkeys('ctrl+a', (e) => {
         e.preventDefault();
         selectAllNode();
+    })
+    useHotkeys('ctrl+s', (e) => {
+        e.preventDefault();
+        // save all Message not saved yet
+        const unsavedNodes = nodes.filter((node) => {
+            console.log('node', {id: node.id, saved: node.data.isSaved});
+            return node.data.isSaved === false
+        });
+        console.log('unsavedNodes', unsavedNodes);
     })
     useHotkeys('-', () => reactFlowInstance.zoomOut())
     useHotkeys('=', () => reactFlowInstance.zoomIn())
@@ -269,7 +296,7 @@ function Flow({ ziggy, flowChat, edges: edgesProp, nodes: nodesProp }) {
                     <Button onClick={addMessageNode} size='sm' colorScheme='blue'>Add Node</Button>
                 </Panel>
             </ReactFlow>
-            <ConfirmAlert  />
+            {/* <ConfirmAlert  /> */}
             <ContextMenu position={ctxMenuPosition} onClose={closeCtxMenu}>
                 <MenuItem onClick={() => console.log('New Tab')} command='⌘T'>New Tab</MenuItem>
                 <MenuItem onClick={() => console.log('New Window')} command='⌘N'>New Window</MenuItem>
@@ -280,52 +307,6 @@ function Flow({ ziggy, flowChat, edges: edgesProp, nodes: nodesProp }) {
     )
 }
 
-
-function ConfirmAlert({ onConfirm, title, description, buttonText = 'Confirm' }) {
-    const { isOpen, onOpen, onClose } = useDisclosure()
-    const cancelRef = useRef()
-
-    return (
-        <>
-            <Button colorScheme='red' onClick={onOpen}>
-                Delete Customer
-            </Button>
-
-            <AlertDialog
-                isOpen={isOpen}
-                leastDestructiveRef={cancelRef}
-                onClose={onClose}
-            >
-                <AlertDialogOverlay>
-                    <AlertDialogContent>
-                        <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-                            {title || 'Confirm Your Action'}
-                        </AlertDialogHeader>
-
-                        <AlertDialogBody>
-                            {description || 'Are you sure? You can not undo this action afterwards.'}
-                        </AlertDialogBody>
-
-                        <AlertDialogFooter>
-                            <Button ref={cancelRef} onClick={() => {
-                                onConfirm(false)
-                                onClose()
-                            }}>
-                                Cancel
-                            </Button>
-                            <Button colorScheme='red' onClick={() => {
-                                onConfirm(true)
-                                onClose()
-                            }} ml={3}>
-                                {buttonText}
-                            </Button>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialogOverlay>
-            </AlertDialog>
-        </>
-    )
-}
 
 const OverlayLoader = ({ show = false }) => {
     if (!show) return null;
@@ -339,7 +320,6 @@ const OverlayLoader = ({ show = false }) => {
 }
 
 export default function GraphMessage({ auth, laravelVersion, phpVersion, ziggy, ...more }) {
-
     console.log('GraphMessage', {
         auth,
         laravelVersion,
@@ -347,15 +327,65 @@ export default function GraphMessage({ auth, laravelVersion, phpVersion, ziggy, 
         ziggy,
         ...more
     });
+    axios.defaults.baseURL = `${ziggy.url}/api`;
 
     return (
         <>
             <Head title="Graph Message" />
-            <ReactFlowProvider>
-                {/* <div id="root-graph"> */}
-                <Flow ziggy={ziggy} auth={auth} {...more} />
-                {/* </div> */}
-            </ReactFlowProvider>
+            <AlertDialogProvider>
+                <ReactFlowProvider>
+                    {/* <div id="root-graph"> */}
+                    <Flow ziggy={ziggy} auth={auth} {...more} />
+                    {/* </div> */}
+                </ReactFlowProvider>
+            </AlertDialogProvider>
         </>
     );
 }
+
+
+// function ConfirmAlert({ onConfirm, title, description, buttonText = 'Confirm' }) {
+//     const { isOpen, onOpen, onClose } = useDisclosure()
+//     const cancelRef = useRef()
+
+//     return (
+//         <>
+//             <Button colorScheme='red' onClick={onOpen}>
+//                 Delete Customer
+//             </Button>
+
+//             <AlertDialog
+//                 isOpen={isOpen}
+//                 leastDestructiveRef={cancelRef}
+//                 onClose={onClose}
+//             >
+//                 <AlertDialogOverlay>
+//                     <AlertDialogContent>
+//                         <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+//                             {title || 'Confirm Your Action'}
+//                         </AlertDialogHeader>
+
+//                         <AlertDialogBody>
+//                             {description || 'Are you sure? You can not undo this action afterwards.'}
+//                         </AlertDialogBody>
+
+//                         <AlertDialogFooter>
+//                             <Button ref={cancelRef} onClick={() => {
+//                                 onConfirm(false)
+//                                 onClose()
+//                             }}>
+//                                 Cancel
+//                             </Button>
+//                             <Button colorScheme='red' onClick={() => {
+//                                 onConfirm(true)
+//                                 onClose()
+//                             }} ml={3}>
+//                                 {buttonText}
+//                             </Button>
+//                         </AlertDialogFooter>
+//                     </AlertDialogContent>
+//                 </AlertDialogOverlay>
+//             </AlertDialog>
+//         </>
+//     )
+// }

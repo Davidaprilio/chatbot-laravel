@@ -25,13 +25,14 @@ class GraphController extends Controller
         return $action_replies->map(fn(ActionReply $action_reply) => $action_reply->edge_option);
     }
 
-    public function saveMessage(Request $request)
-    {
+    public function saveMessage(FlowChat $flowChat, Request $request)
+    {    
         if ($request->text === null) {
             $request->merge(['text' => '']);
         }
         $msg = Message::updateOrCreate([
-            'id' => $request->id
+            'id' => $request->id,
+            'flow_chat_id' => $flowChat->id,
         ], $request->only([
             'text',
             'title',
@@ -41,8 +42,10 @@ class GraphController extends Controller
             'trigger_event',
             'order_sending',
         ]));
+        $msg->refresh();
         $node_option = $msg->node_option;
         $node_option['selected'] = true;
+        $node_option['data']['message'] = $msg;
         return $node_option;
     }
 
