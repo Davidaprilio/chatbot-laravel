@@ -57,6 +57,13 @@ Route::middleware('auth')->group(function () {
         Route::any('/remove', 'remove')->name('message.remove');
         Route::view('/form-concept', 'whatsapp.message.form');
     });
+    Route::prefix('/imessage')->controller(MessageController::class)->group(function () {
+        Route::get('/', 'index')->name('imessage');
+        Route::get('/credit', 'inertia_create_msg')->name('imessage.credit');
+        Route::post('/store', 'inertia_store')->name('imessage.store');
+        Route::any('/remove', 'remove')->name('imessage.remove');
+        Route::view('/form-concept', 'whatsapp.imessage.form');
+    });
 
     Route::prefix('/action-replies')->controller(MessageController::class)->group(function () {
         Route::get('/', 'indexAR')->name('action-replies');
