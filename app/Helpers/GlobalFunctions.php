@@ -44,3 +44,9 @@ function RandomString($length = 5)
     }
     return $randomString;
 }
+
+function upperCase($text)
+{
+    $word = ucwords(str_replace('_', ' ', $text));
+    return $word;
+}

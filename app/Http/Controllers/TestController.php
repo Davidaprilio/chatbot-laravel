@@ -8,6 +8,6 @@ class TestController extends Controller
 {
     public function index(Request $request)
     {
-        dd(RandomString(5));
+        dd(format_phone('+62) 806 3528 630'));
     }
 }

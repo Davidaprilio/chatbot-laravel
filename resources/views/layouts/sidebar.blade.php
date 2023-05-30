@@ -64,8 +64,8 @@
                     </li>
                     <x-menu-tree name="Chatbot Setting" icon="fa fa-user" :is-open="Request::is('chatbot*')">
                         <x-menu-item name="Flow chat" :href="route('flowchat.index')" />
-                        <x-menu-item name="Messages" href="#Menu2" />
-                        <x-menu-item name="Action Replies" href="#Menu2" />
+                        <x-menu-item name="Messages" :href="route('message')" />
+                        <x-menu-item name="Action Replies" :href="route('action-replies')" />
                     </x-menu-tree>
                 </ul>
             </nav>

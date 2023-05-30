@@ -50,8 +50,19 @@ Route::middleware('auth')->group(function () {
         Route::any('/remove', 'remove')->name('user.remove');
     });
 
-    Route::prefix('/chat')->controller(MessageController::class)->group(function () {
-        Route::get('/', 'chat')->name('chat');
+    Route::prefix('/message')->controller(MessageController::class)->group(function () {
+        Route::get('/', 'index')->name('message');
+        Route::get('/credit', 'credit')->name('message.credit');
+        Route::post('/store', 'store')->name('message.store');
+        Route::any('/remove', 'remove')->name('message.remove');
+        Route::view('/form-concept', 'whatsapp.message.form');
+    });
+
+    Route::prefix('/action-replies')->controller(MessageController::class)->group(function () {
+        Route::get('/', 'indexAR')->name('action-replies');
+        Route::get('/credit', 'creditAR')->name('action-replies.credit');
+        Route::post('/store', 'storeAR')->name('action-replies.store');
+        Route::any('/remove', 'remove')->name('action-replies.remove');
     });
 
     Route::prefix('/chatbot')->group(function () {
@@ -67,6 +78,8 @@ Route::middleware('auth')->group(function () {
     Route::prefix('/profile')->controller(ProfileController::class)->group(function () {
         Route::get('/', 'index')->name('profile');
         Route::get('/edit_password', 'index')->name('profile.edit_password');
+        Route::post('/store', 'store')->name('profile.store');
+        Route::any('/save', 'save_profile')->name('profile.save_profile');
     });
 
     Route::prefix('/customer')->controller(CustomerController::class)->group(function () {
@@ -89,4 +102,3 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}/test', 'test')->name('device.test');
     });
 });
-

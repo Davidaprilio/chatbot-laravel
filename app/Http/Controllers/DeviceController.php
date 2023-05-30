@@ -14,7 +14,7 @@ class DeviceController extends Controller
     {
         $user   = User::get();
         $device = Device::with('user', 'server')->get();
-        return view('whatsapp.device', compact('device', 'user'));
+        return view('whatsapp.device.device', compact('device', 'user'));
     }
 
     public function store(Request $request)
@@ -46,7 +46,7 @@ class DeviceController extends Controller
     public function detail(Request $request, $id)
     {
         $device = Device::where('id', $id)->first();
-        return view('whatsapp.deviceiframe', compact('device', 'id'));
+        return view('whatsapp.device.deviceiframe', compact('device', 'id'));
     }
 
     function Show(Request $request)
@@ -138,7 +138,7 @@ class DeviceController extends Controller
         }
         $bg_color = $request->get('bg') ? "#" . $request->get('bg') : 'transparent';
         $card_color = $request->get('card-bg') ?? 'fff';
-        return view('whatsapp.device_show', [
+        return view('whatsapp.device.device_show', [
             'device' => $devices,
             'bgColor' => $bg_color,
             'bgCard' => "#" . $card_color,

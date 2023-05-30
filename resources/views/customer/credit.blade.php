@@ -79,12 +79,13 @@
                                     <div class="form-group col-lg-6 col-12 mb-4">
                                         <label for="">Nomor Handphone</label>
                                         <input class="input" type="text" value="{{ $customer->phone ?? '' }}"
-                                            placeholder="Nama Panggilan" name="phone" id="phone">
+                                            placeholder="Nomor Handphone" name="phone" id="phone"
+                                            @if ($customer) readonly @endif>
                                     </div>
                                     <div class="form-group col-lg-4 col-12 mb-4">
                                         <label for="">Usia</label>
                                         <input class="input" type="number" min="1"
-                                            value="{{ $customer->usia ?? '' }}" placeholder="12" name="usia"
+                                            value="{{ $customer->usia ?? '' }}" placeholder="Usia" name="usia"
                                             id="usia">
                                     </div>
                                     <div class="form-group col-lg-4 col-12 mb-4">

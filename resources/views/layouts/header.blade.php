@@ -34,7 +34,7 @@
                             <i class="fa fa-diagram-project"></i>
                         </a>
                     </div>
-                    <div class="header__tools">
+                    {{-- <div class="header__tools">
                         <div class="header__notes header__tools-item">
                             <a class="header__tools-toggle header__tools-toggle--message" href="#"
                                 data-tippy-content="Notifications" data-tippy-placement="bottom" data-toggle="dropdown">
@@ -352,7 +352,7 @@
                                     </svg></a>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                     <div class="header__profile dropdown">
                         <a class="header__profile-toggle dropdown__toggle" href="#" data-toggle="dropdown">
                             <div class="header__profile-image"><span class="header__profile-image-text">MA</span>
