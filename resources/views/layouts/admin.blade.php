@@ -68,6 +68,7 @@
         crossorigin='anonymous' />
     <meta name="theme-color" content="#ffffff" />
     @stack('head')
+    @routes
 </head>
 
 <body class="page-home">

@@ -140,8 +140,9 @@ class HookController extends Controller
             } else {
                 $this->Log->info('Promt Not Match', [$promtNotAnswered]);
                 ChatBot::replyMsg($device, $session, new Message([
-                    'text' => 'Maaf, pilihan tidak tersedia silahkan pilih menu yang tersedia',
+                    'text' => 'Maaf, jawaban anda tidak sesuai dengan pertanyaan sebelumnya. Mohon jawab dengan benar.',
                     'type' => 'chat',
+                    'next_message' => null
                 ]), $request->phone);
             }
         } else {
@@ -242,7 +243,7 @@ class HookController extends Controller
                         return [$reply, $variables];
                     }
                 } else {
-                    if ($textFormat === $keyword) {
+                    if (strtolower($textFormat) === strtolower($keyword)) {
                         return [$reply, ['value' => $keyword]];
                     }
                 }

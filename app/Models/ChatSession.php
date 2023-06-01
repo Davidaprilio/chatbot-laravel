@@ -25,4 +25,9 @@ class ChatSession extends Model
     {
         return $this->belongsTo(Device::class);
     }
+
+    public function last_chat()
+    {
+        return $this->hasOne(Chat::class)->latest();
+    }
 }

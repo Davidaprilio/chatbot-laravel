@@ -10,7 +10,7 @@ class ChatController extends Controller
     public function index(Request $request)
     {
         return view('chat-log', [
-            'customers' => Customer::all()
+            'customers' => Customer::with('last_session.last_chat')->get()
         ]);
     }
 

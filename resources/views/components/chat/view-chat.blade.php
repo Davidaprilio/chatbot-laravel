@@ -50,7 +50,7 @@
         @if ($customer)
             @foreach ($sessions as $session)
             <div class="position-relative">
-                <div class="chat-details__date position-sticky py-1" style="top: 0; z-index: 20; background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);">Session #{{ $session->id }} -
+                <div class="chat-details__date position-sticky py-1" style="top: 0; z-index: 20; background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);">Topik #{{ $session->id }} -
                     {{ $session->created_at->isoFormat('LL') }}</div>
                 @foreach ($session->chats as $chat)
                     <x-chat.bubble :chat="$chat" :customer="$customer" />

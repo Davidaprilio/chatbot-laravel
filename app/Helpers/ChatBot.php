@@ -66,15 +66,27 @@ class ChatBot
         $res = Wa::send($device, [
             'phone' => $phone,
             'message' => Wa::parseMessage($message->text, $session->customer->toArray()),
+            'file_url' => $message->attachment,
         ]);
-        $session->chats()->create([
-            'message_id' => $res['data']['messageid'],
-            'reference_message_id' => $message->id,
-            'from_me' => true,
-            'text' => $message->text,
-            'timestamp' => now()->timestamp,
-            'type' => $message->type,
-        ]);
+        try {
+            $new_message = [
+                'message_id' => $res['data']['messageid'],
+                'reference_message_id' => $message->id,
+                'from_me' => true,
+                'text' => $message->text,
+                'timestamp' => now()->timestamp,
+                'type' => $message->type,
+                'attachment' => $message->attachment,
+            ];
+            $session->chats()->create($new_message);
+        } catch (\Throwable $th) {
+            Log::error("Error on save message to database", [
+                'message' => $new_message ?? null,
+                'res' => $res ?? null,
+                'error' => $th->getMessage()
+            ]);
+            throw $th;
+        }
 
         if ($message->trigger_event === 'close_chat') {
             $session->update([

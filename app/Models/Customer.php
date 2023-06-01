@@ -31,4 +31,9 @@ class Customer extends Model
     {
         return $this->hasMany(ChatSession::class);
     }
+
+    public function last_session()
+    {
+        return $this->hasOne(ChatSession::class)->latest();
+    }
 }
