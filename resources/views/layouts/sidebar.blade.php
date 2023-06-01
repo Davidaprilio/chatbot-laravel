@@ -26,18 +26,15 @@
                                     <use xlink:href="#icon-user"></use>
                                 </svg></span><span class="sidebar__link-text">Data User</span></a>
                     </li>
+                    <x-menu-item name="Chatbot Log" :href="route('chatting')" :active="Request::is('chatting*')">
+                        <x-slot name="icon">
+                            <x-svgicon link="icon-chat" />
+                        </x-slot>
+                    </x-menu-item>
                     <li class="sidebar__menu-item"><a
-                            class="sidebar__link {{ Request::is('graph-message*') ? 'active' : '' }}"
-                            href="{{ url('graph-message') }}" aria-expanded="false" target="_chatbottemplate"><span
-                                class="sidebar__link-icon">
-                                <svg class="icon-icon-chat">
-                                    <use xlink:href="#icon-chat"></use>
-                                </svg></span><span class="sidebar__link-text">Chatbot Template</span></a>
-                    </li>
-                    <li class="sidebar__menu-item"><a
-                            class="sidebar__link {{ Request::is('device*') ? '' : 'collapsed' }}" href="#"
-                            data-toggle="collapse" data-target="#Auth"
-                            aria-expanded="{{ Request::is('device*') ? 'true' : 'false' }}"><span
+                            class="sidebar__link {{ Request::is('device*') ? 'active' : '' }} {{ Request::is('kontak*') ? 'active' : '' }}"
+                            href="#" data-toggle="collapse" data-target="#Auth"
+                            aria-expanded="{{ Request::is('device*') ? 'true' : '' }}{{ Request::is('kontak*') ? 'true' : '' }}"><span
                                 class="sidebar__link-icon">
                                 <svg class="icon-icon-password">
                                     <use xlink:href="#icon-password"></use>
@@ -46,11 +43,20 @@
                                 <svg class="icon-icon-keyboard-down">
                                     <use xlink:href="#icon-keyboard-down"></use>
                                 </svg></span></a>
-                        <div class="collapse {{ Request::is('device*') ? 'show' : '' }}" id="Auth" style="">
+                        <div class="collapse {{ Request::is('device*') ? 'show' : '' }} {{ Request::is('kontak*') ? 'show' : '' }}"
+                            id="Auth" style="">
                             <ul class="sidebar__collapse-menu">
-                                <li class="sidebar__menu-item"><a class="sidebar__link"
+                                <li class="sidebar__menu-item"><a
+                                        class="sidebar__link {{ Request::is('device*') ? 'active' : '' }}"
                                         href="{{ url('device') }}"><span class="sidebar__link-signal"></span><span
                                             class="sidebar__link-text">Device</span></a>
+                                </li>
+                            </ul>
+                            <ul class="sidebar__collapse-menu">
+                                <li class="sidebar__menu-item"><a
+                                        class="sidebar__link {{ Request::is('kontak*') ? 'active' : '' }}"
+                                        href="{{ url('kontak') }}"><span class="sidebar__link-signal"></span><span
+                                            class="sidebar__link-text">Kontak</span></a>
                                 </li>
                             </ul>
                         </div>

@@ -35,7 +35,7 @@ class Demo1Seeder extends Seeder
                 'text' => 'sebelum lanjut, bisa beri tahu nama anda?',
                 'type' => 'prompt',
                 'trigger_event' => 'save_response',
-                'event_value' => 'customers.name',
+                'event_value' => 'name',
                 'order_sending' => 1,
             ],
             [
@@ -58,7 +58,7 @@ class Demo1Seeder extends Seeder
                 'type' => 'prompt',
                 'text' => 'baik ketikkan nama anda saja!',
                 'trigger_event' => 'save_response',
-                'event_value' => 'customers.name',
+                'event_value' => 'name',
             ],
             [
                 'text' => 'baik [name] ada yang bisa saya bantu?',
@@ -136,7 +136,7 @@ class Demo1Seeder extends Seeder
                 'text' => 'Untuk pendataan bisa kirimkan lokasi anda saat ini kak [name]
                 || menggunakan share lokasi whatsapp!',
                 'trigger_event' => 'save_response',
-                'event_value' => 'customers.location',
+                'event_value' => 'location',
             ],
             [
                 'text' => 'Terimakasih telah memberi lokasi kak [name]',
@@ -144,6 +144,16 @@ class Demo1Seeder extends Seeder
             ],
             [
                 'text' => 'maaf kak [name] tolong kirimkan lokasi kakak dengan shareloc wa',
+            ],
+            [
+                'hook' => 'confirm_not_response',
+                'text' => 'Halo kak apa saya masih terhubung dengan kakak?
+                || jika tidak ada respon saya akan menutup chat ini',
+            ],
+            [
+                'hook' => 'close_chat_not_response',
+                'text' => 'Baik kak, karena tidak ada respon saya akan menutup chat ini ya',
+                'next_message' => 14
             ],
         ];
 

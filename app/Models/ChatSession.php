@@ -11,7 +11,7 @@ class ChatSession extends Model
 
     protected $guarded = ['id'];
 
-    public function chat()
+    public function chats()
     {
         return $this->hasMany(Chat::class);
     }
@@ -19,5 +19,10 @@ class ChatSession extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function device()
+    {
+        return $this->belongsTo(Device::class);
     }
 }

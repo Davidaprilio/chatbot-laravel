@@ -23,6 +23,8 @@ return new class extends Migration
                 'dont_understand',
                 'end_menu',
                 'end_chat',
+                'confirm_not_response',
+                'close_chat_not_response',
             ])->nullable();
             $table->string('condition')->nullable(); // bisa menyetel sendiri pengecekan data di db misal 'customers.name=null'
             $table->enum('condition_type', [

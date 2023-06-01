@@ -11,8 +11,8 @@
             <span class="sidebar__link-signal"></span>
         @else
         <span class="sidebar__link-icon">
-            @if ($icon instanceof \Illuminate\Support\HtmlString)
-                {{ $icon }}
+            @if ($icon instanceof \Illuminate\View\ComponentSlot)
+                {!! $icon !!}
             @else
                 <i class="{{ $icon }}"></i>
             @endif

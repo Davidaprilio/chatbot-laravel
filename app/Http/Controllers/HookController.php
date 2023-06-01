@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ChatBot;
 use App\Helpers\Wa;
 use App\Jobs\MakeSureStillChating;
 use App\Models\ActionReply;
 use App\Models\Chat;
 use App\Models\ChatSession;
 use App\Models\Customer;
+use App\Models\Device;
 use App\Models\Message;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -24,6 +26,7 @@ class HookController extends Controller
         $this->Log = Log::build([
             'driver' => 'single',
             'path' => storage_path('logs/hook.log'),
+            // 'level' => 'alert',
         ]);
     }
 
@@ -49,7 +52,20 @@ class HookController extends Controller
     {
         if ($request->fromMe) return true;
 
-        $this->Log->info('Hook Recived', $request->all());
+        $device = Device::with('flow_chat')->token($request->token)->first();
+        if ($device === null) {
+            return $this->Log->alert("Hook Recived - with device '{$request->token}' not found");
+        }
+        if ($device->flow_chat === null) {
+            return $this->Log->alert("Hook Recived - with flow_chat not found in device '{$device->token}'", [
+                'device' => $device,
+                'request' => $request->all(),
+            ]);
+        }
+        $this->Log->info('Hook Recived - OK', [
+            'device' => $device,
+            'request' => $request->all(),
+        ]);
 
         $inbox = $this->parseWhatsappCallback($request);
         $_cust = $this->getCustomer($request->phone, $request->name);
@@ -58,12 +74,14 @@ class HookController extends Controller
 
         $session = ChatSession::firstOrCreate([
             'customer_id' => $_cust['customer']->id,
+            'device_id' => $device->id,
+            'phone_device' => $request->server_phone,
             'ended_at' => null,
         ]);
 
         $session->load('customer');
 
-        $session->chat()->create([
+        $session->chats()->create([
             'message_id' => $request->id,
             'from_me' => 0,
             'text' => $request->message,
@@ -71,18 +89,18 @@ class HookController extends Controller
             'timestamp' => $request->timestamp,
         ]);
 
-        $promtNotAnswered = $session->chat()->where('from_me', 1)->orderBy('id', 'desc')->where('type', 'prompt')->where('response', null)->first();
+        $promtNotAnswered = $session->chats()->where('from_me', 1)->orderBy('id', 'desc')->where('type', 'prompt')->where('response', null)->first();
 
         // create response message kirim menu
-        if ($session->chat()->count() == 1) {
+        if ($session->chats()->count() == 1) {
             $messages = Message::where('hook', 'welcome')->get();
             foreach ($messages as $message) {
-                $this->replyMsg($session, $message, $request->phone);
+                ChatBot::replyMsg($device, $session, $message, $request->phone);
             }
             if ($_cust['customer']->name === null) {
                 $messages = Message::hook('anon_customer')->sortMsg()->get();
                 foreach ($messages as $msg) {
-                    $this->replyMsg($session, $msg, $request->phone);
+                    ChatBot::replyMsg($device, $session, $msg, $request->phone);
                 }
                 return true;
             }
@@ -91,27 +109,37 @@ class HookController extends Controller
         else if ($promtNotAnswered) {
             $this->Log->info('Promt', [$promtNotAnswered]);
 
-            $match_action_reply = self::getActionMatch($promtNotAnswered->reference_message_id, $request->message, $inbox);
+            [$match_action_reply, $result_data] = self::getActionMatch($promtNotAnswered->reference_message_id, $request->message, $inbox);
 
             if ($match_action_reply && $match_action_reply->prompt_response !== '{!*}') {
                 $this->Log->info('Promt Match', [$promtNotAnswered]);
+
                 if ($promtNotAnswered->reference_message && $promtNotAnswered->reference_message->trigger_event == 'save_response') {
-                    [$tableName, $columnName] = explode('.', $promtNotAnswered->reference_message->event_value);
-                    $this->Log->info('collumn', [
-                        'table' => $tableName,
-                        'column' => $columnName
-                    ]);
-                    // DB::table($tableName)->update([
-                    //     $columnName => $inbox->content
-                    // ]);
+                    
+                    $columns_name= explode('.', $promtNotAnswered->reference_message->event_value);
+
+                    Log::info('Columns Name',[$columns_name]);
+
+                    if ($columns_name[0] === 'data') {
+                        $result_data['more_data'] = array_merge($_cust['customer']->more_data->toArray(), [
+                            $columns_name[1] => $request->message,
+                        ]);
+                    } else {
+                        $result_data[$columns_name[0]] = $request->message;
+                    }
                 }
+
+                if (count($result_data) > 0) {
+                    $_cust['customer']->update($result_data);
+                }
+
                 $promtNotAnswered->update([
                     'response' => $request->message,
                 ]);
-                $this->replyMsg($session, $match_action_reply->replyMessage, $request->phone);
+                ChatBot::replyMsg($device, $session, $match_action_reply->replyMessage, $request->phone);
             } else {
                 $this->Log->info('Promt Not Match', [$promtNotAnswered]);
-                $this->replyMsg($session, new Message([
+                ChatBot::replyMsg($device, $session, new Message([
                     'text' => 'Maaf, pilihan tidak tersedia silahkan pilih menu yang tersedia',
                     'type' => 'chat',
                 ]), $request->phone);
@@ -120,12 +148,12 @@ class HookController extends Controller
             $action_reply = ActionReply::where('type', 'auto_reply')->where('prompt_response', $request->message)->first();
             if ($action_reply) {
                 $this->Log->info('Auto Reply Match', [$action_reply]);
-                $this->replyMsg($session, $action_reply->replyMessage, $request->phone);
+                ChatBot::replyMsg($device, $session, $action_reply->replyMessage, $request->phone);
             } else {
                 $this->Log->info('Auto Reply Not Match');
                 $dont_understand_msg = Message::firstWhere('hook', 'dont_understand');
                 if ($dont_understand_msg) {
-                    $this->replyMsg($session, $dont_understand_msg, $request->phone);
+                    ChatBot::replyMsg($device, $session, $dont_understand_msg, $request->phone);
                 }
             }
         }
@@ -144,87 +172,6 @@ class HookController extends Controller
         
     }
 
-    private function parseArgumentCondition(string $argumnet, Customer $customer)
-    {
-        if ($argumnet === 'null') return null;
-        else if ($argumnet === 'true') return true;
-        else if ($argumnet === 'false') return false;
-        else if (is_numeric($argumnet) && str($argumnet)->contains('.')) return (float) $argumnet;
-        else if (is_numeric($argumnet)) return (int) $argumnet;
-        else if (str($argumnet)->startsWith('customer.')) return $customer->{str($argumnet)->replace('customer.', '')};
-        return $argumnet;
-    }
-
-    protected function replyMsg(ChatSession $session, Message $message, string $phone)
-    {
-        if ($message->condition) {
-            [$value1, $operator, $value2] = explode(' ', $message->condition);
-
-            $value1 = $this->parseArgumentCondition($value1, $session->customer);
-            $value2 = $this->parseArgumentCondition($value2, $session->customer);
-
-            $macth = false;
-            if($operator === '==' && $value1 === $value2) $macth = true;
-            else if($operator === '>' && $value1 > $value2) $macth = true;
-            else if($operator === '>=' && $value1 >= $value2) $macth = true;
-            else if($operator === '<' && $value1 < $value2) $macth = true;
-            else if($operator === '<=' && $value1 <= $value2) $macth = true;
-            else if($operator === '!=' && $value1 != $value2) $macth = true;
-
-            Log::info('Condition', [
-                'value1' => $value1,
-                'operator' => $operator,
-                'value2' => $value2,
-                'match' => $macth,
-                'condition_type' => $message->condition_type
-            ]);
-
-            if ($message->condition_type === 'skip_to_message' && $macth) {
-                return $this->replyMsg($session, Message::find($message->condition_value), $phone);
-            }
-
-        }
-
-        $session->customer->refresh();
-        $res = Wa::send([
-            'phone' => $phone,
-            'message' => Wa::parseMessage($message->text, $session->customer->toArray()),
-        ]);
-        $session->chat()->create([
-            'message_id' => $res['data']['messageid'],
-            'reference_message_id' => $message->id,
-            'from_me' => true,
-            'text' => $message->text,
-            'timestamp' => now()->timestamp,
-            'type' => $message->type,
-        ]);
-
-        if ($message->trigger_event === 'close_chat') {
-            $session->update([
-                'ended_at' => now()
-            ]);
-        }
-
-        $this->Log->info('next_message', [$message->next_message]);
-        if ($message->next_message) {
-            $next_message = $message->getRelationValue('next_message');
-            $this->Log->info('next_message', [
-                $next_message
-            ]);
-            return $this->replyMsg($session, $next_message, $phone); 
-        }
-
-        if ($message->type === 'chat' && $message->hook == null && $message->trigger_event == null) {
-            $end_of_menu_messeges = Message::hook('end_menu')->sortMsg()->get();
-            foreach ($end_of_menu_messeges as $msg) {
-                $this->replyMsg($session, $msg, $phone);
-            }
-            return true;
-        }
-
-        return true;
-    }
-
 
     /**
      * @return array<bool,Customer>
@@ -235,6 +182,7 @@ class HookController extends Controller
             'phone' => $phone,
         ], [
             'pushname' => $pushname,
+            'more_data' => []
         ]);
         
         if ($Customer->pushname != $pushname) {
@@ -249,39 +197,26 @@ class HookController extends Controller
     }
 
     public function test(Request $request)
-    { 
-        $customer = Customer::find(1);
+    {
+        $c = Customer::first();
         dd(
-            $this->parseArgumentCondition('true', $customer),
-            $this->parseArgumentCondition('false', $customer),
-            $this->parseArgumentCondition('null', $customer),
-            $this->parseArgumentCondition('123', $customer),
-            $this->parseArgumentCondition('1.3', $customer),
-            $this->parseArgumentCondition('customer.nama', $customer),
-            $this->parseArgumentCondition('customer.name', $customer),
-            $this->parseArgumentCondition('customer.created_at', $customer),
+            $c,
+            $c->more_data
         );
-        $request = (object) [
-            'message' => 'tidak'
-        ];
-
-        // dd(self::getActionMatch(5, $request->message));
-
-
         $msg = Message::find(11);
         if (!$msg instanceof Message) return false;
 
         return $msg->getRelationValue('next_message');
     }
 
-    static public function getActionMatch(int|Message $promt_message,  ?string $keyword, object $inbox): ?ActionReply
+    static public function getActionMatch(int|Message $promt_message,  ?string $keyword, object $inbox): array
     {
         $query = ActionReply::where('type', 'prompt_await')->where('prompt_message_id', is_int($promt_message) ? $promt_message : $promt_message->id);
 
         
         if(in_array($keyword, ['{*}', '{:location:}'])) {
             $action_reply = (clone $query)->where('prompt_response', '{!*}')->first();
-            return $action_reply;
+            return [$action_reply, ['value' => false]];
         }
         
         // casting
@@ -289,22 +224,35 @@ class HookController extends Controller
         Log::info('inbox', [$inbox]);
 
         $action_reply = (clone $query)->where('prompt_response', $keyword)->first();
-        if ($action_reply) return $action_reply;
+        if ($action_reply) return [$action_reply, ['value' => $keyword]];
 
         $action_replies = (clone $query)->where('prompt_response', 'like', '["%"]')->get();
         foreach ($action_replies as $reply) {
             $array = json_decode($reply->prompt_response);
-            foreach ($array as $value) {
-                if (strtolower($value) === strtolower($keyword)) {
-                    return $reply;
+            foreach ($array as $textFormat) {
+                // jika $textFormat terdapat karakter { dan } atau ** atau *{ atau }* maka dianggap variable
+                $is_variable = preg_match('/\{.*\}|\*\*|\*\{|\}\*/', $textFormat);
+                Log::info('is_variable', [
+                    'is_variable' => $is_variable,
+                    'textFormat' => $textFormat,
+                ]);
+                if ($is_variable) {
+                    $variables = getVariableOnText($keyword, $textFormat);
+                    if ($variables) {
+                        return [$reply, $variables];
+                    }
+                } else {
+                    if ($textFormat === $keyword) {
+                        return [$reply, ['value' => $keyword]];
+                    }
                 }
             }
         }
         
         $action_reply = (clone $query)->where('prompt_response', '{*}')->first();
-        if ($action_reply) return $action_reply;
+        if ($action_reply) return [$action_reply, ['value' => $keyword]];
 
         $action_reply = (clone $query)->where('prompt_response', '{!*}')->first();
-        return $action_reply;
+        return [$action_reply, ['value' => false]];
     }
 }

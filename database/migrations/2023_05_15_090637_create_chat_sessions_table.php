@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('chat_sessions', function (Blueprint $table) {
             $table->id();
             $table->string('customer_id');
+            $table->foreignId('device_id');
+            $table->string('phone_device');
             $table->dateTime('ended_at')->nullable()->comment('null if session is still active');
             $table->timestamps();
         });

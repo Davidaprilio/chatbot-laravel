@@ -17,11 +17,13 @@ return new class extends Migration
             $table->string('location')->nullable();
             $table->string('phone')->nullable()->unique();
             $table->string('pushname')->nullable();
+            $table->string('profile_photo')->nullable();
             $table->longText('notes')->nullable();
             $table->integer('usia')->nullable();
             $table->string('golongan_darah', 10)->nullable();
             $table->enum('jenis_kelamin', ['L', 'P'])->nullable();
             $table->text('alamat')->nullable();
+            $table->json('more_data');
             $table->timestamps();
         });
     }
