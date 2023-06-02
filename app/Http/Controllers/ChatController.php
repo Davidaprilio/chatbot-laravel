@@ -19,7 +19,7 @@ class ChatController extends Controller
         $cust = Customer::find($request->customer);
         return view('components.chat.view-chat', [
             'customer' => $cust,
-            'sessions' => $cust->chat_sessions()->with('chats')->get()
+            'sessions' => $cust->chat_sessions()->with(['chats', 'topic'])->get()
         ]);
     }
 }

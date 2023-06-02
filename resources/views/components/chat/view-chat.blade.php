@@ -31,6 +31,9 @@
                         <div class="dropdown-items__container">
                             <ul class="dropdown-items__list">
                                 <li class="dropdown-items__item">
+                                    <a href="javascript:void(0)" class="dropdown-items__link save-topic-menu">Simpan topik</a>
+                                </li>
+                                <li class="dropdown-items__item">
                                     <a href="{{ route('customer.credit') }}" class="dropdown-items__link">Edit data</a>
                                 </li>
                                 <li class="dropdown-items__item">
@@ -50,8 +53,9 @@
         @if ($customer)
             @foreach ($sessions as $session)
             <div class="position-relative">
-                <div class="chat-details__date position-sticky py-1" style="top: 0; z-index: 20; background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);">Topik #{{ $session->id }} -
-                    {{ $session->created_at->isoFormat('LL') }}</div>
+                <div class="chat-details__date position-sticky py-1" style="top: 0; z-index: 20; background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);">
+                    Topik #{{ $session->id }} - {{ $session->created_at->isoFormat('LL') }} • {{ $session->topic == null ? 'Unsaved' : 'Saved' }}
+                </div>
                 @foreach ($session->chats as $chat)
                     <x-chat.bubble :chat="$chat" :customer="$customer" />
                 @endforeach

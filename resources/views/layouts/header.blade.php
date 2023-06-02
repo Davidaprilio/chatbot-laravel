@@ -1,4 +1,4 @@
-<header class="header">
+<header class="header" style="height: 71px;">
     <div class="header__inner">
         <div class="container-fluid">
             <div class="header__row row justify-content-between">
@@ -27,13 +27,13 @@
                     </div> --}}
                 </div>
                 <div class="header__col-right col d-flex align-items-center">
-                    <div class="header__language dropdown">
+                    {{-- <div class="header__language dropdown">
                         <a href="{{ url('graph-message') }}" class="header__toggle-language btn btn-sm border"
                             type="button" data-tippy-content="Open&nbsp;Graph&nbsp;Message"
                             data-tippy-placement="bottom">
                             <i class="fa fa-diagram-project"></i>
                         </a>
-                    </div>
+                    </div> --}}
                     {{-- <div class="header__tools">
                         <div class="header__notes header__tools-item">
                             <a class="header__tools-toggle header__tools-toggle--message" href="#"
@@ -356,9 +356,14 @@
                     <div class="header__profile dropdown">
                         <a class="header__profile-toggle dropdown__toggle" href="#" data-toggle="dropdown">
                             <div class="header__profile-image"><span class="header__profile-image-text">MA</span>
-                                <img src="{{ url('/') }}/assets/img/content/humans/item-4.jpg" alt="#" />
+                                <img src="{{ auth()->user()->photo ?? url('/assets/img/content/humans/item-4.jpg') }}"
+                                    alt="#" />
                             </div>
-                            <div class="header__profile-text"><span>{{ auth()->user()->name ?? 'User' }}</span>
+                            <div class="header__profile-text">
+                                <span>
+                                    {{ auth()->user()->name ?? 'User' }} <br>
+                                    <small>{{ auth()->user()->role->name }}</small>
+                                </span>
                             </div><span class="icon-arrow-down">
                                 <svg class="icon-icon-arrow-down">
                                     <use xlink:href="#icon-arrow-down"></use>

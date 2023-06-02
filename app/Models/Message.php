@@ -14,7 +14,15 @@ class Message extends Model
 
     public function next_message()
     {
-        return $this->belongsTo(Message::class, 'next_message');
+        return $this->belongsTo(Message::class, 'next_message')->withDefault([
+            'id' => 0,
+            'text' => 'End of the line',
+        ]);
+    }
+
+    public function replies()
+    {
+        return $this->hasMany(ActionReply::class, 'prompt_message_id');
     }
 
     public function scopeHook(Builder $query, string $hook_name)

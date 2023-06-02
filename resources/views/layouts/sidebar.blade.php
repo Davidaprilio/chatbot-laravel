@@ -3,75 +3,39 @@
     <div class="sidebar__container">
         <div class="sidebar__top">
             <div class="container container--sm">
-                <a class="sidebar__logo" href="index.html">
-                    <img class="sidebar__logo-icon" src="{{ url('/') }}/assets/img/content/logotype.svg"
-                        alt="#" width="44" />
-                    <div class="sidebar__logo-text">Chatbot</div>
+                <a class="sidebar__logo" style="justify-content:center" href="{{ url('dashboard') }}">
+                    <img class="sidebar__logo-icon" src="{{ web('web_logo') }}" alt="#" style="width: 50px;" />
+                    <div class="sidebar__logo-text" style="font-size: 18px">{{ web('web_title') }}</div>
                 </a>
             </div>
         </div>
+        <div class="dropdown-menu__divider"></div>
         <div class="sidebar__content" data-simplebar="data-simplebar">
             <nav class="sidebar__nav">
                 <ul class="sidebar__menu">
-                    <li class="sidebar__menu-item"><a
-                            class="sidebar__link {{ Request::is('dashboard*') ? 'active' : '' }}"
-                            href="{{ url('dashboard') }}" aria-expanded="true"><span class="sidebar__link-icon">
-                                <svg class="icon-icon-dashboard">
-                                    <use xlink:href="#icon-dashboard"></use>
-                                </svg></span><span class="sidebar__link-text">Dashboard</span></a>
-                    </li>
-                    <li class="sidebar__menu-item"><a class="sidebar__link {{ Request::is('user*') ? 'active' : '' }}"
-                            href="{{ url('user') }}" aria-expanded="false"><span class="sidebar__link-icon">
-                                <svg class="icon-icon-user">
-                                    <use xlink:href="#icon-user"></use>
-                                </svg></span><span class="sidebar__link-text">Data User</span></a>
-                    </li>
+                    <x-menu-item name="Dashboard" :href="route('dashboard')"  :active="Request::is('dashboard*')">
+                        <x-slot name="icon">
+                            <x-svgicon link="icon-dashboard" />
+                        </x-slot>
+                    </x-menu-item>
+                    <x-menu-item name="Data User" :href="route('user')" :role="auth()->user()->role->slug ?? 'customer'" :active="Request::is('user*')">
+                        <x-slot name="icon">
+                            <x-svgicon link="icon-user" />
+                        </x-slot>
+                    </x-menu-item>
                     <x-menu-item name="Chatbot Log" :href="route('chatting')" :active="Request::is('chatting*')">
                         <x-slot name="icon">
                             <x-svgicon link="icon-chat" />
                         </x-slot>
                     </x-menu-item>
-                    <li class="sidebar__menu-item"><a
-                            class="sidebar__link {{ Request::is('device*') ? 'active' : '' }} {{ Request::is('kontak*') ? 'active' : '' }}"
-                            href="#" data-toggle="collapse" data-target="#Auth"
-                            aria-expanded="{{ Request::is('device*') ? 'true' : '' }}{{ Request::is('kontak*') ? 'true' : '' }}"><span
-                                class="sidebar__link-icon">
-                                <svg class="icon-icon-password">
-                                    <use xlink:href="#icon-password"></use>
-                                </svg></span><span class="sidebar__link-text">Whatsapp</span><span
-                                class="sidebar__link-arrow">
-                                <svg class="icon-icon-keyboard-down">
-                                    <use xlink:href="#icon-keyboard-down"></use>
-                                </svg></span></a>
-                        <div class="collapse {{ Request::is('device*') ? 'show' : '' }} {{ Request::is('kontak*') ? 'show' : '' }}"
-                            id="Auth" style="">
-                            <ul class="sidebar__collapse-menu">
-                                <li class="sidebar__menu-item"><a
-                                        class="sidebar__link {{ Request::is('device*') ? 'active' : '' }}"
-                                        href="{{ url('device') }}"><span class="sidebar__link-signal"></span><span
-                                            class="sidebar__link-text">Device</span></a>
-                                </li>
-                            </ul>
-                            <ul class="sidebar__collapse-menu">
-                                <li class="sidebar__menu-item"><a
-                                        class="sidebar__link {{ Request::is('kontak*') ? 'active' : '' }}"
-                                        href="{{ url('kontak') }}"><span class="sidebar__link-signal"></span><span
-                                            class="sidebar__link-text">Kontak</span></a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="sidebar__menu-item"><a
-                            class="sidebar__link {{ Request::is('customer*') ? 'active' : '' }}"
-                            href="{{ url('customer') }}" aria-expanded="false"><span class="sidebar__link-icon">
-                                <svg class="icon-icon-list">
-                                    <use xlink:href="#icon-list"></use>
-                                </svg></span><span class="sidebar__link-text">Customer</span></a>
-                    </li>
-                    <x-menu-tree name="Chatbot Setting" icon="fa fa-user" :is-open="Request::is('chatbot*')">
-                        <x-menu-item name="Flow chat" :href="route('flowchat.index')" />
-                        <x-menu-item name="Messages" :href="route('message')" />
-                        <x-menu-item name="Action Replies" :href="route('action-replies')" />
+                    <x-menu-tree name="Whatsapp" icon="fa-brands fa-whatsapp" :is-open="Request::is(['device*', 'kontak*'])">
+                        <x-menu-item name="Device" :active="Request::is('device*')" :href="route('device')" />
+                        <x-menu-item name="Kontak" :active="Request::is('kontak*')" :href="route('kontak')" />
+                    </x-menu-tree>
+                    <x-menu-tree name="Chatbot Setting" icon="fa fa-user" :is-open="Request::is(['chatbot*', 'message*', 'action-replies*', 'setting-web*'])">
+                        <x-menu-item name="Flow chat" :active="Request::is('chatbot*')" :href="route('flowchat.index')" />
+                        <x-menu-item name="Action Replies" :active="Request::is('action-replies*')" :href="route('action-replies')" />
+                        <x-menu-item name="Setting Web" :active="Request::is('setting-web*')" :role="auth()->user()->role->slug ?? 'customer'" :href="route('setting-web')" />
                     </x-menu-tree>
                 </ul>
             </nav>

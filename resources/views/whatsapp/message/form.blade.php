@@ -1,30 +1,52 @@
 @extends('layouts.admin')
-@php(
-    $breadcrumbs = [
-        '<i class="fa fa-home"></i>' => url('/'),
-        'Home' => '#',
-        'Message' => url('/message'),
-        'Form' => url()->current(),
-    ]
-)
+@php
+$breadcrumbs = [
+    '<i class="fa fa-home"></i>' => url('/'),
+    'Home' => '#',
+    'Message' => url('/message'),
+    'Form' => url()->current(),
+]
+@endphp
 
 @section('content')
     <x-page-content title="Form Message" :breadcrumbs="$breadcrumbs">
         <div class="row">
-            <div class="col-lg-7 col-md-10 col-sm-10">
+            <div class="col-12">
                 <div class="card">
                     <div class="card__wrapper">
                         <div class="card__container">
                             <div class="card__body">
-                                <form action="{{ url('message/store') }}" method="post">
+                                <form action="{{ route('message.store', ['flow' => $flow->id]) }}" method="post">
                                     @csrf
                                     <div class="row">
-                                        <input type="hidden" name="id" value="{{ $message->id ?? '' }}"
-                                            class="form-control">
-                                        <div class="form-group col-12 mb-4">
+                                        <input type="hidden" name="id" value="{{ $message->id ?? '' }}" class="form-control">
+                                        <div class="form-group col-6 mb-4">
                                             <label for="">Judul Pesan</label>
-                                            <input class="input" type="text" value="{{ $message->title ?? '' }}"
-                                                placeholder="Judul Pesan" name="title" id="title">
+                                            <input class="input" type="text" value="{{ $message->title ?? '' }}" placeholder="Judul Pesan" name="title" id="title">
+                                        </div>
+                                        <div class="form-group col-6 mb-4">
+                                            <label for="">Hook</label>
+                                            @php
+                                                $hooks = [
+                                                    'welcome',
+                                                    'custom_condition',
+                                                    'anon_customer',
+                                                    'before_send_menu',
+                                                    'after_send_menu',
+                                                    'after_give_name',
+                                                    'dont_understand',
+                                                    'end_menu',
+                                                    'end_chat',
+                                                    'confirm_not_response',
+                                                    'close_chat_not_response',
+                                                ];
+                                            @endphp
+                                            <select class="input form-control form-control-sm" name="hook" id="hook">
+                                                <option value=""{{ $message && $message->hook == null ? 'selected' : '' }}>Tanpa Hook</option>
+                                                @foreach ($hooks as $hook)
+                                                <option value="{{ $hook }}"{{ $message && $message->hook == $hook ? 'selected' : '' }}>{{ ucwords(str_replace('_', ' ', $hook)) }}</option>
+                                                @endforeach
+                                            </select>
                                         </div>
                                         <div class="form-group col-12 mb-4">
                                             <div class="row mb-2 align-items-center">
@@ -37,15 +59,14 @@
                                                             <label class="mr-3">Type:</label>
                                                             <div class="">
                                                                 <select class="input form-control form-control-sm"
-                                                                    name="type" id="type">
-                                                                    <option value="">Pilih Type</option>
-                                                                    <option value="prompt"
-                                                                        {{ ($message->type ?? '') == 'prompt' ? 'selected' : '' }}>
-                                                                        Pertanyaan
-                                                                    </option>
+                                                                    name="type" id="type" required>
                                                                     <option value="chat"
                                                                         {{ ($message->type ?? '') == 'chat' ? 'selected' : '' }}>
                                                                         Teks
+                                                                    </option>
+                                                                    <option value="prompt"
+                                                                        {{ ($message->type ?? '') == 'prompt' ? 'selected' : '' }}>
+                                                                        Pertanyaan
                                                                     </option>
                                                                 </select>
                                                             </div>
@@ -56,9 +77,10 @@
                                             <textarea name="text" id="text" cols="30" rows="5" class="form-control input">{{ $message->text ?? '' }}</textarea>
                                         </div>
                                     </div>
-                                    <div class="row d-none" id="type-jawaban">
+                                    <div class="row {{ $message && $message->type == 'prompt' ? '' : 'd-none' }}"
+                                        id="type-jawaban">
                                         <div class="col-12">
-                                            <div class="form-group form-group--inline">
+                                            {{-- <div class="form-group form-group--inline">
                                                 <label class="form-label">Simpan Jawaban:</label>
                                                 <div class="input-group">
                                                     <label class="checkbox-toggle is-active">
@@ -66,138 +88,92 @@
                                                             class="checkbox-toggle__range"></span>
                                                     </label>
                                                 </div>
-                                                {{-- <input type="text" class="form-group" placeholder="Kolom name"> --}}
-                                            </div>
+                                            </div> --}}
                                         </div>
-                                        <div class="form-group col-12 mb-4">
+                                        {{-- <div class="form-group col-12">
                                             <div class="row justify-content-betweens">
                                                 <div class="col-6">
                                                     <label for="">Type Pesan Jawaban</label>
-                                                    <select class="input form-control mb-2" name="next_message"
-                                                        id="list_message">
+                                                        $types = [
+                                                            'Pesan Tombol' => $message && $message->buttons !== null,
+                                                            'Pesan List' => $message && $message->lists !== null,
+                                                            'Kostum Pesan List' => $message && $message->buttons == null && $message->buttons == null,
+                                                        ];
+                                                    <select class="input form-control mb-2" name="type_button"
+                                                        id="type_button">
                                                         <option value="">Pilih type pesan jawaban</option>
-                                                        <option value="button">Pesan Tombol</option>
-                                                        <option value="list">Pesan List</option>
-                                                        <option value="custom">Kustom Pesan List</option>
+                                                        @foreach ($types as $text => $selected)
+                                                            <option {{ $selected ? 'selected' : '' }} >{{ $text }}</option>
+                                                        @endforeach
                                                     </select>
-                                                </div>
-                                                {{-- <div class="col text-right">
-                                                    <button class="btn btn-sm btn-primary" type="button"
-                                                        onclick="addActionReply()">Tambah jawaban</button>
-                                                </div> --}}
-                                            </div>
-                                        </div>
-                                        {{-- <div class="col-12 d-none" id="button">
-                                            <div class="row" id="custom-option-message">
-                                                <div id="form-reply-1" class="col-12">
-                                                    <div class="row">
-                                                        <div class="col-6">
-                                                            <label>Nama Button</label>
-                                                            <input type="text" class="form-control" name="button_name[]"
-                                                                placeholder="">
-                                                        </div>
-                                                        <div class="col-5">
-                                                            <label>Respon Pesan</label>
-                                                            <select type="text" class="form-control" name="respon[]">
-                                                                @foreach (range(1, 5) as $item)
-                                                                    <option value="">Message {{ $item }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-                                                        <div class="col-1"
-                                                            style="margin-top: 26px;justify-content: center;display: flex;">
-                                                            <button class="button-add button-add--blue color-red"
-                                                                type="button" style="background-color: red;"
-                                                                onclick="removeReply(1)"><span class="button-add__icon">
-                                                                    <svg class="icon-icon-trash">
-                                                                        <use xlink:href="#icon-trash"></use>
-                                                                    </svg></span><span class="button-add__text"></span>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div> --}}
-                                        {{-- <div class="col-12 d-none" id="list">
-                                            <div class="row" id="custom-option-message">
-                                                <div id="form-reply-1" class="col-12">
-                                                    <div class="row">
-                                                        <div class="col-6">
-                                                            <label>Nama List</label>
-                                                            <input type="text" class="form-control" name="list_name[]"
-                                                                placeholder="">
-                                                        </div>
-                                                        <div class="col-5">
-                                                            <label>Respon Pesan</label>
-                                                            <select type="text" class="form-control" name="respon[]">
-                                                                @foreach (range(1, 5) as $item)
-                                                                    <option value="">Message {{ $item }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-                                                        <div class="col-1"
-                                                            style="margin-top: 26px;justify-content: center;display: flex;">
-                                                            <button class="button-add button-add--blue color-red"
-                                                                type="button" style="background-color: red;"
-                                                                onclick="removeReply(1)"><span class="button-add__icon">
-                                                                    <svg class="icon-icon-trash">
-                                                                        <use xlink:href="#icon-trash"></use>
-                                                                    </svg></span><span class="button-add__text"></span>
-                                                            </button>
-                                                        </div>
-                                                    </div>
                                                 </div>
                                             </div>
                                         </div> --}}
                                         <div class="col-12">
                                             <div class="row" id="custom-option-message">
-                                                <div id="form-reply-1" class="col-12">
-                                                    <div class="row">
-                                                        <div class="col-6">
-                                                            <label id="label-option">Button</label>
-                                                            <input type="text" class="form-control" name="button[]"
-                                                                placeholder="">
+                                                {{-- @dump($button) --}}
+                                                <?php $j = 0; ?>
+                                                @if ($button != null)
+                                                    @foreach ($button as $reply)
+                                                        {{-- @dump(count($value)) --}}
+                                                        <div class="col-12 reply-row" data-reply-id="{{ $reply->id }}">
+                                                            <!-- id="form-reply-${i}" -->
+                                                            <input type="hidden" name="action[]"
+                                                                value="{{ $reply->id }}">
+                                                            <div class="row">
+                                                                <div class="col-6 mt-4">
+                                                                    <label>Response {{ $loop->iteration }}</label>
+                                                                    <input type="text" name="button[]"
+                                                                        class="form-control"
+                                                                        value="{{ $reply->response_text_as_string }}">
+                                                                </div>
+                                                                <div class="col-5 mt-4">
+                                                                    <label>Pesan Balasan</label>
+                                                                    <select type="text" class="form-control"
+                                                                        name="respon[]">
+                                                                        @foreach ($list_message as $msg_reply)
+                                                                            <option value="{{ $msg_reply->id }}"
+                                                                                {{ $reply->reply_message_id === $msg_reply->id ? 'selected' : '' }}>
+                                                                                {{ $msg_reply->title }}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+                                                                <div class="col-1"
+                                                                    style="margin-top: 52px;justify-content: center;display: flex;">
+                                                                    <button class="button-add button-add--blue color-red"
+                                                                        type="button" style="background-color: red;"
+                                                                        onclick="removeReply(this)">
+                                                                        <span class="button-add__icon">
+                                                                            <svg class="icon-icon-trash">
+                                                                                <use xlink:href="#icon-trash"></use>
+                                                                            </svg>
+                                                                        </span>
+                                                                        <span class="button-add__text"></span>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                        <div class="col-5">
-                                                            <label>Respon Pesan</label>
-                                                            <select type="text" class="form-control" name="respon[]">
-                                                                @foreach (range(1, 5) as $item)
-                                                                    <option value="">Message {{ $item }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-                                                        <div class="col-1"
-                                                            style="margin-top: 26px;justify-content: center;display: flex;">
-                                                            <button class="button-add button-add--blue color-red"
-                                                                type="button" style="background-color: red;"
-                                                                onclick="removeReply(1)"><span class="button-add__icon">
-                                                                    <svg class="icon-icon-trash">
-                                                                        <use xlink:href="#icon-trash"></use>
-                                                                    </svg></span><span class="button-add__text"></span>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                    @endforeach
+                                                @endif
                                             </div>
                                         </div>
                                         <div class="col-2 mt-4">
-                                            <a class="button button--secondary" type="button" id="add-response">
+                                            <button
+                                                class="button button--secondary"
+                                                type="button" id="add-response">
                                                 <span class="button__icon button__icon--left"><svg class="icon-icon-plus">
                                                         <use xlink:href="#icon-plus"></use>
                                                     </svg>
                                                 </span>
                                                 <span class="button__text">Tambah Respon</span>
-                                            </a>
+                                            </button>
                                         </div>
                                     </div>
                                     <div class="auth-card__submit d-flex">
                                         <button class="button button--primary button--block mr-3" type="submit">
                                             <span class="button__text">Simpan</span>
                                         </button>
-                                        <a href="{{ url('message') }}"
+                                        <a href="{{ route('message', ['flow' => $flow->id]) }}"
                                             class="button button--secondary button--block color-red" type="button">
                                             <span class="button__text">Cancel</span>
                                         </a>
@@ -433,58 +409,76 @@
 @section('js')
     <script>
         $('.select2').select2();
-
-        $('#list_message').on('change', function() {
-            $.ajax({
-                url: location.origin + "/message/credit?id=" + this.value,
-                success: function(res) {
-                    $('textarea#text2').val(res.text);
-                }
-            });
-        });
-
-        var i = 1;
+        let i = 1;
         var length;
+        // $( document ).ready(function() {
+        //     let childElementCount = document.getElementById("custom-option-message").childElementCount;
+        //     if ('{{ $message->type ?? '' }}' == 'prompt') {
+        //         $('#type-jawaban').removeClass('d-none')
+        //         $('#custom-option-message').removeClass('d-none')
+        //     }
+        //     if ('{{ $message->type_button ?? '' }}' == 'button') {
+        //         label = 'Button Option';
+        //         if (childElementCount == 2) {
+        //             $("#add-response").addClass('d-none')
+        //         }
+        //     }
+        //     if ('{{ $message->type_button ?? '' }}' == 'list') {
+        //         label = 'Button List';
+        //         if (childElementCount == 4) {
+        //             $("#add-response").addClass('d-none')
+        //         }
+        //     }
+        //     if ('{{ $message->type_button ?? '' }}' == 'custom') {
+        //         label = 'Custom Response';
+        //     }
+        // });
+
+
         $('#add-response').on('click', function() {
-            i++;
-            if ($(this).attr("tipe-list") == 'button') {
-                label = 'Nama Button';
-                if (i == 3) {
-                    $("#add-response").addClass('d-none')
-                }
-            }
-            if ($(this).attr("tipe-list") == 'list') {
-                label = 'List Button';
-                if (i == 5) {
-                    $("#add-response").addClass('d-none')
-                }
-            }
-            if ($(this).attr("tipe-list") == 'custom') {
-                label = 'Custom Response';
-            }
+            let childElementCount = document.getElementById("custom-option-message").childElementCount;
+            console.log(childElementCount);
+            // if ($(this).attr("tipe-list") == 'button') {
+            //     label = 'Button Option';
+            //     if (childElementCount == 2) {
+            //         $("#add-response").addClass('d-none')
+            //     }
+            // }
+            // if ($(this).attr("tipe-list") == 'list') {
+            //     label = 'Button List';
+            //     if (childElementCount == 4) {
+            //         $("#add-response").addClass('d-none')
+            //     }
+            // }
+            // if ($(this).attr("tipe-list") == 'custom') {
+            //     label = 'Custom Response';
+            // }
             let html = `
-            <div id="form-reply-${i}" class="col-12">
+            <div class="col-12 reply-row">
+                <input type="hidden" name="action[]" value="null">
                 <div class="row">
                     <div class="col-6 mt-4">
-                        <label>${label}</label>
-                        <input type="text" name="button[]" class="form-control" placeholder="">
+                        <label>Response ${childElementCount + 1}</label>
+                        <input type="text" name="button[]" class="form-control">
                     </div>
                     <div class="col-5 mt-4">
-                        <label>Respon Pesan</label>
+                        <label>Pesan Balasan</label>
                         <select type="text" class="form-control" name="respon[]">
-                            @foreach (range(1, 5) as $item)
-                                <option value="">Message {{ $item }}</option>
+                            <option selected value="null">Pilih pesan balasan</option>
+                            @foreach ($list_message as $msg_reply)
+                                <option value="{{ $msg_reply->id }}">{{ $msg_reply->title }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-1"
-                        style="margin-top: 52px;justify-content: center;display: flex;">
+                    <div class="col-1" style="margin-top: 52px;justify-content: center;display: flex;">
                         <button class="button-add button-add--blue color-red" type="button"
-                            style="background-color: red;" onclick="removeReply(${i})"><span
-                                class="button-add__icon">
+                            style="background-color: red;" onclick="removeReply(this)">
+                            <span class="button-add__icon">
                                 <svg class="icon-icon-trash">
                                     <use xlink:href="#icon-trash"></use>
-                                </svg></span><span class="button-add__text"></span>
+                                </svg>
+                            </span>
+                            <span class="button-add__text"></span>
                         </button>
                     </div>
                 </div>
@@ -492,33 +486,35 @@
             $('#custom-option-message').append(html)
         })
 
-        function removeReply(id) {
-            $('#form-reply-' + id).remove()
+        function removeReply(elButton) {
+            const wrap = $(elButton).closest('.reply-row')
+            wrap.remove()
         }
 
-        $('#list_message').on('change', function() {
-            if (this.value == 'button') {
-                $('#add-response').attr('tipe-list', 'button')
-                document.getElementById('label-option').innerHTML = 'Button Option'
-                // $('#button').removeClass('d-none')
-                // $('#list').addClass('d-none')
-                // $('#custom').addClass('d-none')
-            }
-            if (this.value == 'list') {
-                $('#add-response').attr('tipe-list', 'list')
-                document.getElementById('label-option').innerHTML = 'Button List'
-                // $('#button').addClass('d-none')
-                // $('#list').removeClass('d-none')
-                // $('#custom').addClass('d-none')
-            }
-            if (this.value == 'custom') {
-                $('#add-response').attr('tipe-list', 'custom')
-                document.getElementById('label-option').innerHTML = 'Custom Response'
-                // $('#button').addClass('d-none')
-                // $('#list').addClass('d-none')
-                // $('#custom').removeClass('d-none')
-            }
-        })
+        // $('#type_button').on('change', function() {
+        //     $('#custom-option-message').removeClass('d-none')
+        //     $('#add-response').removeClass('d-none')
+        //     let childElement = document.getElementById("custom-option-message")
+        //     while (childElement.firstChild) {
+        //         childElement.removeChild(childElement.lastChild);
+        //     }
+        //     if (this.value == 'button') {
+        //         $('#add-response').attr('tipe-list', 'button')
+        //         document.getElementById('label-option').innerHTML = 'Button Option'
+        //     }
+        //     if (this.value == 'list') {
+        //         $('#add-response').attr('tipe-list', 'list')
+        //         document.getElementById('label-option').innerHTML = 'Button List'
+        //     }
+        //     if (this.value == 'custom') {
+        //         $('#add-response').attr('tipe-list', 'custom')
+        //         document.getElementById('label-option').innerHTML = 'Custom Response'
+        //     }
+        //     if (this.value == '') {
+        //         $('#custom-option-message').addClass('d-none')
+        //         $('#add-response').addClass('d-none')
+        //     }
+        // })
 
         $('#type').on('click', function() {
             if (this.value == 'prompt') {

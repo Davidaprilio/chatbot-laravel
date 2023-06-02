@@ -61,8 +61,12 @@
                                                     - Handphone</span></th>
                                             <th class="" style="text-align: center"><span
                                                     class="align-middle">User</span></th>
-                                            <th class="" style="text-align: center"><span
-                                                    class="align-middle">Status</span></th>
+                                            <th class="" style="text-align: center">
+                                                <span class="align-middle">Status</span>
+                                            </th>
+                                            <th class="" style="text-align: center">
+                                                <span class="align-middle">Flow Chat Bot</span>
+                                            </th>
                                             <th class="table__actions"></th>
                                         </tr>
                                     </thead>
@@ -86,6 +90,18 @@
                                                         <div class="table__status"><span
                                                                 class="table__status-icon color-red"></span>{{ $item->status }}
                                                         </div>
+                                                    @endif
+                                                </td>
+                                                <td class="table__td">
+                                                    @if ($item->flow_chat)
+                                                        <a href="{{ route('message', ['flow' => $item->flow_chat_id]) }}">{{ $item->flow_chat->name }}</a>
+                                                        <button class="btn btn-set-flow btn-sm btn-link" data-id="{{ $item->id }}" data-selected="{{ $item->flow_chat_id }}">
+                                                            <i class="fa fa-pencil"></i>
+                                                        </button>
+                                                    @else
+                                                        <button class="btn btn-set-flow btn-sm btn-link" data-id="{{ $item->id }}">
+                                                            set flow <i class="fa fa-plus"></i>
+                                                        </button>
                                                     @endif
                                                 </td>
                                                 <td class="table__td d-flex">
@@ -187,6 +203,53 @@
             </div>
         </div>
     </div>
+
+    <div class="modal modal-compact scrollbar-thin" id="setFlowChatDevice" data-simplebar>
+        <div class="modal__overlay" data-dismiss="modal"></div>
+        <div class="modal__wrap">
+            <div class="modal__window">
+                <div class="modal__content">
+                    <button class="modal__close" data-dismiss="modal">
+                        <svg class="icon-icon-cross">
+                            <use xlink:href="#icon-cross"></use>
+                        </svg>
+                    </button>
+                    <div class="modal__body p-4">
+                        <div class="">
+                            <div class="modal-account__right tab-content">
+                                <div class="modal-account__pane tab-pane fade show active" id="accountDetails">
+                                    <div class="modal-account__pane-header">
+                                        <h2 id="title-credit">Set Flow Chat</h2>
+                                    </div>
+                                    <form action="" id="form-set-flow" method="POST">
+                                        @csrf
+                                        <div class="row row--md">
+                                            <div class="col-12 form-group form-group--lg">
+                                                <label class="form-label form-label--sm">Label</label>
+                                                <div class="input-group">
+                                                    <select name="flow_chat_id" id="select-chat-flow" class="form-control"></select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-account__form-submit">
+                                            <button class="button button--primary button--load" type="submit">
+                                                <span class="button__icon button__icon--left">
+                                                    <svg class="icon-icon-refresh">
+                                                        <use xlink:href="#icon-refresh"></use>
+                                                    </svg>
+                                                </span>
+                                                <span class="button__text">Apply</span>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 @section('js')
     <script>
@@ -223,6 +286,67 @@
                         }
                     });
                 }
+            })
+        }
+
+        $('.btn-set-flow').on('click', async function() {
+            const button = $(this)
+            $('#select-chat-flow').prop('disable', true)
+            await renderOptionFlowChat(button.data('id'), button.data('selected'))
+            Modal.toggleClass($('#setFlowChatDevice').get(0))
+            $('#form-set-flow').attr('action', '{{ route("device.flows", ["device" => ":device"]) }}'.replace(':device', button.data('id')))
+            
+            if(button.data('selected')) {
+                $('#select-chat-flow').val(button.data('selected'))
+            }
+            $('#select-chat-flow').prop('disable', false)
+
+            $('#form-set-flow #overwrite-input').remove()
+        })
+
+        $('#form-set-flow').on('submit', async function(event) {
+            event.preventDefault()
+            try {
+                const res = await sendForm('form-set-flow')
+                Swal.fire({
+                    title: res.message,
+                    type: "success",
+                    timer: 1000
+                })
+                closeModal('#setFlowChatDevice')
+                window.location.reload()
+            } catch (error) {
+                if (error.status == 422) {
+                    return alert(error.responseJSON.message)
+                } else if (error.status == 400) {
+                    const isOverwrite = await Confirm.fire({
+                        title: "Overwrite This",
+                        text: error.responseJSON.message,
+                        type: "success",
+                    }).then(r => r.isConfirmed)
+
+                    if (isOverwrite) {
+                        $('#form-set-flow').append('<input type="hidden" name="overwrite" id="overwrite-input" value="1">')
+                        return $('#form-set-flow').submit()
+                    }
+
+
+                } else {
+                    console.error(error);
+                }
+            }
+        })
+
+        async function renderOptionFlowChat(id, selected) {
+            const dataFlowList = await ajaxPromise({
+                url: `/device/${id}/flows`,
+            }, 'GET')
+
+            $('#select-chat-flow').html('')
+            dataFlowList.forEach(flow => {
+                $('#select-chat-flow').append(
+                    `<option value="${flow.id}">${flow.name} ${flow.device ? ` - (used device: ${flow.device.name})` : ''} </option>`
+                )
             })
         }
     </script>

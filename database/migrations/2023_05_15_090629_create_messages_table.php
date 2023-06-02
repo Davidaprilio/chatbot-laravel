@@ -33,6 +33,7 @@ return new class extends Migration
                 'skip_and_next_message',
             ])->nullable();
             $table->string('condition_value')->nullable();
+            $table->string('type_button')->nullable();
             $table->enum('trigger_event', [
                 'show_menu',
                 'close_chat',

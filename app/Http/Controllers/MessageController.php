@@ -3,64 +3,139 @@
 namespace App\Http\Controllers;
 
 use App\Models\ActionReply;
+use App\Models\FlowChat;
 use App\Models\Message;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class MessageController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, FlowChat $flow)
     {
-        $message    = Message::get();
-        return view('whatsapp.message.index', compact('message'));
+        $message    = Message::where('flow_chat_id', $flow->id)->get();
+        return view('whatsapp.message.index', compact('message', 'flow'));
     }
 
-    public function credit(Request $request)
+    public function credit(Request $request, FlowChat $flow)
     {
-        $message        = '';
-        $list_message   = Message::get();
-        if ($request->id) {
-            $message    = Message::where('id', $request->id)->first();
-        }
+        $list_message   = $flow->messages()->get();
         if ($request->ajax()) {
-            $message    = Message::where('id', $request->id)->first();
-            return $message;
+            return $list_message;
         }
-        return view('whatsapp.message.form', compact('message', 'list_message'));
+        $message        = null;
+        $button         = null;
+        // jika request id ada == edit
+        if ($request->id) {
+            $message    = $flow->messages()->where('id', $request->id)->first();
+            $button     = $message->replies()->orderBy('id')->get();
+        }
+        return view('whatsapp.message.form', compact('message', 'list_message', 'flow', 'button'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, FlowChat $flow)
     {
+        $replies = [
+            'old' => [],
+            'new' => []
+        ];
+
+        if ($request->type == 'prompt') {
+            if (!is_array($request->action)) {
+                return redirect()->back()->with('error', 'Pesan dengan type Pertanyaan harus memiliki jawaban');
+            }
+
+            foreach ($request->action as $index => $action) {
+                $merge = [
+                    'action_id' => $action,
+                    'response_text' => $request->button[$index],
+                    'reply_id' => $request->respon[$index],
+                ];
+                if ($action === "null") {
+                    $replies['new'][] = $merge;
+                } else {
+                    $replies['old'][] = $merge;
+                }
+            }
+            // data replies OK - sudah benar
+        }
+
+        $message = $flow->messages()->firstWhere('id', $request->id);
+
+        DB::beginTransaction();
+
         try {
-            if ($request->id) {
-                $message            = Message::where('id', $request->id)->first();
-            } else {
-                $message                = new Message();
-                $message->flow_chat_id  = 1;
+            if ($message === null) {
+                $message = new Message();
+                $message->flow_chat_id  = $flow->id;
+                // $message->type_button   = $request->type_button;
+                // $message->buttons       = json_encode($list_button);
             }
             $message->title         = $request->title;
             $message->text          = $request->text;
             $message->type          = $request->type;
-            $message->next_message  = $request->next_message;
-            Log::info('success msg', [$message]);
+            $message->hook          = $request->hook;
             $message->save();
-            return redirect('message')->with('success', 'Data berhasil disimpan');
+
+            $message->refresh();
         } catch (\Throwable $th) {
-            Log::info('error msg', [$th]);
-            return redirect()->back()->with('error', 'Gagal menyimpan data');
+            //throw $th;
+            DB::rollBack();
+            Log::error($th->getMessage(), $th->getTrace());
+            return redirect('message/' . $flow->id)->with('error', 'Masalah saat menyimpan pesan');
         }
+
+        try {
+            if ($message->type === 'chat' && $message->replies->count()) {
+                $message->replies()->delete(); //  jika type promp sudah pasti aman gak ke delete
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            DB::rollBack();
+            Log::error($th->getMessage(), $th->getTrace());
+            return redirect('message/' . $flow->id)->with('error', 'Masalah saat menghapus response pesan');
+        }
+
+        try {
+            // update replies
+            foreach ($replies['old'] as $action) {
+                $response_text = explode(',', $action['response_text']);
+                ActionReply::where('id', $action['action_id'])->update([
+                    'prompt_response' => count($response_text) == 1 ? $response_text[0] : json_encode($response_text),
+                    'reply_message_id' => $action['reply_id']
+                ]);
+            }
+            // create new replies
+            foreach ($replies['new'] as $action) {
+                $response_text = explode(',', $action['response_text']);
+                ActionReply::create([
+                    'prompt_response' => count($response_text) == 1 ? $response_text[0] : json_encode($response_text),
+                    'prompt_message_id' => $message->id,
+                    'reply_message_id' => $action['reply_id'],
+                ]);
+            }
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            //throw $th;
+            Log::error($th->getMessage(), $th->getTrace());
+            return redirect('message/' . $flow->id)->with('error', 'Masalah saat menyimpan response pesan');
+        }
+
+        DB::commit();
+
+        return redirect('message/' . $flow->id)->with('success', 'Data berhasil disimpan');
     }
 
-    public function remove(Request $request)
+    public function remove(Request $request, FlowChat $flow)
     {
         if ($request->ajax()) {
             if ($request->msg == 1) {
-                $message    = Message::where('id', $request->id)->delete();
-                $ar             = ActionReply::where('prompt_message_id', $request->id)->orWhere('reply_message_id', $request->id)->delete();
+                $ar         = ActionReply::where('reply_message_id', $request->id)->orWhere('prompt_message_id', $request->id)->delete();
+                $message    = Message::where('id', $request->id)->where('flow_chat_id', $flow->id)->delete();
             }
             if ($request->ar == 1) {
-                $ar    = ActionReply::where('id', $request->id)->delete();
+                $ar         = ActionReply::where('id', $request->id)->delete();
             }
         }
     }

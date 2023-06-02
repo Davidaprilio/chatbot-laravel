@@ -6,6 +6,7 @@ use App\Models\ActionReply;
 use App\Models\FlowChat;
 use App\Models\Message;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
@@ -29,10 +30,13 @@ class FlowChatController extends Controller
     public function save(Request $request)
     {
         $flowChat = FlowChat::updateOrCreate(
-            ['id' => $request->id_flow_input],
+            [
+                'id' => $request->id_flow_input,
+                'user_id' => Auth::user()->id
+            ],
             [
                 'name' => $request->name_flow_input,
-                'description' => $request->description_flow_input,
+                'description' => $request->desc_flow_input,
             ]
         );
 

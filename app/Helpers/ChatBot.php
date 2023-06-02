@@ -22,15 +22,15 @@ class ChatBot
         ]);
     }
 
-    static private function parseArgumentCondition(string $argumnet, Customer $customer)
+    static private function parseArgumentCondition(string $argument, Customer $customer)
     {
-        if ($argumnet === 'null') return null;
-        else if ($argumnet === 'true') return true;
-        else if ($argumnet === 'false') return false;
-        else if (is_numeric($argumnet) && Str::contains('.', $argumnet)) return (float) $argumnet;
-        else if (is_numeric($argumnet)) return (int) $argumnet;
-        else if (Str::startsWith('customer.', $argumnet)) return $customer->{Str::replace('customer.', '', $argumnet)};
-        return $argumnet;
+        if ($argument === 'null') return null;
+        else if ($argument === 'true') return true;
+        else if ($argument === 'false') return false;
+        else if (is_numeric($argument) && Str::contains($argument, '.')) return (float) $argument;
+        else if (is_numeric($argument)) return (int) $argument;
+        else if (Str::startsWith($argument, 'customer.')) return $customer->{Str::replace('customer.', '', $argument)};
+        return $argument;
     }
 
     static function replyMsg(Device $device, ChatSession $session, Message $message, string $phone)

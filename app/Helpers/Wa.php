@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\Device;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -10,9 +11,9 @@ class Wa
 {
     const BASE_URL = 'http://103.167.35.210:7081/api';
 
-    static public function send(array $data) {
+    static public function send(Device $device, array $data) {
         return self::api()->post('/send', array_merge([
-            'token' => 'dev_chat',
+            'token' => $device->token,
         ], $data))->json();
     }
     
@@ -36,8 +37,19 @@ class Wa
             '_day' => $now->dayName
         ], $data);
 
-        foreach ($data as $key => $value) {
-            $text = str_replace("[{$key}]", $value, $text);
+        unset($data['more_data']);
+
+        try {
+            foreach ($data as $key => $value) {
+                $text = str_replace("[{$key}]", $value, $text);
+            }
+        } catch (\Throwable $th) {
+            Log::error('Parse Message', [
+                'text' => $text,
+                'data' => $data,
+                'error' => $th->getMessage()
+            ]);
+            throw $th;
         }
         return $text;
     }

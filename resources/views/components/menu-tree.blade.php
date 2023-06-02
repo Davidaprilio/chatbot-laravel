@@ -2,15 +2,16 @@
     'name' => 'Untitled Menu',
     'id' => null,
     'isOpen' => false,
-    'icon'
+    'icon',
 ])
 
 @php
-    $id = $id ?? (Str::slug($name).'-'.Str::random(5));
+    $id = $id ?? Str::slug($name) . '-' . Str::random(5);
 @endphp
 
 <li class="sidebar__menu-item">
-    <a class="sidebar__link {{ $isOpen ? '' : 'collapsed' }}" href="#" data-toggle="collapse" data-target="#{{ $id }}" aria-expanded="{{ $isOpen ? 'true' : 'false' }}">
+    <a class="sidebar__link {{ $isOpen ? 'active' : 'collapsed' }}" href="#" data-toggle="collapse"
+        data-target="#{{ $id }}" aria-expanded="{{ $isOpen ? 'true' : 'false' }}">
         <span class="sidebar__link-icon">
             @if ($icon instanceof \Illuminate\Support\HtmlString)
                 {{ $icon }}

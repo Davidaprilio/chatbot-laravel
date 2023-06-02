@@ -29,7 +29,7 @@
                 <div class="page-tools__right">
                     <div class="page-tools__right-row">
                         <div class="page-tools__right-item">
-                            <a class="button button--secondary" type="button" href="{{ url('message/credit') }}">
+                            <a class="button button--secondary" type="button" href="{{ route('message.credit', ['flow'=>$flow->id]) }}">
                                 <span class="button__icon button__icon--left"><svg class="icon-icon-plus">
                                         <use xlink:href="#icon-plus"></use>
                                     </svg>
@@ -49,14 +49,23 @@
                                 <table class="table table--lines" id="datatables-message">
                                     <thead class="table__header">
                                         <tr class="table__header-row text-center">
-                                            <th style="width: 50px;"><span>No</span></th>
-                                            <th class="" style="text-align: center"><span
-                                                    class="align-middle">Judul</span></th>
-                                            <th class="" style="text-align: center; max-width: 200px;"><span
-                                                    class="align-middle">Pesan</span></th>
-                                            <th class="" style="text-align: center"><span class="align-middle">Tipe
-                                                    Pesan</span></th>
-                                            <th class="table__actions"></th>
+                                            <th style="width: 50px;">
+                                                <span>No</span>
+                                            </th>
+                                            <th class="" style="text-align: center">
+                                                <span class="align-middle">Hook</span>
+                                            </th>
+                                            <th class="" style="text-align: center">
+                                                <span class="align-middle">Judul</span>
+                                            </th>
+                                            <th class="" style="text-align: center; max-width: 200px;">
+                                                <span class="align-middle">Pesan</span>
+                                            </th>
+                                            <th class="" style="text-align: center">
+                                                <span class="align-middle">Tipe Pesan</span>
+                                            </th>
+                                            <th class="table__actions">
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -64,6 +73,7 @@
                                             <tr class="table__row text-center">
                                                 <td class="table__td"><span class="text-grey">{{ $loop->iteration }}</span>
                                                 </td>
+                                                <td class="table__td">{{ ucwords(str_replace('_', ' ', $item->hook)) }}</td>
                                                 <td class="table__td">{{ $item->title ?? '-' }}</td>
                                                 <td class="table__td text-truncate" style="max-width: 200px;">
                                                     <small>
@@ -85,7 +95,7 @@
                                                                 <ul class="dropdown-items__list">
                                                                     <li class="dropdown-items__item">
                                                                         <a class="dropdown-items__link"
-                                                                            href="{{ url('message/credit?id=' . $item->id) }}">
+                                                                            href="{{ route('message.credit', ['flow' => $flow->id, 'id' => $item->id]) }}">
                                                                             <span class="dropdown-items__link-icon">
                                                                                 <svg class="icon-icon-view">
                                                                                     <use xlink:href="#icon-view"></use>
@@ -96,7 +106,7 @@
                                                                     <li class="dropdown-items__item">
                                                                         <a class="dropdown-items__link"
                                                                             href="javascript:void(0)"
-                                                                            onclick="removePesan('{{ url('message/remove?msg=1&id=' . $item->id) }}')">
+                                                                            onclick="removePesan('{{ route('message.remove', ['flow' => $flow->id, 'id' => $item->id, 'msg' => '1']) }}')">
                                                                             <span class="dropdown-items__link-icon">
                                                                                 <svg class="icon-icon-trash">
                                                                                     <use xlink:href="#icon-trash"></use>
@@ -129,6 +139,7 @@
         });
 
         function removePesan(url) {
+            // console.log(url);
             Swal.fire({
                 title: 'Ingin menghapus data?',
                 text: "Data akan terhapus permanen!",
@@ -141,7 +152,8 @@
                 if (result.isConfirmed) {
                     $.ajax({
                         url: url,
-                        success: function() {
+                        success: function(res) {
+                            // console.log(res);
                             Swal.fire(
                                 'Terhapus!',
                                 'Data berhasil dihapus.',

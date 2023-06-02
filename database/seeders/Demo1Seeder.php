@@ -19,6 +19,7 @@ class Demo1Seeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
         $flow_chat = FlowChat::create([
+            'user_id' => 2,
             'name' => 'Flow 1',
             'active' => 1,
         ]);
@@ -160,11 +161,14 @@ class Demo1Seeder extends Seeder
 
 
 
+        $i = 1;
         foreach ($messages as $message) {
             $message['text'] = parseText($message['text']);
             Message::create(array_merge($message, [
+                'title' => isset($message['title']) ? $message['title'] : "Message ke {$i}",
                 'flow_chat_id' => $flow_chat->id
             ]));
+            $i++;
         }
 
         $action_replies = [

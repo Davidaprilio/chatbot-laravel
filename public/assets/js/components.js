@@ -1411,9 +1411,11 @@ Modal.toggleClass = modal => {
     modal.classList.add('is-animate');
 }
 
-Modal.show = event => {
-    const target = event.currentTarget.getAttribute('data-modal');
+Modal.show = (event, customTarget = '') => {
+    const target = event.currentTarget.getAttribute('data-modal') || customTarget;
     const modal = document.querySelector(target);
+
+    console.log(modal);
 
     event.preventDefault();
 

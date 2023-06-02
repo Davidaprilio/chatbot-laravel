@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Klinik;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,7 +12,8 @@ class ProfileController extends Controller
     public function index(Request $request)
     {
         $user   = User::with('role')->where('id', Auth::user()->id)->first();
-        return view('user.profile', compact('user'));
+        $klinik = Klinik::where('user_id', Auth::user()->id)->first();
+        return view('user.profile', compact('user', 'klinik'));
     }
 
     public function save_profile(Request $request)
@@ -36,24 +38,44 @@ class ProfileController extends Controller
         User::where('id', Auth::id())->update([
             $field => $filename
         ]);
-        // return 'ok';
         return redirect('/profile');
     }
 
     public function store(Request $request)
     {
-        $data            = $request->data;
-        $user            = User::where('id', $data['id'])->first();
-        $user->sapaan    = $data['sapaan'];
-        $user->panggilan = $data['panggilan'];
-        $user->name      = $data['name'];
-        $user->email     = $data['email'];
-        $user->phone     = format_phone($data['phone']);
-        $user->provinsi  = $data['provinsi'];
-        $user->kota      = $data['kota'];
-        $user->kecamatan = $data['kecamatan'];
-        $user->save();
+        if ($request->idKlinik) {
+            if ($request->logo) {
+                $file = $request->file('logo');
+                $filename = $request->nama . '_logoKlinik.' . $file->getClientOriginalExtension();
+                $file->move(public_path('web-profile'), $filename);
+                $logo   = url('web-profile/' . $filename);
+            } else {
+                $logo   = $request->logo_text;
+            }
 
-        return 'Data berhasil disimpan.';
+            $klinik             = Klinik::where('id', $request->idKlinik)->first();
+            $klinik->nama       = $request->nama;
+            $klinik->provinsi   = $request->provinsiKlinik;
+            $klinik->kota       = $request->kotaKlinik;
+            $klinik->kecamatan  = $request->kecamatanKlinik;
+            $klinik->maps       = $request->maps;
+            $klinik->alamat     = $request->alamat;
+            $klinik->logo       = $logo;
+            $klinik->save();
+            return redirect('profile')->with('success', 'Data berhasil di update.');
+        }else{
+            $data            = $request->data;
+            $user            = User::where('id', $data['id'])->first();
+            $user->sapaan    = $data['sapaan'];
+            $user->panggilan = $data['panggilan'];
+            $user->name      = $data['name'];
+            $user->email     = $data['email'];
+            $user->phone     = format_phone($data['phone']);
+            $user->provinsi  = $data['provinsi'];
+            $user->kota      = $data['kota'];
+            $user->kecamatan = $data['kecamatan'];
+            $user->save();
+            return 'Data berhasil disimpan.';
+        }
     }
 }

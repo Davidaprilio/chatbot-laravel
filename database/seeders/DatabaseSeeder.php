@@ -4,7 +4,11 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
+use App\Models\Klinik;
+use App\Models\Kontak;
+use App\Models\Role;
 use App\Models\Server;
+use App\Models\SettingWeb;
 use App\Models\User;
 use DavidArl\ApiDaerah\Database\Seeders\DaerahSeeder;
 use Illuminate\Database\Seeder;
@@ -18,6 +22,25 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $simple_password = Hash::make('12345678');
+        SettingWeb::create([
+            'web_title' => 'ChatBot',
+            'web_logo' => url('/logo-chat.png')
+        ]);
+        $role_super = Role::create([
+            'slug' => 'super-admin',
+            'name' => 'Super Admin',
+            'description' => 'Super Admin',
+        ]);
+        $role_admin = Role::create([
+            'slug' => 'admin',
+            'name' => 'Admin',
+            'description' => 'Admin',
+        ]);
+        $role_cust = Role::create([
+            'slug' => 'customer',
+            'name' => 'Customer',
+            'description' => 'Customer',
+        ]);
         $user_dev = User::factory()->create([
             'name' => 'Developer',
             'username' => 'developer',
@@ -32,6 +55,10 @@ class DatabaseSeeder extends Seeder
             'username' => 'demo',
             'password' => $simple_password,
         ]);
+
+        Kontak::init($user_dev->id);
+        Kontak::init($user_admin->id);
+        Kontak::init($user_demo->id);
 
         $server = Server::create([
             'name' => 'Server 1',

@@ -108,64 +108,122 @@
 
             <!-- User Profile Content -->
             <div class="row">
-                <div class="col-lg-2"></div>
-                <div class="col-xl-8 col-lg-8 col-md-5">
+                <div class="col-12 col-lg-6 col-md-5">
                     <div class="card mb-4">
                         <div class="card__wrapper">
                             <div class="card__container">
-                                <div class="card__body">
-                                    <div class="row align-items-center">
-                                        <div class="col-lg-6">
-                                            <h6 class="card-text text-uppercase">About</h6>
-                                        </div>
-                                        <div class="col-lg-6 text-right">
-                                            <a class="button-icon" href="#" data-modal="#accountEdit"><span
-                                                    class="button-icon__icon">
-                                                    <svg class="icon-icon-task">
-                                                        <use xlink:href="#icon-task"></use>
-                                                    </svg></span>
-                                            </a>
-                                        </div>
+                                <div class="card__header mb-2">
+                                    <div class="card__header-left">
+                                        <h3 class="card__header-title">Data User</h3>
                                     </div>
-                                    <div class="dropdown-menu__divider"></div>
-                                    <ul class="list-unstyled mb-4 mt-3">
-                                        <div class="row">
-                                            <div class="col-lg-6">
-                                                <li class="d-flex align-items-center mb-3">
-                                                    <i class="ti ti-user"></i><span class="fw-bold mx-2">Nama Lengkap
-                                                        :</span>
-                                                    <span>{{ $user->name ?? 'User' }}</span>
-                                                </li>
-                                                <li class="d-flex align-items-center mb-3">
-                                                    <i class="ti ti-phone"></i><span class="fw-bold mx-2">Nomor Handphone
-                                                        :</span>
-                                                    <span>{{ $user->phone }}</span>
-                                                </li>
-                                                <li class="d-flex align-items-center mb-3">
-                                                    <i class="ti ti-mail"></i><span class="fw-bold mx-2">Email :</span>
-                                                    <span>{{ $user->email }}</span>
-                                                </li>
-                                                <li class="d-flex align-items-center mb-3">
-                                                    <i class="ti ti-crown"></i><span class="fw-bold mx-2">Role :</span>
-                                                    <span>{{ $user->role->name ?? 'Member' }}</span>
-                                                </li>
+                                    <div class="customer-card__header-right">
+                                        <button class="customer-card__btn-task" data-modal="#accountEdit">
+                                            <svg class="icon-icon-task">
+                                                <use xlink:href="#icon-task"></use>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="dropdown-menu__divider"></div>
+                                <div class="card__body">
+                                    <ul class="customer-shipping__list">
+                                        <li>
+                                            <div class="row row--xs justify-content-between">
+                                                <div class="col-auto text-grey">Nama Lengkap</div>
+                                                <div class="col-auto">{{ $user->name ?? '' }}</div>
                                             </div>
-                                            <div class="col-lg-6">
-                                                <li class="d-flex align-items-center mb-3">
-                                                    <i class="ti ti-user"></i><span class="fw-bold mx-2">Provinsi :</span>
-                                                    <span>{{ $user->provinsi }}</span>
-                                                </li>
-                                                <li class="d-flex align-items-center mb-3">
-                                                    <i class="ti ti-phone"></i><span class="fw-bold mx-2">Kota :</span>
-                                                    <span>{{ $user->kota }}</span>
-                                                </li>
-                                                <li class="d-flex align-items-center mb-3">
-                                                    <i class="ti ti-mail"></i><span class="fw-bold mx-2">Kecamatan
-                                                        :</span>
-                                                    <span>{{ $user->kecamatan }}</span>
-                                                </li>
+                                        </li>
+                                        <li>
+                                            <div class="row row--xs justify-content-between">
+                                                <div class="col-auto text-grey">Nomor Handphone</div>
+                                                <div class="col-auto">{{ $user->phone ?? '' }}</div>
                                             </div>
-                                        </div>
+                                        </li>
+                                        <li>
+                                            <div class="row row--xs justify-content-between">
+                                                <div class="col-auto text-grey">Email</div>
+                                                <div class="col-auto">{{ $user->email ?? '' }}</div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="row row--xs justify-content-between">
+                                                <div class="col-auto text-grey">Role</div>
+                                                <div class="col-auto">{{ $user->role->name ?? '' }}</div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="row row--xs justify-content-between">
+                                                <div class="col-auto text-grey">Provinsi</div>
+                                                <div class="col-auto">{{ $user->provinsi ?? '' }}</div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="row row--xs justify-content-between">
+                                                <div class="col-auto text-grey">Kota</div>
+                                                <div class="col-auto">{{ $user->kota ?? '' }}</div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="row row--xs justify-content-between">
+                                                <div class="col-auto text-grey">Kecamatan</div>
+                                                <div class="col-auto">{{ $user->kecamatan ?? '' }}</div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-6">
+                    <div class="customer-account__item-4 customer-shipping customer-card card">
+                        <div class="card__wrapper">
+                            <div class="card__container">
+                                <div class="card__header mb-2">
+                                    <div class="card__header-left">
+                                        <h3 class="card__header-title">Data Klinik</h3>
+                                    </div>
+                                    <div class="customer-card__header-right">
+                                        <button class="customer-card__btn-task" data-modal="#klinikEdit">
+                                            <svg class="icon-icon-task">
+                                                <use xlink:href="#icon-task"></use>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="dropdown-menu__divider"></div>
+                                <div class="card__body">
+                                    <ul class="customer-shipping__list">
+                                        <li>
+                                            <div class="row row--xs justify-content-between">
+                                                <div class="col-auto text-grey">Nama Klinik</div>
+                                                <div class="col-auto">{{ $klinik->nama ?? '' }}</div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="row row--xs justify-content-between">
+                                                <div class="col-auto text-grey">Provinsi</div>
+                                                <div class="col-auto">{{ $klinik->provinsi ?? '' }}</div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="row row--xs justify-content-between">
+                                                <div class="col-auto text-grey">Kota</div>
+                                                <div class="col-auto">{{ $klinik->kota ?? '' }}</div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="row row--xs justify-content-between">
+                                                <div class="col-auto text-grey">Kecamatan</div>
+                                                <div class="col-auto">{{ $klinik->kecamatan ?? '' }}</div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="row row--xs justify-content-between">
+                                                <div class="col-auto text-grey">Alamat</div>
+                                                <div class="col-auto">{{ $klinik->alamat ?? '' }}</div>
+                                            </div>
+                                        </li>
                                     </ul>
                                 </div>
                             </div>
@@ -221,15 +279,6 @@
                                                 class="form-control input" placeholder="example@domain.com"
                                                 value="{{ $user->email }}" />
                                         </div>
-                                        {{-- <div class="col-12 col-md-6 mb-3">
-                                            <label class="form-label" for="status">Status</label>
-                                            <select id="status" name="status" class="form-select input"
-                                                aria-label="Default select example">
-                                                <option value="Aktif">Aktif</option>
-                                                <option value="Nonaktif">Nonaktif</option>
-                                                <option value="Suspended">Suspended</option>
-                                            </select>
-                                        </div> --}}
                                         <div class="col-12 col-md-6 mb-3">
                                             <label class="form-label" for="phone">Phone Number</label>
                                             <input type="text" id="phone" name="phone"
@@ -253,6 +302,81 @@
                                                 class="btn btn-primary me-sm-3 me-1">Simpan</button>
                                             <button type="reset" class="btn btn-label-secondary"
                                                 data-bs-dismiss="modal" aria-label="Close">
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal modal-account modal-compact scrollbar-thin" id="klinikEdit" data-simplebar>
+        <div class="modal__overlay" data-dismiss="modal"></div>
+        <div class="modal__wrap">
+            <div class="modal__window">
+                <div class="modal__content">
+                    <button class="modal__close" data-dismiss="modal">
+                        <svg class="icon-icon-cross">
+                            <use xlink:href="#icon-cross"></use>
+                        </svg>
+                    </button>
+                    <div class="modal__body">
+                        <div class="">
+                            <div class="modal-account__right tab-content">
+                                <div class="modal-account__pane tab-pane fade show active" id="accountDetails">
+                                    <div class="modal-account__pane-header">
+                                        <h2 id="title-credit">Edit Klinik</h2>
+                                    </div>
+                                    <form action="{{ url('profile/store') }}" class="row g-3" method="post" enctype="multipart/form-data">
+                                        @csrf
+                                        <input type="hidden" name="idKlinik" value="{{ $klinik->id }}" id="idKlinik"
+                                            class="form-control">
+                                        <div class="col-12 col-md-6 mb-3">
+                                            <label class="form-label" for="modalEditUserFirstName">Nama Klinik</label>
+                                            <input type="text" id="nama" name="nama" class="form-control input"
+                                                placeholder="Nama Klinik" value="{{ $klinik->nama ?? '' }}" />
+                                        </div>
+                                        <div class="col-12 col-md-6 mb-3">
+                                            <label class="form-label" for="panggilan">Logo Klinik</label>
+                                            <input type="file" id="logo" name="logo" class="form-control input"
+                                                placeholder="Logo Klinik" />
+                                            <span><a target="_blank" href="{{ $klinik->logo ?? '' }}">{{ ($klinik->logo ?? '') != '' ? 'Lihat logo' : ''  }}</a></span>
+                                            <input type="hidden" id="logo_text" name="logo_text"
+                                                class="form-control input" placeholder="Logo Klinik"
+                                                value="{{ $klinik->logo ?? '' }}" />
+                                        </div>
+                                        <div class="col-12 mb-3">
+                                            <label class="form-label" for="maps">Maps Klinik</label>
+                                            <input type="text" id="maps" name="maps" class="form-control input"
+                                                placeholder="Link Google Maps" value="{{ $klinik->maps ?? '' }}" />
+                                        </div>
+                                        <div class="col-12 mb-3">
+                                            <label class="form-label" for="alamat">Alamat</label>
+                                            <textarea class="form-control" name="alamat" id="alamat" cols="30"
+                                                rows="5">{{ $klinik->alamat ?? '' }}</textarea>
+                                        </div>
+                                        <div class="col-12 col-md-4 mb-3">
+                                                <label class="form-label" for="provinsiKlinik">Provinsi</label>
+                                                <select id="provKlinik" name="provinsiKlinik" class="form-select input"></select>
+                                            </div>
+                                            <div class="col-12 col-md-4 mb-3">
+                                                <label class="form-label" for="kotaKlinik">Kota/Kabupaten</label>
+                                                <select id="kabKlinik" name="kotaKlinik" class="form-select input"></select>
+                                            </div>
+                                            <div class="col-12 col-md-4 mb-3">
+                                                <label class="form-label" for="kecamatanKlinik">Kecamatan</label>
+                                                <select id="kecKlinik" name="kecamatanKlinik" class="form-select input"></select>
+                                            </div>
+                                        <div class="col-12 text-center mt-3">
+                                            <button type="submit" id="submit-btn"
+                                                class="btn btn-primary me-sm-3 me-1">Simpan</button>
+                                            <button type="reset" class="btn btn-label-secondary" data-bs-dismiss="modal"
+                                                aria-label="Close">
                                                 Cancel
                                             </button>
                                         </div>
@@ -399,7 +523,6 @@
                 name: $('#name').val(),
                 email: $('#email').val(),
                 phone: $('#phone').val(),
-                // status: $('#status').val(),
                 provinsi: $('#prov').val(),
                 kota: $('#kab').val(),
                 kecamatan: $('#kec').val(),
@@ -489,5 +612,24 @@
                 });
             }
         }
+
+        new ApiDaerah({
+            provinsi: {
+                id: 'provKlinik',
+                selected: '{{ $klinik->provinsi }}' || null,
+                value: 'name',
+            },
+            kabupaten: {
+                id: 'kabKlinik',
+                selected: '{{ $klinik->kota }}' || null,
+                value: 'full_name',
+                text: 'full_name'
+            },
+            kecamatan: {
+                id: 'kecKlinik',
+                selected: '{{ $klinik->kecamatan }}' || null,
+                value: 'name',
+            },
+        })
     </script>
 @endsection

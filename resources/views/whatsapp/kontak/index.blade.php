@@ -3,7 +3,7 @@
     <main class="page-content">
         <div class="container">
             <div class="page-header">
-                <h1 class="page-header__title">Data Customer</h1>
+                <h1 class="page-header__title">Data Kontak</h1>
             </div>
             <div class="page-tools">
                 <div class="page-tools__breadcrumbs">
@@ -20,7 +20,7 @@
                                         </svg>
                                     </a>
                                 </li>
-                                <li class="breadcrumbs__item active"><span class="breadcrumbs__link">Data Customer</span>
+                                <li class="breadcrumbs__item active"><span class="breadcrumbs__link">Data Kontak</span>
                                 </li>
                             </ol>
                         </div>
@@ -29,12 +29,12 @@
                 <div class="page-tools__right">
                     <div class="page-tools__right-row">
                         <div class="page-tools__right-item">
-                            <a class="button button--secondary" type="button" href="{{ url('customer/credit') }}">
+                            <a class="button button--secondary" type="button" href="{{ url('kontak/credit') }}">
                                 <span class="button__icon button__icon--left"><svg class="icon-icon-plus">
                                         <use xlink:href="#icon-plus"></use>
                                     </svg>
                                 </span>
-                                <span class="button__text">Tambah Customer</span>
+                                <span class="button__text">Tambah Kontak</span>
                             </a>
                         </div>
                     </div>
@@ -46,32 +46,34 @@
                     <div class="card__container pl-4 pr-4">
                         <div class="card__body">
                             <div class="table-wrapper">
-                                <table class="table table--lines" id="datatables-customer">
+                                <table class="table table--lines" id="datatables-kontak">
                                     <thead class="table__header">
                                         <tr class="table__header-row text-center">
                                             <th style="width: 50px;"><span>No</span></th>
                                             <th class="" style="text-align: center"><span
                                                     class="align-middle">Nama</span></th>
                                             <th class="" style="text-align: center"><span
-                                                    class="align-middle">Data</span></th>
+                                                    class="align-middle">Kontak</span></th>
+                                            <th class="" style="text-align: center"><span
+                                                    class="align-middle">Kategori</span></th>
                                             <th class="" style="text-align: center"><span
                                                     class="align-middle">Alamat</span></th>
                                             <th class="table__actions"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($customer as $item)
+                                        @foreach ($kontak as $item)
                                             <tr class="table__row text-center">
                                                 <td class="table__td"><span class="text-grey">{{ $loop->iteration }}</span>
                                                 </td>
-                                                <td class="table__td">{{ $item->name ?? '-' }}</td>
+                                                <td class="table__td">{{ $item->nama ?? '-' }}</td>
                                                 <td class="table__td">
                                                     <small>
-                                                        Usia: {{ $item->usia ?? '-' }} <br>
-                                                        Jenis Kelamin: {{ $item->jenis_kelamin ?? '-' }} <br>
-                                                        Golongan Darah: {{ $item->golongan_darah ?? '-' }}
+                                                        {{ $item->email ?? '-' }} <br>
+                                                        {{ $item->phone ?? '-' }}
                                                     </small>
                                                 </td>
+                                                <td class="table__td">{{ $item->kategori ?? '-' }}</td>
                                                 <td class="table__td">
                                                     <small>{{ $item->alamat ?? '-' }}</small>
                                                 </td>
@@ -87,7 +89,7 @@
                                                                 <ul class="dropdown-items__list">
                                                                     <li class="dropdown-items__item">
                                                                         <a class="dropdown-items__link"
-                                                                            href="{{ url('customer/credit?id=' . $item->id) }}">
+                                                                            href="{{ url('kontak/credit?id=' . $item->id) }}">
                                                                             <span class="dropdown-items__link-icon">
                                                                                 <svg class="icon-icon-view">
                                                                                     <use xlink:href="#icon-view"></use>
@@ -98,7 +100,7 @@
                                                                     <li class="dropdown-items__item">
                                                                         <a class="dropdown-items__link"
                                                                             href="javascript:void(0)"
-                                                                            onclick="removeCustomer('{{ url('customer/remove?id=' . $item->id) }}')">
+                                                                            onclick="removeKontak('{{ url('kontak/remove?id=' . $item->id) }}')">
                                                                             <span class="dropdown-items__link-icon">
                                                                                 <svg class="icon-icon-trash">
                                                                                     <use xlink:href="#icon-trash"></use>
@@ -125,12 +127,12 @@
 @endsection
 @section('js')
     <script>
-        $('#datatables-customer').DataTable({
+        $('#datatables-kontak').DataTable({
             ordering: false,
             // scrollX: true,
         });
 
-        function removeCustomer(url) {
+        function removeKontak(url) {
             Swal.fire({
                 title: 'Ingin menghapus data?',
                 text: "Data akan terhapus permanen!",

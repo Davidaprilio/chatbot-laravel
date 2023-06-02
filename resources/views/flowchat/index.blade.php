@@ -35,10 +35,10 @@
                         @foreach ($flows as $flow)
                         <tr class="table__row">
                             <td class="d-none d-lg-table-cell table__td">
-                                <span class="text-grey">#{{ $flow->id }}</span>
+                                <span class="text-grey">{{ $flow->id }}</span>
                             </td>
                             <td class="table__td">
-                                {{ $flow->name }}
+                                <a href="{{ route('message',['flow' => $flow->id]) }}">{{ $flow->name }}</a>
                             </td>
                             <td class="table__td">
                                 <span class="text-grey">{{ $flow->description ?? 'no description...' }}</span>

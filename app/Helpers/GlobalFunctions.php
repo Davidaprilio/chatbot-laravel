@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\SettingWeb;
 use Illuminate\Support\Facades\Log;
 
 function parseText(string $text)
@@ -51,6 +52,12 @@ function upperCase($text)
 {
     $word = ucwords(str_replace('_', ' ', $text));
     return $word;
+}
+
+function web($field)
+{
+    $web = SettingWeb::where('id', 1)->first();
+    return $web->$field;
 }
 
 

@@ -1,12 +1,16 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\FlowChatController;
+use App\Http\Controllers\KontakController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\QaController;
+use App\Http\Controllers\TopicController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -50,19 +54,30 @@ Route::middleware('auth')->group(function () {
         Route::any('/remove', 'remove')->name('user.remove');
     });
 
-    Route::prefix('/message')->controller(MessageController::class)->group(function () {
+    Route::prefix('/message/{flow}')->controller(MessageController::class)->group(function () {
         Route::get('/', 'index')->name('message');
         Route::get('/credit', 'credit')->name('message.credit');
         Route::post('/store', 'store')->name('message.store');
         Route::any('/remove', 'remove')->name('message.remove');
         Route::view('/form-concept', 'whatsapp.message.form');
     });
+
     Route::prefix('/imessage')->controller(MessageController::class)->group(function () {
         Route::get('/', 'index')->name('imessage');
         Route::get('/credit', 'inertia_create_msg')->name('imessage.credit');
         Route::post('/store', 'inertia_store')->name('imessage.store');
         Route::any('/remove', 'remove')->name('imessage.remove');
         Route::view('/form-concept', 'whatsapp.imessage.form');
+    });
+
+    Route::prefix('/chatting')->controller(ChatController::class)->group(function () {
+        Route::get('/', 'index')->name('chatting');
+        Route::get('/{customer}/view', 'view_chat')->name('chatting.view');
+        Route::get('/{customer}/view', 'view_chat')->name('chatting.view');
+    });
+    Route::prefix('/chatting/topics')->controller(TopicController::class)->group(function () {
+        Route::get('/', 'index')->name('topic');
+        Route::post('/{topic?}', 'save')->name('topic.save');
     });
 
     Route::prefix('/action-replies')->controller(MessageController::class)->group(function () {
@@ -96,6 +111,13 @@ Route::middleware('auth')->group(function () {
         Route::any('/remove', 'remove')->name('customer.remove');
     });
 
+    Route::prefix('/kontak')->controller(KontakController::class)->group(function () {
+        Route::get('/', 'index')->name('kontak');
+        Route::get('/credit', 'credit')->name('kontak.credit');
+        Route::any('/store', 'store')->name('kontak.store');
+        Route::any('/remove', 'remove')->name('kontak.remove');
+    });
+
     Route::prefix('/device')->controller(DeviceController::class)->group(function () {
         Route::get('/', 'index')->name('device');
         Route::post('/store', 'store')->name('device.store');
@@ -105,7 +127,24 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}/qrcode', 'start')->name('device.start');
         Route::any('/{id}/start', 'start')->name('device.start2');
         Route::any('/{id}/logout', 'logout')->name('device.logout');
+        Route::get('/{device:id}/flows', 'flows')->name('device.flows');
+        Route::post('/{device:id}/flows', 'apply_flows');
         // test
         Route::get('/{id}/test', 'test')->name('device.test');
+    });
+
+    Route::prefix('/setting-web')->controller(DashboardController::class)->group(function () {
+        Route::get('/', 'settingWeb')->name('setting-web');
+        Route::post('/store', 'settingWebStore')->name('setting-web.store');
+    });
+
+    // QA
+    Route::prefix('/qa')->controller(QaController::class)->group(function () {
+        Route::get('/', 'index')->name('qa');
+        Route::any('/demo', 'demo')->name('qa.demo');
+        Route::any('/save-json', 'saveJson')->name('qa.saveJson');
+        Route::any('/ajax-load-qa', 'ajaxLoadQA')->name('qa.ajaxLoadQA');
+        Route::get('/new', 'new')->name('new.demo');
+        Route::get('/lihat', 'lihat')->name('lihat.demo');
     });
 });

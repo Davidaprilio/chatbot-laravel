@@ -7,12 +7,12 @@
     <meta name="MobileOptimized" content="320" />
     <meta name="HandheldFriendly" content="True" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chatbot Dashboard</title>
-    <meta name="description" content="Arion — This is the best dashboard" />
+    <title>{{ web('web_title') }} - Dashboard</title>
+    <meta name="description" content="{{ web('web_title') }}" />
     <meta name="msapplication-tap-highlight" content="no" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="application-name" content="Arion — This is the best dashboard" />
-    <meta name="apple-mobile-web-app-title" content="Arion Admin Dashboard" />
+    <meta name="application-name" content="{{ web('web_title') }}" />
+    <meta name="apple-mobile-web-app-title" content="{{ web('web_title') }}" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <link rel="stylesheet" href="{{ url('/') }}/assets/css/bootstrap.min.css" />
@@ -26,32 +26,7 @@
     <link rel="stylesheet" href="{{ url('/') }}/assets/css/filepond-plugin-image-preview.min.css" />
     <link rel="stylesheet" href="{{ url('/') }}/assets/css/swiper-bundle.min.css" />
     <link rel="stylesheet" href="{{ url('/') }}/assets/css/style.css" />
-    <link rel="apple-touch-icon" sizes="57x57"
-        href="{{ url('/') }}/assets/img/content/favicons/apple-icon-57x57.png" />
-    <link rel="apple-touch-icon" sizes="60x60"
-        href="{{ url('/') }}/assets/img/content/favicons/apple-icon-60x60.png" />
-    <link rel="apple-touch-icon" sizes="72x72"
-        href="{{ url('/') }}/assets/img/content/favicons/apple-icon-72x72.png" />
-    <link rel="apple-touch-icon" sizes="76x76"
-        href="{{ url('/') }}/assets/img/content/favicons/apple-icon-76x76.png" />
-    <link rel="apple-touch-icon" sizes="114x114"
-        href="{{ url('/') }}/assets/img/content/favicons/apple-icon-114x114.png" />
-    <link rel="apple-touch-icon" sizes="120x120"
-        href="{{ url('/') }}/assets/img/content/favicons/apple-icon-120x120.png" />
-    <link rel="apple-touch-icon" sizes="144x144"
-        href="{{ url('/') }}/assets/img/content/favicons/apple-icon-144x144.png" />
-    <link rel="apple-touch-icon" sizes="152x152"
-        href="{{ url('/') }}/assets/img/content/favicons/apple-icon-152x152.png" />
-    <link rel="apple-touch-icon" sizes="180x180"
-        href="{{ url('/') }}/assets/img/content/favicons/apple-icon-180x180.png" />
-    <link rel="icon" type="image/png" sizes="192x192"
-        href="{{ url('/') }}/assets/img/content/favicons/android-icon-192x192.png" />
-    <link rel="icon" type="image/png" sizes="32x32"
-        href="{{ url('/') }}/assets/img/content/favicons/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="96x96"
-        href="{{ url('/') }}/assets/img/content/favicons/favicon-96x96.png" />
-    <link rel="icon" type="image/png" sizes="16x16"
-        href="{{ url('/') }}/assets/img/content/favicons/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ web('web_logo') }}" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css"
@@ -62,7 +37,7 @@
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- <link rel="manifest" href="{{ url('/') }}/assets/img/content/favicons/manifest.json" />-->
     <meta name="msapplication-TileColor" content="#ffffff" />
-    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png" />
+    <meta name="msapplication-TileImage" content="{{ web('web_logo') }}" />
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
         integrity='sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=='
         crossorigin='anonymous' />
@@ -570,6 +545,17 @@
             return url.toString();
         }
 
+        const Confirm = Swal.mixin({
+            title: 'Anda Yakin?',
+            text: 'Klik Ya untuk melanjutkan, dan Batal untuk membatalkan aksi',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya',
+            cancelButtonText: 'Batal',
+        })
+
         function ajaxPromise(options, method) {
             return new Promise((resolve, reject) => {
                 $.ajax({
@@ -583,6 +569,33 @@
                     }
                 })
             })
+        }
+
+        function closeModal(modal) {
+            $(modal).removeClass('is-animate');
+
+            setTimeout(() => {
+                $(modal).removeClass('is-active');
+            }, 310);
+        }
+
+        async function sendForm(id) {
+            let form
+            if (typeof id === 'object') {
+                form = id
+            } else {
+                if (typeof id === 'string') {
+                    id = '#'+id;
+                }
+                form = $(id)
+            }
+            // select el harus bertipe form
+            if(form[0]?.tagName !== 'FORM') new Error('El harus bertipe form')
+            const data = form.serialize()
+            let url = form.attr('action')
+            url += data ? `?${data}` : ''
+            const method = form.attr('method') || 'GET'
+            return await ajaxPromise({url}, method)
         }
 
         Swal.confirm = function(option) {

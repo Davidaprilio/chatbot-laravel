@@ -8,27 +8,30 @@
                         <div class="widget">
                             <div class="widget__wrapper">
                                 <div class="widget__row">
+                                    @php
+                                        $a = 2000;
+                                        $b = 20;
+                                    @endphp
                                     <div class="widget__left">
-                                        <h3 class="widget__title">Visits</h3>
-                                        <div class="widget__status-title text-grey">Total visits today</div>
-                                        <div class="widget__trade"><span class="widget__trade-count">4000</span><span
+                                        <h3 class="widget__title">Conversation</h3>
+                                        <div class="widget__status-title text-grey">Total Conversation</div>
+                                        <div class="widget__trade"><span
+                                                class="widget__trade-count">{{ $a + $b }}</span><span
                                                 class="trade-icon trade-icon--up">
                                                 <svg class="icon-icon-trade-up">
                                                     <use xlink:href="#icon-trade-up"></use>
-                                                </svg></span><span class="badge badge--sm badge--green">7%</span>
-                                        </div>
-                                        <div class="widget__details"><a class="link-under text-grey"
-                                                href="#">Detail</a>
+                                                </svg></span><span
+                                                class="badge badge--sm badge--green">{{ (($b + $a - $a) / $a) * 100 }}%</span>
                                         </div>
                                     </div>
                                     <div class="widget__chart">
                                         <div class="widget__chart-inner">
-                                            <div class="widget__chart-percentage">50<small>%</small>
+                                            <div class="widget__chart-percentage">{{ $b }}<small></small>
                                             </div>
-                                            <div class="widget__chart-caption">New Visits</div>
+                                            <div class="widget__chart-caption">New <br> Conversation</div>
                                         </div>
-                                        <div class="widget__chart-canvas js-progress-circle" data-value="0.5"
-                                            data-color="#22CCE2"></div>
+                                        <div class="widget__chart-canvas js-progress-circle"
+                                            data-value="{{ $b / $a }}" data-color="#22CCE2"></div>
                                     </div>
                                 </div>
                             </div>
@@ -38,27 +41,30 @@
                         <div class="widget">
                             <div class="widget__wrapper">
                                 <div class="widget__row">
+                                    @php
+                                        $a = 2000;
+                                        $b = 20;
+                                    @endphp
                                     <div class="widget__left">
-                                        <h3 class="widget__title">Orders</h3>
-                                        <div class="widget__status-title text-grey">Total visits today</div>
-                                        <div class="widget__trade"><span class="widget__trade-count">1000</span><span
+                                        <h3 class="widget__title">Message</h3>
+                                        <div class="widget__status-title text-grey">Total Message</div>
+                                        <div class="widget__trade"><span
+                                                class="widget__trade-count">{{ $a + $b }}</span><span
                                                 class="trade-icon trade-icon--down">
                                                 <svg class="icon-icon-trade-down">
                                                     <use xlink:href="#icon-trade-down"></use>
-                                                </svg></span><span class="badge badge--sm badge--red">3%</span>
-                                        </div>
-                                        <div class="widget__details"><a class="link-under text-grey"
-                                                href="#">Detail</a>
+                                                </svg></span><span
+                                                class="badge badge--sm badge--red">{{ (($b + $a - $a) / $a) * 100 }}%</span>
                                         </div>
                                     </div>
                                     <div class="widget__chart">
                                         <div class="widget__chart-inner">
-                                            <div class="widget__chart-percentage">75<small>%</small>
+                                            <div class="widget__chart-percentage">{{ $b }}<small>%</small>
                                             </div>
-                                            <div class="widget__chart-caption">New Orders</div>
+                                            <div class="widget__chart-caption">New Message</div>
                                         </div>
-                                        <div class="widget__chart-canvas js-progress-circle" data-value="0.75"
-                                            data-color="#FDBF5E"></div>
+                                        <div class="widget__chart-canvas js-progress-circle"
+                                            data-value="{{ $b / $a }}" data-color="#FDBF5E"></div>
                                     </div>
                                 </div>
                             </div>
@@ -76,9 +82,6 @@
                                                 <svg class="icon-icon-trade-up">
                                                     <use xlink:href="#icon-trade-up"></use>
                                                 </svg></span><span class="badge badge--sm badge--green">9%</span>
-                                        </div>
-                                        <div class="widget__details"><a class="link-under text-grey"
-                                                href="#">Detail</a>
                                         </div>
                                     </div>
                                     <div class="widget__chart">

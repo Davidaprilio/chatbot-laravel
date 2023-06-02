@@ -30,4 +30,9 @@ class ChatSession extends Model
     {
         return $this->hasOne(Chat::class)->latest();
     }
+
+    public function topic()
+    {
+        return $this->hasOne(Topic::class);
+    }
 }

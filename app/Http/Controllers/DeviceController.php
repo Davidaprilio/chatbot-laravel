@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Helpers\Whatsapp;
 use App\Models\Device;
+use App\Models\FlowChat;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class DeviceController extends Controller
@@ -242,4 +245,45 @@ class DeviceController extends Controller
     //     'data' => $res,
     // ]);
     // }
+
+    public function flows(Device $device, Request $request)
+    {
+        return FlowChat::with('device')->where('user_id', Auth::id())->get();
+    }
+
+
+    public function apply_flows(Device $device, Request $request)
+    {
+        $request->validate([
+            'flow_chat_id' => 'required'
+        ]);
+        $is_overwrite = $request->overwrite ?? false;
+
+        $flow = FlowChat::with('device')->firstWhere('id',$request->flow_chat_id);
+        if ($flow === null) {
+            return response()->json([
+                'message' => "Flow Chat with id:{$request->flow_chat_id} not found"
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        if ($flow->device !== null && $is_overwrite === false) {
+            return response()->json([
+                'message' => "Flow Chat with id:{$request->flow_chat_id} already used by device id:{$flow->device->id}"
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        if ($is_overwrite) {
+            $flow->device->update([
+                'flow_chat_id' => null
+            ]);
+        }
+
+        $device->update([
+            'flow_chat_id' => $flow->id
+        ]);
+
+        return response()->json([
+            'message' => "Success applying flow chat to device"
+        ]);
+    }
 }

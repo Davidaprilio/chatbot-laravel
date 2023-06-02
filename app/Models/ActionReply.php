@@ -31,4 +31,16 @@ class ActionReply extends Model
             // "type" => '' 
         ];
     }
+
+    public function getResponseTextAsStringAttribute($key)
+    {
+        $res_text = json_decode($this->prompt_response);
+        if (is_array($res_text)) {
+            $res_text = implode(',', $res_text);
+        } else {
+            $res_text = $this->prompt_response;
+        }
+
+        return $res_text;
+    }
 }

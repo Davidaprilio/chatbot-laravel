@@ -62,6 +62,34 @@
             </div>
         </div>
     </main>
+
+    <!-- Modal -->
+    <div class="modal modal-account modal-compact scrollbar-thin" id="saveTopicModal" data-simplebar>
+        <div class="modal__overlay" data-dismiss="modal"></div>
+        <div class="modal__wrap">
+            <div class="modal__window">
+                <div class="modal__content">
+                    <button class="modal__close" data-dismiss="modal">
+                        <svg class="icon-icon-cross">
+                            <use xlink:href="#icon-cross"></use>
+                        </svg>
+                    </button>
+                    <div class="modal__body">
+                        <div class="">
+                            <div class="modal-account__right tab-content">
+                                <div class="modal-account__pane tab-pane fade show active" id="accountDetails">
+                                    <div class="modal-account__pane-header">
+                                        <h2 id="title-credit">Topic</h2>
+                                    </div>
+                                    <x-topic.form id="form-topic" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 
@@ -78,7 +106,8 @@
 
             $('#chat-detail').html(htmlChatBody);
             // scroll to bottom .chat-details__content.scrollbar-thin
-            $('.chat-details__content.scrollbar-thin').scrollTop($('.chat-details__content.scrollbar-thin')[0].scrollHeight);
+            $('.chat-details__content.scrollbar-thin').scrollTop($('.chat-details__content.scrollbar-thin')[0]
+                .scrollHeight);
         })
 
         function showLoading() {
@@ -89,5 +118,32 @@
                 <h2 class="text-black-50">Loading</h2>
             </div>`);
         }
+
+        $('#chat-detail').on('click', '.save-topic-menu', async function(event) {
+            Modal.toggleClass($('#saveTopicModal').get(0))
+        })
+
+        $('#form-topic').on('submit', async function(e) {
+            e.preventDefault()
+            try {
+                const resData = await sendForm('form-topic')
+                console.log(resData);
+                Swal.fire({
+                    title: "Topic saved.",
+                    type: "success",
+                    timer: 1500
+                })
+                closeModal('#saveTopicModal')
+            } catch (error) {
+                if (error.status == 422) {
+                    return alert(error.responseJSON.message)
+                }
+                console.error(error);
+            }
+        })
+        
+        $('#saveTopicModal').on('click', '[data-dismiss="modal"]', function () {
+            closeModal('#saveTopicModal')
+        })
     </script>
 @endpush
