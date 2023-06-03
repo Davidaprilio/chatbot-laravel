@@ -13,6 +13,7 @@ import ReactFlow, {
     Panel,
     ReactFlowProvider,
     applyEdgeChanges,
+    applyNodeChanges,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import "../../css/graphmessage.css";
@@ -87,7 +88,7 @@ function Flow({ flowChat, edges: edgesProp, nodes: nodesProp }) {
             return console.error(error);
         }
 
-        setNodes((nds) => applyEdgeChanges(changesNode, nds))
+        setNodes((nds) => applyNodeChanges(changesNode, nds))
     }, []);
 
     const onDeleteEdges = useCallback(async (edges) => {

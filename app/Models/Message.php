@@ -45,6 +45,7 @@ class Message extends Model
         ]);
     }
 
+    // representation of the node
     public function getNodeOptionAttribute(): array
     {
         return [
@@ -55,12 +56,39 @@ class Message extends Model
                 'label' => 'Judul Pesan',
                 'message' => $this->setHidden(['created_at', 'updated_at', 'id']),
             ],
-            'position' => ['x' => $this->node->position_x,'y' => $this->node->position_y],
-            'positionAbsolute' => ['x' => $this->node->position_x,'y' => $this->node->position_y],
+            'position' => ['x' => $this->node->position_x, 'y' => $this->node->position_y],
+            'positionAbsolute' => ['x' => $this->node->position_x, 'y' => $this->node->position_y],
             "width" => 393,
             "height" => 327,
             "dragging" => false,
             "dragHandle" => ".custom-drag-handle",
+        ];
+    }
+
+    // representation of the edge (next_message)
+    public function getEdgeOptionAttribute(): array
+    {
+        return [
+            'id' => "edge-{$this->id}-next-msg",
+            'source' => (string) $this->id,
+            'target' => (string) $this->next_message,
+            'label' => 'Next Message To',
+            'sourceHandle' => 'next_msg', // value from Node Handle id on jsx
+            'data' => $this->setHidden([
+                'id',
+                'created_at',
+                'updated_at',
+            ])->toArray(),
+            'markerEnd' => [
+                'type' => 'arrowclosed', 
+                'color' => '#b1b1b7' ,
+                'width' => 20,
+                'height' => 20,
+                'strokeWidth' => 1
+            ],
+            'style' => [
+                'strokeWidth' => 2,
+            ],
         ];
     }
 }

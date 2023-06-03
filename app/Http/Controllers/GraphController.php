@@ -7,16 +7,20 @@ use App\Models\FlowChat;
 use App\Models\GraphNode;
 use App\Models\Message;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Notifications\Action;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class GraphController extends Controller
 {
-    public function index(Request $request)
+    public function index(FlowChat $flowChat, Request $request)
     {
-        $messages = Message::with('node')->get();
-        return $messages->map(fn(Message $message) => $message->node_option);
+        $messages = $flowChat->messages();
+        if ($request->nodesID) {
+            $messages->whereIn('id', $request->nodesID);
+        }
+        return $messages->get()->map(fn(Message $message) => $message->node_option);
     }
 
     public function getActionReply(Request $request)
@@ -51,39 +55,78 @@ class GraphController extends Controller
 
     public function saveActionReply(Request $request)
     {
-        if($request->type) $request->merge(['type' => 'prompt_await']);
-        $act_reply = ActionReply::updateOrCreate([
-            'prompt_message_id' => $request->source,
-            'reply_message_id' => $request->target,
-        ], $request->only([
-            'prompt_message',
-            'type'
-        ]));
-        return $act_reply->edge_option;
+        // sourceHandle: action_reply|next_msg
+        if ($request->sourceHandle === 'action_reply') {
+            if($request->type) $request->merge(['type' => 'prompt_await']);
+            $act_reply = ActionReply::updateOrCreate([
+                'prompt_message_id' => $request->source,
+                'reply_message_id' => $request->target,
+            ], $request->only([
+                'prompt_message',
+                'type'
+            ]));
+            return $act_reply->edge_option;
+        } elseif ($request->sourceHandle === 'next_msg') {
+            $msg = Message::find($request->source);
+            if ($msg === null) return response()->json([
+                'message' => 'Source message not found',
+                'query' => $request->all(),
+            ], Response::HTTP_BAD_REQUEST);
+
+            $msg->next_message = $request->target;
+            $msg->save();
+
+            return $msg->edge_option;
+        }
+
+        return response()->json([
+            'message' => 'Source handle not found',
+            'query' => $request->all(),
+        ], Response::HTTP_BAD_REQUEST);
     }
 
     public function deleteActionReply(FlowChat $flowChat, Request $request)
     {
-        $action_replies_id = collect($request->edges)->pluck('id');
-        $action_replies = ActionReply::with(['replyMessage', 'promptMessage'])->whereIn('id', $action_replies_id)->get();
+        $edges = collect($request->edges)->filter(fn($edge) => $edge['type'] === 'remove')->map(function($edge) {
+            $tokenize = explode('-', $edge['id']);
+            return [
+                'id' => $tokenize[1],
+                'type' => "{$tokenize[2]}-{$tokenize[3]}"
+            ];
+        })->groupBy('type');
 
-        // verify if all action replies are in the same flow chat
-        $verified = $action_replies->every(function (ActionReply $action_reply) use ($flowChat) {
-            return (
-                $action_reply->replyMessage->flow_chat_id === $flowChat->id &&
-                $action_reply->promptMessage->flow_chat_id === $flowChat->id
-            );
-        });
+        $deleted_nxt_msg = 0;
+        $deleted_act_rly = 0;
 
-        if (!$verified) {
-            Log::error('Action replies are not in the same flow chat', $action_replies->toArray());
-            throw new \Exception('Action replies are not in the same flow chat');
+        if (isset($edges['next-msg'])) {
+            $messages_id_have_next_msg = $edges['next-msg']->pluck('id');
+            $deleted_nxt_msg = Message::whereIn('id', $messages_id_have_next_msg)->update(['next_message' => null]);
         }
 
-        $deleted = ActionReply::whereIn('id', $action_replies_id)->delete();
+        if (isset($edges['action-reply'])) {
+            $action_replies_id = $edges['action-reply']->pluck('id');
+            $action_replies = ActionReply::with(['replyMessage', 'promptMessage'])->whereIn('id', $action_replies_id)->get();
+    
+            // verify if all action replies are in the same flow chat
+            $verified = $action_replies->every(function (ActionReply $action_reply) use ($flowChat) {
+                return (
+                    $action_reply->replyMessage->flow_chat_id === $flowChat->id &&
+                    $action_reply->promptMessage->flow_chat_id === $flowChat->id
+                );
+            });
+    
+            if (!$verified) {
+                Log::error('Action replies are not in the same flow chat', $action_replies->toArray());
+                throw new \Exception('Action replies are not in the same flow chat');
+            }
+    
+            $deleted_act_rly = ActionReply::whereIn('id', $action_replies_id)->delete();
+        }
       
         return [
-            'deleted' => $deleted,
+            'deleted' => $deleted_nxt_msg + $deleted_act_rly,
+            'deleted_action_reply' => $deleted_act_rly,
+            'deleted_next_message' => $deleted_nxt_msg,
             'flowChat' => $flowChat
         ];
     }

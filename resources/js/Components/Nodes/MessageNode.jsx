@@ -1,10 +1,8 @@
-import { useCallback, useState } from 'react';
-import { Handle, NodeToolbar, Position } from 'reactflow';
+import { useCallback, useEffect, useState, useMemo } from 'react';
+import { Handle, NodeToolbar, Position, getConnectedEdges, useNodeId, useStore } from 'reactflow';
 import './messageNode.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEnvelope, faSave } from '@fortawesome/free-regular-svg-icons';
-// import { Dropdown } from 'react-bootstrap';
-import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
 import { Button, Card, Input, Stack, Text, Textarea, useToast } from '@chakra-ui/react';
 import useDialog from '../AlertDialogProvider';
 import axios from 'axios';
@@ -60,7 +58,6 @@ function MessageNode({ data, id, isConnectable }) {
     })
   }
 
-  const [nextMsgConnected, setNextMsgConnected] = useState(false)
 
   return (
     <Card variant='outline' className='text-updater-node overflow-hidden w-80 cursor-auto'>
@@ -90,20 +87,6 @@ function MessageNode({ data, id, isConnectable }) {
         <div>
           <small className="m-0 text-uppercase font-monospace fs-7">ID: {id}</small>
         </div>
-
-        {/* <Dropdown>
-            <Dropdown.Toggle as='a' bsPrefix='text-dark cursor-pointer px-1' id="dropdown-basic" size='sm'>
-              <FontAwesomeIcon icon={faEllipsisVertical} />
-            </Dropdown.Toggle>
-
-            <Dropdown.Menu className='fs-6 py-0 font-monospace'>
-              <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
-              <Dropdown.Divider className='my-0' />
-              <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
-              <Dropdown.Divider className='my-0' />
-              <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown> */}
       </div>
 
       {/* <NodeToolbar isVisible={data.toolbarVisible} position={data.toolbarPosition}>
@@ -136,16 +119,16 @@ function MessageNode({ data, id, isConnectable }) {
           />
         </div>
       </Stack>
-      <Handle
+      <NextMessageHandle
         className='react-flow__handle-lg'
         type="source"
         position={Position.Bottom}
         id="next_msg"
         onConnect={(connection) => {
-          setNextMsgConnected(true)
+          console.log('onConnect', id, connection);
         }}
         style={handleStyle}
-        isConnectable={!nextMsgConnected}
+        isConnectable={1}
       />
       <Handle
         className='react-flow__handle-lg'
@@ -162,5 +145,28 @@ MessageNode.onNodeContextMenu = (ev, node) => {
   ev.preventDefault()
   console.log('onNodeContextMenu', ev, node);
 }
+
+const selector = (s) => ({
+  nodeInternals: s.nodeInternals,
+  edges: s.edges,
+});
+
+const NextMessageHandle = (props) => {
+  const { nodeInternals, edges } = useStore(selector);
+  const nodeId = useNodeId();
+
+  const isHandleConnectable = useMemo(() => {
+    const node = nodeInternals.get(nodeId);
+    const nextMsgEdges = edges.filter((edge) => edge.sourceHandle === 'next_msg' && edge.source === nodeId);
+    const connectedEdges = getConnectedEdges([node], nextMsgEdges);
+
+    return connectedEdges.length < props.isConnectable;
+
+  }, [nodeInternals, edges, nodeId, props.isConnectable]);
+
+  return (
+    <Handle {...props} isConnectable={isHandleConnectable}></Handle>
+  );
+};
 
 export default MessageNode;

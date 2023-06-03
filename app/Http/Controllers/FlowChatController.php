@@ -76,7 +76,15 @@ class FlowChatController extends Controller
 
         $id_messages = $messages->pluck('id');
         $action_replies = ActionReply::whereIn('prompt_message_id', $id_messages)->orWhereIn('reply_message_id', $id_messages)->get();
-        $edges = $action_replies->map(fn(ActionReply $action_reply) => $action_reply->edge_option);
+        $edges_action_reply = $action_replies->map(fn(ActionReply $action_reply) => $action_reply->edge_option);
+        // $edges = $action_replies->map(fn(ActionReply $action_reply) => $action_reply->edge_option);
+
+        $next_messages = $flowChat->messages()->where('next_message', '!=', null)->get();
+        $edges_next_message = $next_messages->map(fn(Message $message) => $message->edge_option);
+
+        // merge edges_action_reply and edges_next_message Collection
+        $edges = $edges_action_reply->merge($edges_next_message)->toArray();
+
         $data = [
             'flowChat' => $flowChat,
             'nodes' => $nodes,
