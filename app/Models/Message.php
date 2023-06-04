@@ -73,6 +73,7 @@ class Message extends Model
             'source' => (string) $this->id,
             'target' => (string) $this->next_message,
             'label' => 'Next Message To',
+            'type' => 'nextmsgEdge',
             'sourceHandle' => 'next_msg', // value from Node Handle id on jsx
             'data' => $this->setHidden([
                 'id',

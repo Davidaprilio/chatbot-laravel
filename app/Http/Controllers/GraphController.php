@@ -63,6 +63,7 @@ class GraphController extends Controller
                 'reply_message_id' => $request->target,
             ], $request->only([
                 'prompt_message',
+                'title',
                 'type'
             ]));
             return $act_reply->edge_option;

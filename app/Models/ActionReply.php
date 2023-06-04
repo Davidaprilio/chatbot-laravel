@@ -23,17 +23,23 @@ class ActionReply extends Model
 
     public function getEdgeOptionAttribute($key)
     {
+        $resText = json_decode($this->prompt_response);
+        if (!is_array($resText)) {
+            $resText = [$this->prompt_response];
+        }
         return [
             "id" => "edge-{$this->id}-action-reply",
             "source" => (string) $this->prompt_message_id,
             "target" => (string) $this->reply_message_id,
             "label" => $this->title,
             'sourceHandle' => 'action_reply', // value from Node Handle id on jsx
-            "data" => $this->setHidden([
+            "data" => array_merge($this->setHidden([
                 'created_at',
                 'updated_at',
-            ])->toArray(),
-            // "type" => '' 
+            ])->toArray(), [
+                'textReplies' => $resText,
+            ]),
+            "type" => 'buttonEdge',
         ];
     }
 

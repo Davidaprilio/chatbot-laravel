@@ -23,6 +23,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import axios from 'axios';
 import useDialog, { AlertDialogProvider } from '@/Components/AlertDialogProvider';
 import ErrorClient from '@/Commons/ErrorClient';
+import NextMsgEdge from '@/Components/Edges/NextMsgEdge';
 
 function Flow({ flowChat, edges: edgesProp, nodes: nodesProp }) {
     const [nodes, setNodes] = useNodesState([]);
@@ -37,10 +38,34 @@ function Flow({ flowChat, edges: edgesProp, nodes: nodesProp }) {
 
     const flowKey = 'example-flow';
     const nodeTypes = useMemo(() => ({ messageNode: MessageNode }), []);
-    const edgeTypes = useMemo(() => ({ buttonEdge: ButtonEdge }), []);
+    const edgeTypes = useMemo(() => ({ 
+        buttonEdge: ButtonEdge,
+        nextmsgEdge: NextMsgEdge
+    }), []);
 
     const onEdgeConnect = useCallback(async (connection) => {
         try {
+            if (connection.sourceHandle === "action_reply") {
+                const resultValue = await dialog.prompt({
+                    title: 'Add Action Reply',
+                    okText: 'Add',
+                    input: {
+                        placeholder: "Enter response text",
+                        help: "add (,) for separate text",
+                    }
+                })
+                if (resultValue === null) return false
+                if (resultValue === '') {
+                    toast({
+                        title: 'Value response text cannot be empty',
+                        status: 'warning',
+                        position: 'top',
+                        duration: 800
+                    })
+                    return await onEdgeConnect(connection) 
+                }
+                connection.title = resultValue
+            }
             const response = await axios.post('/graph/action-reply', {
                 ...connection
             })
@@ -266,6 +291,7 @@ function Flow({ flowChat, edges: edgesProp, nodes: nodesProp }) {
                 minZoom={0.1}
                 maxZoom={2}
                 onResize={() => console.log('resize')}
+                zoomOnDoubleClick={false}
                 onNodeDragStop={(ev, node, nodes) => {
                     if (node.type === 'messageNode') {
                         storeNodePosition(node)
@@ -283,6 +309,7 @@ function Flow({ flowChat, edges: edgesProp, nodes: nodesProp }) {
                     setSelectedNode(node)
                     console.log('onNodeContextMenu', ev, node);
                 }}
+                edgeUpdaterRadius={50}
             >
                 <MiniMap pannable onNodeClick={(_, node) => {
                     console.log(node);

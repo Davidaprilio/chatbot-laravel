@@ -109,14 +109,17 @@ export const AlertDialogProvider = ({ children }) => {
                                 <AlertDialogBody>
                                     <Flex gap={4} alignItems="center">
                                         {opts.icon}
-                                        <Stack spacing={5}>
+                                        <Stack spacing={5} className="w-full">
                                             {opts.message && (
                                                 <Text fontSize='md' {...opts.messageProps || {}}>
                                                     {opts.message}
                                                 </Text>
                                             )}
                                             {type === DialogType.Prompt && (
-                                                <Input ref={input} defaultValue={opts.defaultValue || ''} />
+                                                <Input ref={input} defaultValue={opts.defaultValue || ''} {...opts.input} />
+                                            )}
+                                            {opts?.input?.help && (
+                                                <Text className="text-slate-500">{opts.input.help}</Text>
                                             )}
                                         </Stack>
                                     </Flex>
