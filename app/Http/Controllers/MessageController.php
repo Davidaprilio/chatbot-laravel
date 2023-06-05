@@ -76,6 +76,21 @@ class MessageController extends Controller
             $message->text          = $request->text;
             $message->type          = $request->type;
             $message->hook          = $request->hook;
+            $message->next_message  = $request->next_msg ?? null;
+            if ($request->enableCondition) {
+                $message->condition = $request->format_condition ?? null;
+                $message->condition_type = $request->type_condition ?? null;
+                $message->condition_value = $request->condition_value ?? null;
+            } else {
+                $message->condition = null;
+            }
+            if ($request->enableEventTrigger) {
+                $message->event_value = $request->event_value;
+                $message->trigger_event = $request->type_trigger_event;
+            } else {
+                $message->event_value = null;
+                $message->trigger_event = null;
+            }
             $message->save();
 
             $message->refresh();
@@ -124,7 +139,13 @@ class MessageController extends Controller
 
         DB::commit();
 
-        return redirect('message/' . $flow->id)->with('success', 'Data berhasil disimpan');
+        if ($request->saveAndBack) {
+            $resSuccess = redirect('message/' . $flow->id);
+        } else {
+            $resSuccess = redirect()->back();
+        }
+
+        return $resSuccess->with('success', 'Data berhasil disimpan');
     }
 
     public function remove(Request $request, FlowChat $flow)

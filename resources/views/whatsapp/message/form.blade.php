@@ -1,59 +1,54 @@
 @extends('layouts.admin')
 @php
-$breadcrumbs = [
-    '<i class="fa fa-home"></i>' => url('/'),
-    'Home' => '#',
-    'Message' => url('/message'),
-    'Form' => url()->current(),
-]
+    $breadcrumbs = [
+        '<i class="fa fa-home"></i>' => url('/'),
+        'Home' => '#',
+        'Message' => route('message', ['flow' => $flow->id]),
+        'Form' => url()->current(),
+    ];
 @endphp
 
 @section('content')
     <x-page-content title="Form Message" :breadcrumbs="$breadcrumbs">
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card__wrapper">
-                        <div class="card__container">
-                            <div class="card__body">
-                                <form action="{{ route('message.store', ['flow' => $flow->id]) }}" method="post">
-                                    @csrf
+        <form action="{{ route('message.store', ['flow' => $flow->id]) }}" method="post">
+            @csrf
+            <div class="row">
+                <div class="col-lg-6 col-12 mb-3">
+                    <div class="card">
+                        <div class="card__wrapper">
+                            <div class="card__container">
+                                <div class="card__body">
                                     <div class="row">
-                                        <input type="hidden" name="id" value="{{ $message->id ?? '' }}" class="form-control">
+                                        <input type="hidden" name="id" value="{{ $message->id ?? '' }}"
+                                            class="form-control">
                                         <div class="form-group col-6 mb-4">
                                             <label for="">Judul Pesan</label>
-                                            <input class="input" type="text" value="{{ $message->title ?? '' }}" placeholder="Judul Pesan" name="title" id="title">
+                                            <input class="input" type="text" value="{{ $message->title ?? '' }}"
+                                                placeholder="Judul Pesan" name="title" id="title">
                                         </div>
                                         <div class="form-group col-6 mb-4">
                                             <label for="">Hook</label>
                                             @php
-                                                $hooks = [
-                                                    'welcome',
-                                                    'custom_condition',
-                                                    'anon_customer',
-                                                    'before_send_menu',
-                                                    'after_send_menu',
-                                                    'after_give_name',
-                                                    'dont_understand',
-                                                    'end_menu',
-                                                    'end_chat',
-                                                    'confirm_not_response',
-                                                    'close_chat_not_response',
-                                                ];
+                                                $hooks = ['welcome', 'custom_condition', 'anon_customer', 'before_send_menu', 'after_send_menu', 'after_give_name', 'dont_understand', 'end_menu', 'end_chat', 'confirm_not_response', 'close_chat_not_response'];
                                             @endphp
-                                            <select class="input form-control form-control-sm" name="hook" id="hook">
-                                                <option value=""{{ $message && $message->hook == null ? 'selected' : '' }}>Tanpa Hook</option>
+                                            <select class="input form-control form-control-sm" name="hook"
+                                                id="hook">
+                                                <option
+                                                    value=""{{ $message && $message->hook == null ? 'selected' : '' }}>
+                                                    Tanpa Hook</option>
                                                 @foreach ($hooks as $hook)
-                                                <option value="{{ $hook }}"{{ $message && $message->hook == $hook ? 'selected' : '' }}>{{ ucwords(str_replace('_', ' ', $hook)) }}</option>
+                                                    <option
+                                                        value="{{ $hook }}"{{ $message && $message->hook == $hook ? 'selected' : '' }}>
+                                                        {{ ucwords(str_replace('_', ' ', $hook)) }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
                                         <div class="form-group col-12 mb-4">
                                             <div class="row mb-2 align-items-center">
-                                                <div class="col-8">
+                                                <div class="col-6">
                                                     <label for="">Pesan</label>
                                                 </div>
-                                                <div class="col-4">
+                                                <div class="col-6">
                                                     <div class="d-flex justify-content-end">
                                                         <div class="form-group form-group--inline">
                                                             <label class="mr-3">Type:</label>
@@ -77,9 +72,102 @@ $breadcrumbs = [
                                             <textarea name="text" id="text" cols="30" rows="5" class="form-control input">{{ $message->text ?? '' }}</textarea>
                                         </div>
                                     </div>
-                                    <div class="row {{ $message && $message->type == 'prompt' ? '' : 'd-none' }}"
-                                        id="type-jawaban">
+                                    <div class="row">
+                                        <div class="col-5 mt-4">
+                                            <label for="">Lanjut kirim pesan</label>
+                                            <select type="text" class="form-control" name="next_msg">
+                                                <option value="">Tidak</option>
+                                                @foreach ($list_message as $msg_reply)
+                                                    <option value="{{ $msg_reply->id }}"
+                                                        {{ $message && $message->next_message === $msg_reply->id ? 'selected' : '' }}>
+                                                        ({{ $msg_reply->type }})
+                                                        | {{ $msg_reply->title }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-12 mt-4">
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-control-input" name="enableCondition" id="enableCondition"
+                                                    {{ $message && $message->condition != null ? 'checked' : '' }}>
+                                                <label class="custom-control-label" for="enableCondition">
+                                                    Tambah Kondisi
+                                                </label>
+                                            </div>
+
+                                            <div class="row" id="condition-container">
+                                                <div class="col-4">
+                                                    <label for="">Format Kondisi</label>
+                                                    <input type="text" name="format_condition" class="form-control"
+                                                        placeholder="Masukan Kondisi" value="{{ $message->condition ?? '' }}">
+                                                </div>
+                                                <div class="col-4">
+                                                    <label for="">Aksi Jika Benar</label>
+                                                    <select class="form-control" name="type_condition" id="type_condition">
+                                                        <option value="skip_to_message" {{ $message && $message->condition_type == 'skip_to_message' ? 'selected' : '' }}>
+                                                            Lewati Dan Kirim Pesan Lain
+                                                        </option>
+                                                        <option value="skip_to_next_message" {{ $message && $message->condition_type == 'skip_to_next_message' ? 'selected' : '' }}>
+                                                            Lewati dan kirim pesan selanjutnya
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-4" id="condition_value_col">
+                                                    <label for="">Pesan yang dikirim</label>
+                                                    <select class="form-control" name="condition_value">
+                                                        @foreach ($list_message as $msg_reply)
+                                                            <option value="{{ $msg_reply->id }}"
+                                                                {{ $message && $message->condition_value == $msg_reply->id ? 'selected' : '' }}>
+                                                                ({{ $msg_reply->type }})
+                                                                | {{ $msg_reply->title }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mt-4">
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-control-input" name="enableEventTrigger" id="enableEventTrigger"
+                                                    {{ $message && $message->trigger_event != null ? 'checked' : '' }}>
+                                                <label class="custom-control-label" for="enableEventTrigger">
+                                                    Tambah Pemicu Event
+                                                </label>
+                                            </div>
+
+                                            <div class="row" id="triggerevent-container">
+                                                <div class="col-4">
+                                                    <label for="">Pilih Pemicu Event</label>
+                                                    <select class="form-control" name="type_trigger_event" id="type_trigger_event">
+                                                        <option value="close_chat" {{ $message && $message->trigger_event == 'close_chat' ? 'selected' : '' }}>Akhiri Pesan</option>
+                                                        <option value="save_response" {{ $message && $message->trigger_event == 'save_response' ? 'selected' : '' }}>Simpan jawaban</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-4" id="select_event_value_column">
+                                                    <label for="">Simpan ke kolom</label>
+                                                    @php($columns = explode(',', 'name,location'))
+                                                    <select class="form-control" name="event_value" id="event_value">
+                                                        @foreach ($columns as $column)
+                                                            <option value="{{ $column }}" {{ $message && $message->event_value === $column ? 'selected' : '' }}>{{ strtoupper($column) }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-12">
+                    <div class="card {{ $message && $message->type == 'prompt' ? '' : 'd-none' }}" id="type-jawaban">
+                        <div class="card__wrapper">
+                            <div class="card__container">
+                                <div class="card__body">
+                                    <div class="row">
                                         <div class="col-12">
+                                            <h4 class="text-dark">Pesan Balasan</h4>
                                             {{-- <div class="form-group form-group--inline">
                                                 <label class="form-label">Simpan Jawaban:</label>
                                                 <div class="input-group">
@@ -157,10 +245,8 @@ $breadcrumbs = [
                                                 @endif
                                             </div>
                                         </div>
-                                        <div class="col-2 mt-4">
-                                            <button
-                                                class="button button--secondary"
-                                                type="button" id="add-response">
+                                        <div class="col-12 mt-4">
+                                            <button class="button button--secondary" type="button" id="add-response">
                                                 <span class="button__icon button__icon--left"><svg class="icon-icon-plus">
                                                         <use xlink:href="#icon-plus"></use>
                                                     </svg>
@@ -169,22 +255,26 @@ $breadcrumbs = [
                                             </button>
                                         </div>
                                     </div>
-                                    <div class="auth-card__submit d-flex">
-                                        <button class="button button--primary button--block mr-3" type="submit">
-                                            <span class="button__text">Simpan</span>
-                                        </button>
-                                        <a href="{{ route('message', ['flow' => $flow->id]) }}"
-                                            class="button button--secondary button--block color-red" type="button">
-                                            <span class="button__text">Cancel</span>
-                                        </a>
-                                    </div>
-                                </form>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <div class="col-lg-6 col-12">
+                    <div class="auth-card__submit d-flex">
+                        <a href="{{ route('message', ['flow' => $flow->id]) }}"
+                            class="button button--secondary button--block color-red mr-3" type="button">
+                            <span class="button__text">Cancel</span>
+                        </a>
+                        <input class="button button--primary button--block mr-3" type="submit" name="saveAndBack"
+                            value="Simpan dan kembali">
+                        <button class="button button--primary button--block" type="submit">
+                            <span class="button__text">Simpan</span>
+                        </button>
+                    </div>
+                </div>
             </div>
-        </div>
+        </form>
     </x-page-content>
 @endsection
 
@@ -433,6 +523,51 @@ $breadcrumbs = [
         //         label = 'Custom Response';
         //     }
         // });
+
+
+
+
+        function showHideConditionCol() {
+            const select = $('#enableCondition').get(0)
+            if (select.checked) {
+                $('#condition-container').removeClass('d-none')
+            } else {
+                $('#condition-container').addClass('d-none')
+            }
+        }
+        $('#enableCondition').on('change', showHideConditionCol)
+        showHideConditionCol()
+
+        function showHideConditionValue() {
+            $('#condition_value_col').addClass('d-none')
+            if ($('#type_condition').val() === 'skip_to_message') {
+                $('#condition_value_col').removeClass('d-none')
+            }
+        }
+
+        $('#type_condition').on('change', showHideConditionValue)
+        showHideConditionValue()
+
+        function showHideTriggerEventCol() {
+            const select = $('#enableEventTrigger').get(0)
+            if (select.checked) {
+                $('#triggerevent-container').removeClass('d-none')
+            } else {
+                $('#triggerevent-container').addClass('d-none')
+            }
+            
+        }
+        $('#enableEventTrigger').on('change', showHideTriggerEventCol)
+        showHideTriggerEventCol()
+
+        function showAndHideSelectColumn() {
+            $('#select_event_value_column').addClass('d-none')
+            if ($('#type_trigger_event').val() === 'save_response') {
+                $('#select_event_value_column').removeClass('d-none')
+            }
+        }
+        $('#type_trigger_event').on('change', showAndHideSelectColumn)
+        showAndHideSelectColumn()
 
 
         $('#add-response').on('click', function() {
