@@ -10,6 +10,7 @@ use App\Models\Chat;
 use App\Models\ChatSession;
 use App\Models\Customer;
 use App\Models\Device;
+use App\Models\FlowChat;
 use App\Models\Message;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -62,6 +63,11 @@ class HookController extends Controller
                 'request' => $request->all(),
             ]);
         }
+        $flow = $device->flow_chat;
+        if (!($flow instanceof FlowChat)) {
+            Log::info("Flow not Instance with FlowChat Model");
+            return false;
+        }
         $this->Log->info('Hook Recived - OK', [
             'device' => $device,
             'request' => $request->all(),
@@ -69,7 +75,7 @@ class HookController extends Controller
 
         $inbox = $this->parseWhatsappCallback($request);
         $_cust = $this->getCustomer($request->phone, $request->name);
-        
+
         $this->Log->info('Customer', $_cust);
 
         $session = ChatSession::firstOrCreate([
@@ -90,15 +96,14 @@ class HookController extends Controller
         ]);
 
         $promtNotAnswered = $session->chats()->where('from_me', 1)->orderBy('id', 'desc')->where('type', 'prompt')->where('response', null)->first();
-
         // create response message kirim menu
         if ($session->chats()->count() == 1) {
-            $messages = Message::where('hook', 'welcome')->get();
+            $messages = $flow->messages()->where('hook', 'welcome')->get();
             foreach ($messages as $message) {
                 ChatBot::replyMsg($device, $session, $message, $request->phone);
             }
             if ($_cust['customer']->name === null) {
-                $messages = Message::hook('anon_customer')->sortMsg()->get();
+                $messages = $flow->messages()->hook('anon_customer')->sortMsg()->get();
                 foreach ($messages as $msg) {
                     ChatBot::replyMsg($device, $session, $msg, $request->phone);
                 }
@@ -152,7 +157,7 @@ class HookController extends Controller
                 ChatBot::replyMsg($device, $session, $action_reply->replyMessage, $request->phone);
             } else {
                 $this->Log->info('Auto Reply Not Match');
-                $dont_understand_msg = Message::firstWhere('hook', 'dont_understand');
+                $dont_understand_msg = $flow->messages()->firstWhere('hook', 'dont_understand');
                 if ($dont_understand_msg) {
                     ChatBot::replyMsg($device, $session, $dont_understand_msg, $request->phone);
                 }
@@ -169,8 +174,6 @@ class HookController extends Controller
 
     protected function getHookMessageType(Customer $customer)
     {
-        
-        
     }
 
 
@@ -185,7 +188,7 @@ class HookController extends Controller
             'pushname' => $pushname,
             'more_data' => []
         ]);
-        
+
         if ($Customer->pushname != $pushname) {
             $Customer->pushname = $pushname;
             $Customer->save();
@@ -214,12 +217,12 @@ class HookController extends Controller
     {
         $query = ActionReply::where('type', 'prompt_await')->where('prompt_message_id', is_int($promt_message) ? $promt_message : $promt_message->id);
 
-        
-        if(in_array($keyword, ['{*}', '{:location:}'])) {
+
+        if (in_array($keyword, ['{*}', '{:location:}'])) {
             $action_reply = (clone $query)->where('prompt_response', '{!*}')->first();
             return [$action_reply, ['value' => false]];
         }
-        
+
         // casting
         if ($inbox->type === 'location') $keyword = '{:location:}';
         Log::info('inbox', [$inbox]);
@@ -249,11 +252,11 @@ class HookController extends Controller
                 }
             }
         }
-        
+
         $action_reply = (clone $query)->where('prompt_response', '{*}')->first();
         if ($action_reply) return [$action_reply, ['value' => $keyword]];
 
         $action_reply = (clone $query)->where('prompt_response', '{!*}')->first();
         return [$action_reply, ['value' => false]];
-    }
+    }   
 }

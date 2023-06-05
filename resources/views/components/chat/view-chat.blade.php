@@ -15,7 +15,7 @@
                 <a class="media-item media-item--medium" href="#">
                     <x-chat.avatar :customer="$customer" />
                     <div class="media-item__right">
-                        <h5 class="media-item__title font-weight-medium">{{ $customer->name }}</h5>
+                        <h5 class="media-item__title font-weight-medium">{{ $customer->name ?? $customer->pushname }}</h5>
                         <div class="text-sm text-grey">{{ $customer->last_chat }}</div>
                     </div>
                 </a>
@@ -54,7 +54,7 @@
             @foreach ($sessions as $session)
             <div class="position-relative">
                 <div class="chat-details__date position-sticky py-1" style="top: 0; z-index: 20; background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);">
-                    Topik #{{ $session->id }} - {{ $session->created_at->isoFormat('LL') }} • {{ $session->topic == null ? 'Unsaved' : 'Saved' }}
+                    Topik #{{ $session->id }} - {{ $session->created_at->isoFormat('LL') }} • {{ $session->topic == null ? 'Unsaved' : 'Saved' }} • {{ "Device {$session->device->name}" }}
                 </div>
                 @foreach ($session->chats as $chat)
                     <x-chat.bubble :chat="$chat" :customer="$customer" />

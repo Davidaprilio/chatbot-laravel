@@ -55,16 +55,24 @@ class GraphController extends Controller
 
     public function saveActionReply(Request $request)
     {
+        $explode_res_text = explode(',', $request->prompt_response);
+        if (count($explode_res_text) === 1) {
+            $res_text = $explode_res_text[0];
+        } else {
+            $res_text = json_encode($explode_res_text);
+        }
+
         // sourceHandle: action_reply|next_msg
         if ($request->sourceHandle === 'action_reply') {
             if($request->type) $request->merge(['type' => 'prompt_await']);
             $act_reply = ActionReply::updateOrCreate([
                 'prompt_message_id' => $request->source,
                 'reply_message_id' => $request->target,
-            ], $request->only([
+            ], array_merge($request->only([
                 'prompt_message',
-                'title',
                 'type'
+            ]), [
+                'prompt_response' => $res_text
             ]));
             return $act_reply->edge_option;
         } elseif ($request->sourceHandle === 'next_msg') {

@@ -64,7 +64,7 @@ function Flow({ flowChat, edges: edgesProp, nodes: nodesProp }) {
                     })
                     return await onEdgeConnect(connection) 
                 }
-                connection.title = resultValue
+                connection.prompt_response = resultValue
             }
             const response = await axios.post('/graph/action-reply', {
                 ...connection

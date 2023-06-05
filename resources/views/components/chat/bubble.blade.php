@@ -13,6 +13,11 @@
             <div class="chat-message__right">
                 <div class="chat-message__messages">
                     <div class="chat-message__message-group">
+                        @if ($chat->reference_message)
+                            <a href="{{ url("message/{$chat->reference_message->flow_chat_id}/credit?id={$chat->reference_message->id}") }}">
+                                <small>{{ $chat->reference_message->title }}</small>
+                            </a>
+                        @endif
                         <div class="chat-message__message-item">
                             <p class="chat-message__item-text">{!! $text !!}</p>
                         </div>
