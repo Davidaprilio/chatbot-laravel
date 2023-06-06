@@ -52,6 +52,7 @@ class HookController extends Controller
     public function callback(Request $request)
     {
         if ($request->fromMe) return true;
+        if (strpos($request->phone, '@g.us') > 0) return false; // skip group
 
         $device = Device::with('flow_chat')->token($request->token)->first();
         if ($device === null) {

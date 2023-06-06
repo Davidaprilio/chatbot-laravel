@@ -83,7 +83,10 @@ class FlowChatController extends Controller
         $edges_next_message = $next_messages->map(fn(Message $message) => $message->edge_option);
 
         // merge edges_action_reply and edges_next_message Collection
-        $edges = $edges_action_reply->merge($edges_next_message)->toArray();
+        $edges = array_merge(
+            $edges_action_reply->toArray(), 
+            $edges_next_message->toArray()
+        );
 
         $data = [
             'flowChat' => $flowChat,

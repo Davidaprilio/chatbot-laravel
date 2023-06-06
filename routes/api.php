@@ -3,6 +3,7 @@
 use App\Http\Controllers\GraphController;
 use App\Http\Controllers\HookController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\WebHookBotController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +25,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::any('/testing', [TestController::class, 'index']);
 
+// Route::any('hook/whatsapp', [WebHookBotController::class, 'callback']); // Baru
 Route::any('hook/whatsapp', [HookController::class, 'callback']);
 Route::any('hook/whatsapp/test', [HookController::class, 'test']);
 
