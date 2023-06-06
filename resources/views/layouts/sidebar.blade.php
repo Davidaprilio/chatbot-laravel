@@ -33,7 +33,8 @@
                         <x-menu-item name="Kontak" :active="Request::is('kontak*')" :href="route('kontak')" />
                     </x-menu-tree>
                     <x-menu-tree name="Chatbot Setting" icon="fa fa-user" :is-open="Request::is(['chatbot*', 'message*', 'action-replies*', 'setting-web*'])">
-                        <x-menu-item name="Flow chat" :active="Request::is('chatbot*')" :href="route('flowchat.index')" />
+                        {{-- <x-menu-item name="Template Bot" :active="Request::is('chatbot*')" :href="route('lihat.demo')" /> --}}
+                        <x-menu-item name="Flow chat" :active="Request::is('chatbot*')" :href="route('flowchat.index')" />                        
                         <x-menu-item name="Action Replies" :active="Request::is('action-replies*')" :href="route('action-replies')" />
                         <x-menu-item name="Setting Web" :active="Request::is('setting-web*')" :role="auth()->user()->role->slug ?? 'customer'" :href="route('setting-web')" />
                     </x-menu-tree>

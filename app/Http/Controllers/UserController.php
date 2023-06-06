@@ -35,6 +35,7 @@ class UserController extends Controller
             } else {
                 $user           = new User();
                 $user->password = Hash::make('12345678');
+                $user->username = strtolower($request->panggilan) ?? 'user';
             }
             $user->sapaan       = $request->sapaan;
             $user->panggilan    = $request->panggilan;
@@ -46,6 +47,7 @@ class UserController extends Controller
             $user->provinsi     = $request->prov;
             $user->kota         = $request->kab;
             $user->kecamatan    = $request->kec;
+            $user->password     = Hash::make('12345678');
             $user->save();
             return redirect('user')->with('success', 'Data berhasil disimpan');
         } catch (\Throwable $th) {

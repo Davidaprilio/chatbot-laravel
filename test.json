@@ -1,0 +1,74 @@
+[
+    {
+        "text": "Sambutan Klinik",
+        "href": "http://home.com",
+        "icon": "fas fa-home",
+        "target": "_top",
+        "title": "My Home",
+        "Keterangan": "Selamat datang di Layanan Klik Kurnia"
+    },
+    {
+        "text": "Sambutan Chabot",
+        "href": "",
+        "icon": "fas fa-chart-bar",
+        "target": "_self",
+        "title": "",
+        "Keterangan": "Perkenalkan saya adalah Chatbot Pesan Otomatis yang akan melayani anda"
+    },
+    {
+        "text": "Tanya Nama ?",
+        "href": "",
+        "icon": "fas fa-question-circle",
+        "target": "_self",
+        "title": "",
+        "Keterangan": "Siapakan Nama Anda"
+    },
+    {
+        "text": "Menu",
+        "href": "",
+        "icon": "fas fa-list",
+        "target": "_self",
+        "title": "",
+        "Keterangan": "",
+        "children": [
+            {
+                "text": "1. Jadwal Layanan",
+                "href": "",
+                "icon": "fas fa-calendar-alt",
+                "target": "_self",
+                "title": "",
+                "Keterangan": ""
+            },
+            {
+                "text": "2. Alamat Klinik",
+                "href": "",
+                "icon": "fas fa-map-marker-alt",
+                "target": "_self",
+                "title": "",
+                "Keterangan": ""
+            }
+        ]
+    },
+    {
+        "text": "Jawaban",
+        "href": "",
+        "icon": "fas fa-search",
+        "target": "_self",
+        "title": "",
+        "Keterangan": "Buka Setiap Hari dari Jam 08:00-23:00"
+    },
+    {
+        "text": "Opcion7-1-1",
+        "href": "",
+        "icon": "fas fa-filter",
+        "target": "_self",
+        "title": ""
+    },
+    {
+        "text": "Opcion7-1",
+        "href": "",
+        "icon": "fas fa-plug",
+        "target": "_self",
+        "title": ""
+    }
+]

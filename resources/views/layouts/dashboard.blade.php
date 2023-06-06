@@ -4,94 +4,62 @@
         <div class="container">
             <div class="widgets">
                 <div class="widgets__row row gutter-bottom-xl">
-                    <div class="col-12 col-md-6 col-xl-4 d-flex">
+                    <div class="col-12 col-md-6 col-xl-3 d-flex">
                         <div class="widget">
                             <div class="widget__wrapper">
                                 <div class="widget__row">
-                                    @php
-                                        $a = 2000;
-                                        $b = 20;
-                                    @endphp
+
                                     <div class="widget__left">
-                                        <h3 class="widget__title">Conversation</h3>
-                                        <div class="widget__status-title text-grey">Total Conversation</div>
+                                        <h3 class="widget__title">Total User</h3>
+                                        {{-- <div class="widget__status-title text-grey">Total User</div> --}}
                                         <div class="widget__trade"><span
-                                                class="widget__trade-count">{{ $a + $b }}</span><span
-                                                class="trade-icon trade-icon--up">
-                                                <svg class="icon-icon-trade-up">
-                                                    <use xlink:href="#icon-trade-up"></use>
-                                                </svg></span><span
-                                                class="badge badge--sm badge--green">{{ (($b + $a - $a) / $a) * 100 }}%</span>
+                                                class="widget__trade-count">{{ $total_user }}</span>
                                         </div>
-                                    </div>
-                                    <div class="widget__chart">
-                                        <div class="widget__chart-inner">
-                                            <div class="widget__chart-percentage">{{ $b }}<small></small>
-                                            </div>
-                                            <div class="widget__chart-caption">New <br> Conversation</div>
-                                        </div>
-                                        <div class="widget__chart-canvas js-progress-circle"
-                                            data-value="{{ $b / $a }}" data-color="#22CCE2"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 col-md-6 col-xl-4 d-flex">
+                    <div class="col-12 col-md-6 col-xl-3 d-flex">
                         <div class="widget">
                             <div class="widget__wrapper">
                                 <div class="widget__row">
-                                    @php
-                                        $a = 2000;
-                                        $b = 20;
-                                    @endphp
                                     <div class="widget__left">
-                                        <h3 class="widget__title">Message</h3>
-                                        <div class="widget__status-title text-grey">Total Message</div>
+                                        <h3 class="widget__title">Total Device</h3>
+                                        {{-- <div class="widget__status-title text-grey">Total Conversation</div> --}}
                                         <div class="widget__trade"><span
-                                                class="widget__trade-count">{{ $a + $b }}</span><span
-                                                class="trade-icon trade-icon--down">
-                                                <svg class="icon-icon-trade-down">
-                                                    <use xlink:href="#icon-trade-down"></use>
-                                                </svg></span><span
-                                                class="badge badge--sm badge--red">{{ (($b + $a - $a) / $a) * 100 }}%</span>
+                                                class="widget__trade-count">{{ $total_device }}</span>
                                         </div>
-                                    </div>
-                                    <div class="widget__chart">
-                                        <div class="widget__chart-inner">
-                                            <div class="widget__chart-percentage">{{ $b }}<small>%</small>
-                                            </div>
-                                            <div class="widget__chart-caption">New Message</div>
-                                        </div>
-                                        <div class="widget__chart-canvas js-progress-circle"
-                                            data-value="{{ $b / $a }}" data-color="#FDBF5E"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 col-md-6 col-xl-4 d-flex">
+                    <div class="col-12 col-md-6 col-xl-3 d-flex">
                         <div class="widget">
                             <div class="widget__wrapper">
                                 <div class="widget__row">
                                     <div class="widget__left">
-                                        <h3 class="widget__title">Sales</h3>
-                                        <div class="widget__status-title text-grey">Total visits today</div>
-                                        <div class="widget__trade"><span class="widget__trade-count">$500</span><span
-                                                class="trade-icon trade-icon--up">
-                                                <svg class="icon-icon-trade-up">
-                                                    <use xlink:href="#icon-trade-up"></use>
-                                                </svg></span><span class="badge badge--sm badge--green">9%</span>
+                                        <h3 class="widget__title">Total Kontak</h3>
+                                        {{-- <div class="widget__status-title text-grey">Total Message</div> --}}
+                                        <div class="widget__trade"><span
+                                                class="widget__trade-count">{{ $total_kontak }}</span>
                                         </div>
                                     </div>
-                                    <div class="widget__chart">
-                                        <div class="widget__chart-inner">
-                                            <div class="widget__chart-percentage">80<small>%</small>
-                                            </div>
-                                            <div class="widget__chart-caption">New Sales</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 col-xl-3 d-flex">
+                        <div class="widget">
+                            <div class="widget__wrapper">
+                                <div class="widget__row">
+                                    <div class="widget__left">
+                                        <h3 class="widget__title">Flow Chat</h3>
+                                        {{-- <div class="widget__status-title text-grey">Total visits today</div> --}}
+                                        <div class="widget__trade"><span class="widget__trade-count">{{ $total_flow }}</span>
+
                                         </div>
-                                        <div class="widget__chart-canvas js-progress-circle" data-value="0.8"
-                                            data-color="#FF3D57"></div>
                                     </div>
                                 </div>
                             </div>
@@ -104,237 +72,115 @@
                     <h2>Section</h2>
                 </div>
                 <div class="row justify-content-center gutter-bottom-xl">
-                    <div class="col-12 col-lg-7 col-xl-8 d-flex">
+
+                    <div class="col-12 col-lg-7 col-xl-4 d-flex">
                         <div class="card">
                             <div class="card__wrapper">
-                                <div class="card__container">
+                                
                                     <div class="card__header">
+                                        <h3 class="card__header-title">User</h3>
                                         <div class="card__header-left">
-                                            <h3 class="card__header-title">Revenue</h3>
-                                        </div>
-                                        <div class="card__tools">
-                                            <div class="card__tools-row row row--xs gutter-bottom-xs">
-                                                <div class="card__tools-calendar col-auto">
-                                                    <div class="input-group input-group--prepend input-group--append">
-                                                        <div class="input-group__prepend">
-                                                            <svg class="icon-icon-calendar">
-                                                                <use xlink:href="#icon-calendar"></use>
-                                                            </svg>
-                                                        </div>
-                                                        <input class="input input--select" type="text"
-                                                            value="01.12.18 / 07.12.18" readonly="readonly" /><span
-                                                            class="input-group__arrow">
-                                                            <svg class="icon-icon-keyboard-down">
-                                                                <use xlink:href="#icon-keyboard-down"></use>
-                                                            </svg></span>
-                                                    </div>
-                                                </div>
-                                                <div class="card__tools-week col">
-                                                    <div class="input-group input-group--append">
-                                                        <input class="input input--select" type="text" value="Week"
-                                                            data-toggle="dropdown" readonly="readonly" /><span
-                                                            class="input-group__arrow">
-                                                            <svg class="icon-icon-keyboard-down">
-                                                                <use xlink:href="#icon-keyboard-down"></use>
-                                                            </svg></span>
-                                                        <div
-                                                            class="dropdown-menu dropdown-menu--right dropdown-menu--fluid js-dropdown-select">
-                                                            <a class="dropdown-menu__item active" href="#"
-                                                                tabindex="0" data-value="Week">Week</a><a
-                                                                class="dropdown-menu__item" href="#" tabindex="0"
-                                                                data-value="Month">Month</a><a class="dropdown-menu__item"
-                                                                href="#" tabindex="0"
-                                                                data-value="Quarter">Quarter</a><a
-                                                                class="dropdown-menu__item" href="#" tabindex="0"
-                                                                data-value="Year">Year</a><a class="dropdown-menu__item"
-                                                                href="#" tabindex="0" data-value="All Time">All
-                                                                Time</a>
-                                                            <a class="dropdown-menu__item" href="#" tabindex="0"
-                                                                data-value="Custom">Custom</a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="card__tools-more">
-                                            <button class="items-more__button">
-                                                <svg class="icon-icon-more">
-                                                    <use xlink:href="#icon-more"></use>
-                                                </svg>
-                                            </button>
-                                            <div class="dropdown-items">
-                                                <div class="dropdown-items__container">
-                                                    <ul class="dropdown-items__list">
-                                                        <li class="dropdown-items__item"><a
-                                                                class="dropdown-items__link"><span
-                                                                    class="dropdown-items__link-icon">
-                                                                    <svg class="icon-icon-refresh">
-                                                                        <use xlink:href="#icon-refresh"></use>
-                                                                    </svg></span>Refresh</a>
-                                                        </li>
-                                                        <li class="dropdown-items__item"><a
-                                                                class="dropdown-items__link"><span
-                                                                    class="dropdown-items__link-icon">
-                                                                    <svg class="icon-icon-settings">
-                                                                        <use xlink:href="#icon-settings"></use>
-                                                                    </svg></span>Settings</a>
-                                                        </li>
-                                                        <li class="dropdown-items__item"><a
-                                                                class="dropdown-items__link"><span
-                                                                    class="dropdown-items__link-icon">
-                                                                    <svg class="icon-icon-download">
-                                                                        <use xlink:href="#icon-download"></use>
-                                                                    </svg></span>Download</a>
-                                                        </li>
-                                                        <li class="dropdown-items__item"><a
-                                                                class="dropdown-items__link"><span
-                                                                    class="dropdown-items__link-icon">
-                                                                    <svg class="icon-icon-action">
-                                                                        <use xlink:href="#icon-action"></use>
-                                                                    </svg></span>Action</a>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
                                         </div>
                                     </div>
-                                    <div class="card__body">
-                                        <div class="card__widgets">
-                                            <div class="card__widgets-row gutter-bottom-sm">
-                                                <div class="card-widget">
-                                                    <h4 class="card-widget__title">Current week</h4>
-                                                    <div class="card-widget__trade"><span
-                                                            class="card-widget__count text-red">$180</span><span
-                                                            class="trade-icon trade-icon--up">
-                                                            <svg class="icon-icon-trade-up">
-                                                                <use xlink:href="#icon-trade-up"></use>
-                                                            </svg></span><span
-                                                            class="badge badge--green badge--sm">5%</span>
-                                                    </div>
-                                                </div>
-                                                <div class="card-widget">
-                                                    <h4 class="card-widget__title">Previous week</h4>
-                                                    <div class="card-widget__trade"><span
-                                                            class="card-widget__count text-grey">$52.30</span><span
-                                                            class="trade-icon trade-icon--down">
-                                                            <svg class="icon-icon-trade-down">
-                                                                <use xlink:href="#icon-trade-down"></use>
-                                                            </svg></span><span class="badge badge--red badge--sm">2%</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="card__chart">
-                                            <div class="card__container card__container--gutter-sm">
-                                                <div class="card__chart-item chart-revenue" id="revenueChart"
-                                                    data-series="[[0, 10, 48, 9, 9, 53, 12], [0, 45, 9, 49, 53, 180, 70]]">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                    
+                                
+                                
+                                <table class="table table--lines" id="datatables-user">
+                                    <thead class="table__header">
+                                        <tr class="table__header-row text-center">
+                                            <th style="width: 50px;"><span>No</span></th>
+                                            <th class="" style="text-align: center"><span
+                                                    class="align-middle">Nama</span></th>
+                                            <th class="" style="text-align: center"><span
+                                                    class="align-middle">Kontak</span></th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($user as $item)
+                                            <tr class="table__row text-center">
+                                                <td class="table__td"><span class="text-grey">{{ $loop->iteration }}</span>
+                                                </td>
+                                                <td class="table__td">{{ $item->name ?? '-' }}</td>
+                                                <td class="table__td"><span class="text-grey">{{ $item->email ?? '-' }} <br>
+                                                        {{ $item->phone ?? '-' }}</span>
+                                                </td>
+
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </div>
+                            
                         </div>
                     </div>
+
+                    <div class="col-12 col-lg-7 col-xl-4 d-flex">
+                        <div class="card">
+                            <div class="card__wrapper">
+                                
+                                    <div class="card__header">
+                                        <h3 class="card__header-title">Flow Chat</h3>
+                                        <div class="card__header-left">
+                                        </div>
+                                    </div>
+                                    
+                                
+                                
+                <table class="table table--lines" id="datatables-user">
+                    <thead class="table__header">
+                        <tr class="table__header-row">
+                            <th class="d-none d-lg-table-cell" style="width: 90px">
+                                <span>ID</span>
+                            </th>
+                            <th class="table__th-sort">
+                                <span class="align-middle">Name</span>
+                            </th>
+                            <th class="table__th-sort">
+                                <span class="align-middle">Description</span>
+                            </th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($flows as $flow)
+                        <tr class="table__row">
+                            <td class="d-none d-lg-table-cell table__td">
+                                <span class="text-grey">{{ $flow->id }}</span>
+                            </td>
+                            <td class="table__td">
+                                <a href="{{ route('message',['flow' => $flow->id]) }}">{{ $flow->name }}</a>
+                            </td>
+                            <td class="table__td">
+                                <span class="text-grey">{{ $flow->description ?? 'no description...' }}</span>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                            </div>
+                            
+                        </div>
+                    </div>
+
+
                     <div class="col-12 col-lg-5 col-xl-4 d-flex">
                         <div class="card">
                             <div class="card__wrapper">
                                 <div class="card__container">
                                     <div class="card__header mb-0">
                                         <div class="card__header-left">
-                                            <h3 class="card__header-title">Profit</h3>
-                                        </div>
-                                        <div class="card__tools-more">
-                                            <button class="items-more__button">
-                                                <svg class="icon-icon-more">
-                                                    <use xlink:href="#icon-more"></use>
-                                                </svg>
-                                            </button>
-                                            <div class="dropdown-items">
-                                                <div class="dropdown-items__container">
-                                                    <ul class="dropdown-items__list">
-                                                        <li class="dropdown-items__item"><a
-                                                                class="dropdown-items__link"><span
-                                                                    class="dropdown-items__link-icon">
-                                                                    <svg class="icon-icon-refresh">
-                                                                        <use xlink:href="#icon-refresh"></use>
-                                                                    </svg></span>Refresh</a>
-                                                        </li>
-                                                        <li class="dropdown-items__item"><a
-                                                                class="dropdown-items__link"><span
-                                                                    class="dropdown-items__link-icon">
-                                                                    <svg class="icon-icon-settings">
-                                                                        <use xlink:href="#icon-settings"></use>
-                                                                    </svg></span>Settings</a>
-                                                        </li>
-                                                        <li class="dropdown-items__item"><a
-                                                                class="dropdown-items__link"><span
-                                                                    class="dropdown-items__link-icon">
-                                                                    <svg class="icon-icon-download">
-                                                                        <use xlink:href="#icon-download"></use>
-                                                                    </svg></span>Download</a>
-                                                        </li>
-                                                        <li class="dropdown-items__item"><a
-                                                                class="dropdown-items__link"><span
-                                                                    class="dropdown-items__link-icon">
-                                                                    <svg class="icon-icon-action">
-                                                                        <use xlink:href="#icon-action"></use>
-                                                                    </svg></span>Action</a>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
+                                            <h3 class="card__header-title">Last Chat</h3>
                                         </div>
                                     </div>
-                                    <div class="card__body">
-                                        <div class="card__chart">
-                                            <div class="card__chart-item chart-profit" id="profitPieChart"
-                                                data-series="[200, 120, 180]"></div>
-                                        </div>
-                                    </div>
-                                    <div class="card__footer">
-                                        <div class="card__container">
-                                            <table class="card__stat">
-                                                <tbody>
-                                                    <tr>
-                                                        <td><span class="signal"
-                                                                style="color: #FF3D57;"></span><span>Current</span>
-                                                        </td>
-                                                        <td><span>$500</span><span class="quotation quotation--up">
-                                                                <svg class="icon-icon-arrow-down">
-                                                                    <use xlink:href="#icon-arrow-down"></use>
-                                                                </svg></span>
-                                                        </td>
-                                                        <td><span class="text-grey">37%</span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td><span class="signal"
-                                                                style="color: #FDBF5E;"></span><span>Lost</span>
-                                                        </td>
-                                                        <td><span>$450</span><span class="quotation quotation--down">
-                                                                <svg class="icon-icon-arrow-down">
-                                                                    <use xlink:href="#icon-arrow-down"></use>
-                                                                </svg></span>
-                                                        </td>
-                                                        <td><span class="text-grey">35%</span>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td><span class="signal"
-                                                                style="color: #22CCE2;"></span><span>Target</span>
-                                                        </td>
-                                                        <td><span>$300</span><span class="quotation quotation--down">
-                                                                <svg class="icon-icon-arrow-down">
-                                                                    <use xlink:href="#icon-arrow-down"></use>
-                                                                </svg></span>
-                                                        </td>
-                                                        <td><span class="text-grey">28%</span>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                    <div class="chat-users__content scrollbar-thin scrollbar-hidden" data-simplebar>
+                                        <ul class="chat-users__list">
+                                            @foreach ($customers as $customer)
+                                                <li class="chat-users__list-item">
+                                                    <x-chat.list-item :customer="$customer" data-id="{{ $customer->id }}" class="user-chat-item" />
+                                                </li>
+                                            @endforeach
+                                        </ul>
                                     </div>
                                 </div>
                             </div>

@@ -66,11 +66,11 @@
                                             <tr class="table__row text-center">
                                                 <td class="table__td"><span class="text-grey">{{ $loop->iteration }}</span>
                                                 </td>
-                                                <td class="table__td">{{ $item->nama ?? '-' }}</td>
+                                                <td class="table__td">{{ $item->name ?? $item->pushname ?? '-' }}</td>
                                                 <td class="table__td">
-                                                    <small>
-                                                        {{ $item->email ?? '-' }} <br>
+                                                    <small>                                                        
                                                         {{ $item->phone ?? '-' }}
+                                                        {{ $item->email ? '<br>'.$item->email : '' }}
                                                     </small>
                                                 </td>
                                                 <td class="table__td">{{ $item->kategori ?? '-' }}</td>

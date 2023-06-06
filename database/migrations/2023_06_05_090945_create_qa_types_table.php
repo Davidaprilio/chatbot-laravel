@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('q_a_s', function (Blueprint $table) {
+        Schema::create('qa_types', function (Blueprint $table) {
             $table->id();
-            $table->string('device_id');
-            $table->text('json')->nullable();
+            $table->string('name');
+            $table->string('title');
             $table->timestamps();
         });
-
     }
 
     /**
@@ -25,7 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // drop
-        Schema::dropIfExists('q_a_s');
+        Schema::dropIfExists('qa_types');
     }
 };

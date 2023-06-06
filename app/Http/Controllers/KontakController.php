@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
 use App\Models\Kontak;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,7 +12,7 @@ class KontakController extends Controller
 {
     public function index(Request $request)
     {
-        $kontak   = Kontak::get();
+        $kontak   = Customer::get();
         return view('whatsapp.kontak.index', compact('kontak'));
     }
 
@@ -19,9 +20,9 @@ class KontakController extends Controller
     {
         $kontak     = '';
         $title      = 'Tambah Kontak';
-        $kategori = Kontak::groupBy('kategori')->select('kategori')->get();
+        $kategori = Customer::groupBy('kategori')->select('kategori')->get();
         if ($request->id) {
-            $kontak   = Kontak::where('id', $request->id)->first();
+            $kontak   = Customer::where('id', $request->id)->first();
             $title    = 'Edit Kontak';
         }
         return view('whatsapp.kontak.credit', compact('kontak', 'title', 'kategori'));
@@ -31,7 +32,7 @@ class KontakController extends Controller
     {
         try {
             if ($request->id) {
-                $kontak   = Kontak::where('id', $request->id)->first();
+                $kontak   = Customer::where('id', $request->id)->first();
             } else {
                 $kontak             = new Kontak();
                 $kontak->user_id    = Auth::id();
@@ -60,7 +61,7 @@ class KontakController extends Controller
     public function remove(Request $request)
     {
         try {
-            $device = Kontak::where('id', $request->id)->delete();
+            $device = Customer::where('id', $request->id)->delete();
             return redirect('kontak')->with('success', 'Data berhasil dihapus');
         } catch (\Throwable $th) {
             return redirect('kontak')->with('error', 'Gagal menghapus data');

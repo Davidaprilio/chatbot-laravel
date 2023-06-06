@@ -3,7 +3,7 @@
 @section('content')
     <link rel="stylesheet" href="bootstrap-iconpicker/css/bootstrap-iconpicker.min.css">
     <main class="page-content">
-        <iframe id="preview-frame" src="https://chatbot.msd.biz.id/qa/new" name="preview-frame" frameborder="0" noresize="noresize" style="height: 902px;">
+        <iframe id="preview-frame" src="https://chatbot.msd.biz.id/qa/demo" name="preview-frame" frameborder="0" noresize="noresize" style="height: 902px;">
         </iframe>
     @endsection
 

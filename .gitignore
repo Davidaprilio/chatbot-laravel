@@ -20,3 +20,4 @@ yarn-error.log
 package-lock.json
 public/.user.ini
 public/.well-known/
+database/migrations/*.phpx

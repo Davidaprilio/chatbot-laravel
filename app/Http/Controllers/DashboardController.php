@@ -3,13 +3,27 @@
 namespace App\Http\Controllers;
 
 use App\Models\SettingWeb;
+use App\Models\User;
+use App\Models\Device;
+use App\Models\FlowChat;
+use App\Models\Kontak;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        return view('layouts.dashboard');
+        $data = [
+                    'total_user'        => User::count(),
+                    'total_device'      => Device::with('user', 'server')->count(),
+                    'total_kontak'      => Kontak::count(),
+                    'total_flow'        => FlowChat::count(),
+                    'customers'         => Customer::with('last_session.last_chat')->whereHas('last_session.last_chat')->get(),
+                    'user'              => User::get(),
+                    'flows'              => FlowChat::get(),
+        ];          
+        return view('layouts.dashboard', $data);
     }
 
     public function settingWeb(Request $request)
