@@ -32,6 +32,7 @@
                         </div>
                     </div>
                 </div>
+                @canany(['sudo', 'admin'])
                 <div class="page-tools__right">
                     <div class="page-tools__right-row">
                         <div class="page-tools__right-item">
@@ -46,6 +47,7 @@
                         </div>
                     </div>
                 </div>
+                @endcanany
             </div>
             @include('layouts.alerts')
             <div class="card">
@@ -57,8 +59,7 @@
                                     <thead class="table__header">
                                         <tr class="table__header-row text-center">
                                             <th style="width: 50px; text-align: center;"><span>No</span></th>
-                                            <th class="" style="text-align: center"><span class="align-middle">Server
-                                                    - Handphone</span></th>
+                                            <th class="" style="text-align: center"><span class="align-middle">Perangkat</span></th>
                                             <th class="" style="text-align: center"><span
                                                     class="align-middle">User</span></th>
                                             <th class="" style="text-align: center">
@@ -76,7 +77,7 @@
                                                 <td class="table__td"><span class="">{{ $loop->iteration }}</span>
                                                 </td>
                                                 <td class="table__td">
-                                                    {{ $item->server->name ?? '-' }} - {{ $item->phone ?? '-' }}
+                                                    {{ $item->label ?? '-' }} {{ $item->phone ? "({$item->phone})" : '' }}
                                                 </td>
                                                 <td class="table__td"><span
                                                         class="">{{ $item->user->name ?? '-' }}</span>
@@ -95,9 +96,14 @@
                                                 <td class="table__td">
                                                     @if ($item->flow_chat)
                                                         <a href="{{ route('message', ['flow' => $item->flow_chat_id]) }}">{{ $item->flow_chat->name }}</a>
-                                                        <button class="btn btn-set-flow btn-sm btn-link" data-id="{{ $item->id }}" data-selected="{{ $item->flow_chat_id }}">
-                                                            <i class="fa fa-pencil"></i>
-                                                        </button>
+                                                        <div class="d-inline">
+                                                            <button class="btn btn-set-flow btn-sm px-1 btn-link" data-id="{{ $item->id }}" data-selected="{{ $item->flow_chat_id }}">
+                                                                <i class="fa fa-pencil"></i>
+                                                            </button>
+                                                            <button class="btn btn-drop-flow btn-sm px-1 btn-link" data-id="{{ $item->id }}" data-selected="{{ $item->flow_chat_id }}">
+                                                                <i class="fa fa-times"></i>
+                                                            </button>
+                                                        </div>
                                                     @else
                                                         <button class="btn btn-set-flow btn-sm btn-link" data-id="{{ $item->id }}">
                                                             set flow <i class="fa fa-plus"></i>
@@ -163,13 +169,13 @@
                                                         placeholder="Label" required>
                                                 </div>
                                             </div>
-                                            <div class="col-12 form-group form-group--lg">
+                                            {{-- <div class="col-12 form-group form-group--lg">
                                                 <label class="form-label form-label--sm">Nomor Handphone</label>
                                                 <div class="input-group">
                                                     <input class="input" name="phone" type="number" minlength="10"
                                                         maxlength="13" placeholder="+62..." required>
                                                 </div>
-                                            </div>
+                                            </div> --}}
                                             <div class="col-12 form-group form-group--lg">
                                                 <label class="form-label form-label--sm">User</label>
                                                 <div class="input-group input-group--append">
@@ -302,6 +308,39 @@
             $('#select-chat-flow').prop('disable', false)
 
             $('#form-set-flow #overwrite-input').remove()
+        })
+
+        $('.btn-drop-flow').on('click', async function() {
+            // confirm drop flow
+            const button = $(this)
+            const isDrop = await Confirm.fire({
+                title: "Drop This",
+                text: "Are you sure to drop this flow?",
+                type: "warning",
+            }).then(r => r.isConfirmed)
+
+            if (isDrop) {
+                const deviceID = button.data('id')
+                const flowID = button.data('selected')
+                try {
+                    const res = await ajaxPromise({
+                        url: "{{ route('device.flows', ['device' => ':device']) }}".replace(':device', deviceID),
+                    }, 'DELETE')
+                    Swal.fire({
+                        title: res.message,
+                        type: "success",
+                        timer: 1000
+                    })
+                    window.location.reload()
+                } catch (error) {
+                    console.error(error);
+                    Swal.fire({
+                        title: error.responseJSON.message || "Something went wrong",
+                        type: "error",
+                        timer: 1000
+                    })
+                }
+            }
         })
 
         $('#form-set-flow').on('submit', async function(event) {

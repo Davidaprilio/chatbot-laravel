@@ -8,6 +8,7 @@
     <meta name="HandheldFriendly" content="True" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ web('web_title') }} - Dashboard</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description" content="{{ web('web_title') }}" />
     <meta name="msapplication-tap-highlight" content="no" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -557,18 +558,33 @@
         })
 
         function ajaxPromise(options, method) {
+            method = method.toUpperCase()
+            if(method !== 'GET') {
+                options.data = {
+                ...options.data,
+                _token: csrf_token(),
+                }
+                if (method === 'POST') {
+                options.data._method = method
+                method = 'POST'
+                }
+            }
             return new Promise((resolve, reject) => {
                 $.ajax({
-                    ...options,
-                    type: method || 'GET',
-                    success: (res) => {
-                        resolve(res)
-                    },
-                    error: (err) => {
-                        reject(err)
-                    }
+                ...options,
+                type: method || 'GET',
+                success: (res) => {
+                    resolve(res)
+                },
+                error: (err) => {
+                    reject(err)
+                }
                 })
             })
+        }
+
+        function csrf_token() {
+            return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         }
 
         function closeModal(modal) {

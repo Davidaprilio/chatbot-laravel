@@ -32,10 +32,10 @@ class AutoEndSessionChat extends Command
         // ambil chat session yang ended_at nya null dan relasinya dengan chat cari chat yang paling baru sekitar 1 jam dan ambil relasi chat terakhir
 
         $chat_sessions = ChatSession::whereNull('ended_at')
-            ->whereHas('chat', function ($query) {
+            ->whereHas('chats', function ($query) {
                 $query->where('from_me', 0)->where('created_at', '<', now()->subHour()); // 1 jam
             })
-            ->with(['chat' => function ($query) {
+            ->with(['chats' => function ($query) {
                 $query->where('from_me', 0)->latest()->first();
             }])
             ->get();
@@ -44,17 +44,11 @@ class AutoEndSessionChat extends Command
         
         foreach ($chat_sessions as $session) {
             $device = $session->device;
-            if ($session->alert_close == 0) {
+            if ($session->alert_close === 0) {
                 $message = Message::where('hook', 'confirm_not_response')->where('flow_chat_id', $device->flow_chat_id)->first();
-                if ($message === null) {
-                    continue;
-                }
                 Log::info("Chat Confirm Ended - {$session->id} - {$session->customer->phone}");
-            } else if ($session->alert_close == 1) {
+            } else if ($session->alert_close === 1) {
                 $message = Message::where('hook', 'close_chat_not_response')->where('flow_chat_id', $device->flow_chat_id)->first();
-                if ($message === null) {
-                    continue;
-                }
                 Log::info("Chat Ended - {$session->id} - {$session->customer->phone}");
                 $session->ended_at = now();
             } else {
@@ -65,7 +59,9 @@ class AutoEndSessionChat extends Command
             $session->alert_close = $session->alert_close + 1;
             $session->save();
 
-            ChatBot::replyMsg($device, $session, $message, $session->customer->phone);
+            if ($message) {
+                ChatBot::replyMsg($device, $session, $message, $session->customer->phone);
+            }
         }
 
         Log::info('Auto End Session Chat - OK');

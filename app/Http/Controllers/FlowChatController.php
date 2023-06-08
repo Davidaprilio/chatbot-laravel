@@ -15,7 +15,7 @@ class FlowChatController extends Controller
 {
     public function index(Request $request)
     {
-        $flowchats = FlowChat::get();
+        $flowchats = FlowChat::where('user_id', Auth::id())->get();
 
         return view('flowchat.index', [
             'flows' => $flowchats, 

@@ -45,7 +45,7 @@
                             </td>
                             <td class="table__td">
                                 @if ($flow->device)
-                                    <span class="text-blue">{{ $flow->device->name }} ({{ $flow->device->id }})</span>
+                                    <a class="text-blue" href="{{ url('device/detail/' . $flow->device->id) }}">{{ $flow->device->label }} ({{ $flow->device->id }})</a>
                                 @else
                                     <span class="text-grey">Draft</span>
                                 @endif
@@ -61,9 +61,9 @@
                                         <div class="dropdown-items__container">
                                             <ul class="dropdown-items__list">
                                                 <li class="dropdown-items__item">
-                                                    <a class="dropdown-items__link">
+                                                    <a class="dropdown-items__link" href="{{ route('message',['flow' => $flow->id]) }}">
                                                         <span class="dropdown-items__link-icon"><x-svgicon link="icon-view" /></span>
-                                                        Details
+                                                        Open Messages
                                                     </a>
                                                 </li>
                                                 <li class="dropdown-items__item">
@@ -95,6 +95,16 @@
                             </td>
                         </tr>
                         @endforeach
+                        @if ($flows->count() == 0)
+                            <tr>
+                                <td colspan="5" class="text-center">
+                                    <div class="py-4 text-center">
+                                        <i class="fa fa-info-circle fa-2x text-grey"></i>
+                                        <p class="text-grey">No data available</p>
+                                    </div>
+                                </td>
+                            </tr>                           
+                        @endif
                     </tbody>
                 </table>
             </div>

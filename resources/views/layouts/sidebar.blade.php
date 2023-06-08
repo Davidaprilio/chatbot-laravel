@@ -18,11 +18,13 @@
                             <x-svgicon link="icon-dashboard" />
                         </x-slot>
                     </x-menu-item>
+                    @canany(['sudo', 'admin'])
                     <x-menu-item name="Data User" :href="route('user')" :role="auth()->user()->role->slug ?? 'customer'" :active="Request::is('user*')">
                         <x-slot name="icon">
                             <x-svgicon link="icon-user" />
                         </x-slot>
                     </x-menu-item>
+                    @endcanany
                     <x-menu-item name="Chatbot Log" :href="route('chatting')" :active="Request::is('chatting*')">
                         <x-slot name="icon">
                             <x-svgicon link="icon-chat" />

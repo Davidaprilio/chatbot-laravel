@@ -6,7 +6,7 @@
     'role' => null,
 ])
 
-<li class="sidebar__menu-item {{ $role == 'customer' ? 'd-none' : '' }}">
+<li class="sidebar__menu-item">
     <a class="sidebar__link {{ $active ? 'active' : '' }}" href="{{ $href }}" aria-expanded="false">
         @if ($icon === null)
             <span class="sidebar__link-signal"></span>

@@ -15,6 +15,9 @@
                     <div class="breadcrumbs__container">
                         <ol class="breadcrumbs__list">
                             @foreach ($breadcrumbs as $text => $url)
+                            @php
+                            if ($text == strip_tags($text)) $text = Str::limit($text, 30);
+                            @endphp
                             <li @class([
                                 'breadcrumbs__item', 
                                 'active' => $loop->last,

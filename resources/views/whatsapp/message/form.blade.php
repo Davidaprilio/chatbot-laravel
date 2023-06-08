@@ -2,10 +2,16 @@
 @php
     $breadcrumbs = [
         '<i class="fa fa-home"></i>' => url('/'),
-        'Home' => '#',
-        'Message' => route('message', ['flow' => $flow->id]),
-        'Form' => url()->current(),
+        'Chatbot Setting' => '#',
+        'FlowChat' => route('flowchat.index'),
+        $flow->name => route('message',['flow' => $flow->id]),
     ];
+    if (isset($message)) {
+        $breadcrumbs[$message->title] = route('message.credit', ['flow' => $flow->id, 'id' => $message->id]);
+        $breadcrumbs['Edit'] = '#';
+    } else {
+        $breadcrumbs['Create'] = '#';
+    }
 @endphp
 
 @section('content')
@@ -29,7 +35,19 @@
                                         <div class="form-group col-6 mb-4">
                                             <label for="">Hook</label>
                                             @php
-                                                $hooks = ['welcome', 'custom_condition', 'anon_customer', 'before_send_menu', 'after_send_menu', 'after_give_name', 'dont_understand', 'end_menu', 'end_chat', 'confirm_not_response', 'close_chat_not_response'];
+                                                $hooks = [
+                                                    'welcome', 
+                                                    // 'custom_condition', 
+                                                    // 'anon_customer', 
+                                                    // 'before_send_menu', 
+                                                    // 'after_send_menu', 
+                                                    // 'after_give_name', 
+                                                    'dont_understand', 
+                                                    // 'end_menu', 
+                                                    'end_chat', 
+                                                    'confirm_not_response', 
+                                                    'close_chat_not_response'
+                                                ];
                                             @endphp
                                             <select class="input form-control form-control-sm" name="hook"
                                                 id="hook">
@@ -139,7 +157,7 @@
                                                 <div class="col-4">
                                                     <label for="">Pilih Pemicu Event</label>
                                                     <select class="form-control" name="type_trigger_event" id="type_trigger_event">
-                                                        <option value="close_chat" {{ $message && $message->trigger_event == 'close_chat' ? 'selected' : '' }}>Akhiri Pesan</option>
+                                                        <option value="close_chat" {{ $message && $message->trigger_event == 'close_chat' ? 'selected' : '' }}>Akhiri Obrolan</option>
                                                         <option value="save_response" {{ $message && $message->trigger_event == 'save_response' ? 'selected' : '' }}>Simpan jawaban</option>
                                                     </select>
                                                 </div>

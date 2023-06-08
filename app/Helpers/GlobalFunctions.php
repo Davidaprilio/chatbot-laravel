@@ -63,6 +63,7 @@ function web($field)
 
 function getVariableOnText(string $text, string $format): array|false
 {
+    Log::info("\n\nStart getVariableOnText ==============");
     $text = strtolower($text);
     // remove all special characters
     // $text = preg_replace('/[^a-z0-9\s]/', '', $text);
@@ -74,6 +75,8 @@ function getVariableOnText(string $text, string $format): array|false
     // explode space but not in {}
     $tokenized_format = preg_split('/\s+(?![^{}]*})/', $format);
 
+    Log::info("tokenized_format SPLIT: ", $tokenized_format);
+
     $values = [];
 
     $similiar_trying = 0;
@@ -81,14 +84,38 @@ function getVariableOnText(string $text, string $format): array|false
     // note: array_shift($tokenized_format); to skip the next format token
     Log::info("tokenized_text: ", $tokenized_text);
     foreach ($tokenized_text as $wrd) {
-        $current_fmt = $tokenized_format[0];
+        $handled = false;
+        try {
+            $current_fmt = $tokenized_format[0];
+            $current_fmt = trim($current_fmt);
+            if ($current_fmt === '') {
+                array_shift($tokenized_format);
+                continue;
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+            Log::error('Invalid format', [
+                'wrd' => $wrd,
+                'tokenized_format' => $tokenized_format,
+                'current_fmt' => $current_fmt,
+                'th' => $th->getMessage(),
+            ]);
+            if ($current_fmt === '**') {
+            }else if (count($tokenized_format) === 0) {
+                return false;
+            }
+            continue;
+        }
 
         if ($wrd === $current_fmt) { // word same
+            $handled = true;
+            Log::info("Word same: $wrd");
             array_shift($tokenized_format);
             continue;
         }
 
         if ('*{' === substr($current_fmt, 0, 2) && '}*' === substr($current_fmt, -2)) {
+            $handled = true;
             // getting expected text 
             if ($similiar_txt_assamble != '') {
                 $similiar_txt_assamble .= ' ';
@@ -104,6 +131,7 @@ function getVariableOnText(string $text, string $format): array|false
             Log::info("- w1: $similiar_txt_assamble");
             Log::info("- w2: $word_input");
             Log::info("- percent: $percent");
+            Log::info("- percentExpect: $minPercentExpected");
             if ($percent < $minPercentExpected) {
                 if (++$similiar_trying < count(explode(' ', $word_input))) {
                     continue;
@@ -117,12 +145,14 @@ function getVariableOnText(string $text, string $format): array|false
         }
 
         if ('**' === $current_fmt) {
+            $handled = true;
             array_shift($tokenized_format);
             continue;
         }
 
         // getting the variable value from the format
         if ('{' === $current_fmt[0] && '}' === $current_fmt[strlen($current_fmt) - 1]) {
+            $handled = true;
             $current_fmt = substr($current_fmt, 1, -1);
             try {
                 [$key, $value] = explode(':', $current_fmt);
@@ -137,7 +167,7 @@ function getVariableOnText(string $text, string $format): array|false
 
             // jika key:*
             if ($value === '*') {
-                Log::info('Value is * '. $wrd, [$current_fmt]);
+                Log::info("Value {$key} is {$wrd}", [$current_fmt]);
                 $value = $wrd;
             } else {
                 // jika key:iya|tidak
@@ -147,6 +177,7 @@ function getVariableOnText(string $text, string $format): array|false
                     Log::error('Invalid value');
                     return false;
                 }
+                Log::info("Value {$key} is {$wrd}", [$current_fmt]);
 
                 // save the value
                 $value = $value[array_search($wrd, $value)];
@@ -158,6 +189,28 @@ function getVariableOnText(string $text, string $format): array|false
             array_shift($tokenized_format);
             continue;
         }
+
+        if ($handled == false && $current_fmt != $wrd) {
+            Log::error('Format fixed not match', [
+                'wrd' => $wrd,
+                'tokenized_format' => $tokenized_format,
+                'current_fmt' => $current_fmt,
+            ]);
+            return false;
+        }
+
+        Log::error('Token Format =>', [
+            'wrd' => $wrd,
+            'tokenized_format' => $tokenized_format,
+            'current_fmt' => $current_fmt,
+        ]);
+    }
+
+    if (count($tokenized_format) > 1) {
+        Log::error('Token format masih ada', [
+            'tokenized_format' => $tokenized_format,
+        ]);
+        return false;
     }
 
     return $values;

@@ -6,10 +6,11 @@
 
 @push('page-tools-right')
 <div class="page-tools__right-item">
-    <{{ $as }} {{ $attributes->merge(['href' => $href])->class(['button-icon']) }}>
+    <{{ $as }} {{ $attributes->merge(['href' => $href])->class(['btn']) }}>
         <span class="button-icon__icon">
             <i class="{{ $icon }}"></i>
         </span>
+        {{ $slot }}
     </{{ $as }}>
 </div>
 @endpush

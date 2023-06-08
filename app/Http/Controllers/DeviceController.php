@@ -16,7 +16,7 @@ class DeviceController extends Controller
     public function index(Request $request)
     {
         $user   = User::get();
-        $device = Device::with('user', 'server')->get();
+        $device = Device::with('user', 'server')->where('user_id', Auth::id())->get();
         return view('whatsapp.device.device', compact('device', 'user'));
     }
 
@@ -165,6 +165,12 @@ class DeviceController extends Controller
                     'pic'        => $result->pic ?? '',
                     'name'      => $result->name ?? 'null',
                 ]);
+            } else {
+                $device->update([
+                    'status'    => 'NOT AUTHENTICATED',
+                    'phone'     => null,
+                    'pic'        => null,
+                ]);
             }
         } catch (\Throwable $th) {
             //throw $th;
@@ -284,6 +290,17 @@ class DeviceController extends Controller
 
         return response()->json([
             'message' => "Success applying flow chat to device"
+        ]);
+    }
+
+    public function drop_flow(Device $device, Request $request)
+    {
+        $device->update([
+            'flow_chat_id' => null
+        ]);
+
+        return response()->json([
+            'message' => "Success drop flow chat from device"
         ]);
     }
 }

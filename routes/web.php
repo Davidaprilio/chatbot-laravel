@@ -47,7 +47,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', 'index')->name('dashboard');
     });
 
-    Route::prefix('/user')->controller(UserController::class)->group(function () {
+    Route::prefix('/user')->controller(UserController::class)->middleware(['can:sudo,admin'])->group(function () {
         Route::get('/', 'index')->name('user');
         Route::get('/credit', 'credit')->name('user.credit');
         Route::any('/store', 'store')->name('user.store');
@@ -120,8 +120,10 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('/device')->controller(DeviceController::class)->group(function () {
         Route::get('/', 'index')->name('device');
-        Route::post('/store', 'store')->name('device.store');
-        Route::get('/remove', 'remove')->name('device.remove');
+        Route::group(['middleware' => ['can:sudo,admin']], function () {
+            Route::post('/store', 'store')->name('device.store');
+            Route::get('/remove', 'remove')->name('device.remove');
+        });
         Route::get('/detail/{id}', 'detail')->name('device.detail');
         Route::get('/show/{id}', 'qrcode')->name('device.qrcode');
         Route::get('/{id}/qrcode', 'start')->name('device.start');
@@ -129,6 +131,7 @@ Route::middleware('auth')->group(function () {
         Route::any('/{id}/logout', 'logout')->name('device.logout');
         Route::get('/{device:id}/flows', 'flows')->name('device.flows');
         Route::post('/{device:id}/flows', 'apply_flows');
+        Route::delete('/{device:id}/flows', 'drop_flow');
         // test
         Route::get('/{id}/test', 'test')->name('device.test');
     });

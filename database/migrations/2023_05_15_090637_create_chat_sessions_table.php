@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('customer_id');
             $table->foreignId('device_id');
             $table->string('phone_device');
+            $table->tinyInteger('alert_close')->default(0)->comment('0: send confirm not response, 1: send close chat not response');
             $table->dateTime('ended_at')->nullable()->comment('null if session is still active');
             $table->timestamps();
         });

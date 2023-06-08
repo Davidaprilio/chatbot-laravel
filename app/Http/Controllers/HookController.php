@@ -117,6 +117,11 @@ class HookController extends Controller
 
             [$match_action_reply, $result_data] = self::getActionMatch($promtNotAnswered->reference_message_id, $request->message, $inbox);
 
+            Log::info('Match Action Reply', [
+                'match_action_reply' => $match_action_reply,
+                'result_data' => $result_data,
+            ]);
+
             if ($match_action_reply && $match_action_reply->prompt_response !== '{!*}') {
                 $this->Log->info('Promt Match', [$promtNotAnswered]);
 
@@ -145,11 +150,12 @@ class HookController extends Controller
                 ChatBot::replyMsg($device, $session, $match_action_reply->replyMessage, $request->phone);
             } else {
                 $this->Log->info('Promt Not Match', [$promtNotAnswered]);
-                ChatBot::replyMsg($device, $session, new Message([
+                $message_reply_not_match = $match_action_reply ? $match_action_reply->replyMessage : new Message([
                     'text' => 'Maaf, jawaban anda tidak sesuai dengan pertanyaan sebelumnya. Mohon jawab dengan benar.',
                     'type' => 'chat',
                     'next_message' => null
-                ]), $request->phone);
+                ]);
+                ChatBot::replyMsg($device, $session, $message_reply_not_match, $request->phone);
             }
         } else {
             $action_reply = ActionReply::where('type', 'auto_reply')->where('prompt_response', $request->message)->first();
