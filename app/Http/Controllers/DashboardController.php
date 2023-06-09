@@ -9,6 +9,7 @@ use App\Models\FlowChat;
 use App\Models\Kontak;
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -16,12 +17,12 @@ class DashboardController extends Controller
     {
         $data = [
                     'total_user'        => User::count(),
-                    'total_device'      => Device::with('user', 'server')->count(),
+                    'total_device'      => Device::with('user', 'server')->where('user_id', Auth::id())->count(),
                     'total_kontak'      => Kontak::count(),
-                    'total_flow'        => FlowChat::count(),
+                    'total_flow'        => FlowChat::ownUser()->count(),
                     'customers'         => Customer::with('last_session.last_chat')->whereHas('last_session.last_chat')->get(),
                     'user'              => User::get(),
-                    'flows'              => FlowChat::get(),
+                    'flows'              => FlowChat::ownUser()->get(),
         ];          
         return view('layouts.dashboard', $data);
     }

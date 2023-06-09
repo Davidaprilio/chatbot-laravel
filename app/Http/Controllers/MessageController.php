@@ -8,6 +8,7 @@ use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 
 class MessageController extends Controller
@@ -36,6 +37,18 @@ class MessageController extends Controller
 
     public function store(Request $request, FlowChat $flow)
     {
+        $validator = Validator::make($request->all(), [
+            'title' => 'required',
+            'text' => 'required',
+        ], [
+            'title.required' => 'Judul pesan harus diisi',
+            'text.required' => 'Isi pesan harus diisi',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->with('error', $validator->errors()->first())->withInput();
+        }
+
         $replies = [
             'old' => [],
             'new' => []
@@ -69,6 +82,7 @@ class MessageController extends Controller
             if ($message === null) {
                 $message = new Message();
                 $message->flow_chat_id  = $flow->id;
+                $is_new = true;
                 // $message->type_button   = $request->type_button;
                 // $message->buttons       = json_encode($list_button);
             }
@@ -98,7 +112,7 @@ class MessageController extends Controller
             //throw $th;
             DB::rollBack();
             Log::error($th->getMessage(), $th->getTrace());
-            return redirect('message/' . $flow->id)->with('error', 'Masalah saat menyimpan pesan');
+            return redirect()->back()->with('error', 'Masalah saat menyimpan pesan')->withInput();
         }
 
         try {
@@ -109,7 +123,7 @@ class MessageController extends Controller
             //throw $th;
             DB::rollBack();
             Log::error($th->getMessage(), $th->getTrace());
-            return redirect('message/' . $flow->id)->with('error', 'Masalah saat menghapus response pesan');
+            return redirect()->back()->with('error', 'Masalah saat menghapus response pesan')->withInput();
         }
 
         try {
@@ -134,7 +148,7 @@ class MessageController extends Controller
             DB::rollBack();
             //throw $th;
             Log::error($th->getMessage(), $th->getTrace());
-            return redirect('message/' . $flow->id)->with('error', 'Masalah saat menyimpan response pesan');
+            return redirect()->back()->with('error', 'Masalah saat menyimpan response pesan')->withInput();
         }
 
         DB::commit();
@@ -142,7 +156,11 @@ class MessageController extends Controller
         if ($request->saveAndBack) {
             $resSuccess = redirect('message/' . $flow->id);
         } else {
-            $resSuccess = redirect()->back();
+            if (isset($is_new)) {
+                $resSuccess = redirect()->route('message.credit', ['flow' => $flow->id, 'id' => $message->id]);
+            } else {
+                $resSuccess = redirect()->back();
+            }
         }
 
         return $resSuccess->with('success', 'Data berhasil disimpan');

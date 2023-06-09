@@ -29,7 +29,7 @@
                                             class="form-control">
                                         <div class="form-group col-6 mb-4">
                                             <label for="">Judul Pesan</label>
-                                            <input class="input" type="text" value="{{ $message->title ?? '' }}"
+                                            <input class="input" type="text" required value="{{ old('title', $message->title ?? '') }}"
                                                 placeholder="Judul Pesan" name="title" id="title">
                                         </div>
                                         <div class="form-group col-6 mb-4">
@@ -87,7 +87,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <textarea name="text" id="text" cols="30" rows="5" class="form-control input">{{ $message->text ?? '' }}</textarea>
+                                            <textarea required name="text" id="text" cols="30" rows="5" class="form-control input">{{ $message->text ?? '' }}</textarea>
                                         </div>
                                     </div>
                                     <div class="row">

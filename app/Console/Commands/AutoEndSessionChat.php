@@ -29,11 +29,15 @@ class AutoEndSessionChat extends Command
      */
     public function handle()
     {
+        $Log = Log::build([
+            'driver' => 'single',
+            'path' => storage_path('logs/auto-end-session-chat.log'),
+        ]);
         // ambil chat session yang ended_at nya null dan relasinya dengan chat cari chat yang paling baru sekitar 1 jam dan ambil relasi chat terakhir
 
         $chat_sessions = ChatSession::whereNull('ended_at')
             ->whereHas('chats', function ($query) {
-                $query->where('from_me', 0)->where('created_at', '<', now()->subHour()); // 1 jam
+                $query->where('from_me', 0)->where('created_at', '<', now()->subMinutes(2)); // 2 menit
             })
             ->with(['chats' => function ($query) {
                 $query->where('from_me', 0)->latest()->first();
@@ -46,13 +50,13 @@ class AutoEndSessionChat extends Command
             $device = $session->device;
             if ($session->alert_close === 0) {
                 $message = Message::where('hook', 'confirm_not_response')->where('flow_chat_id', $device->flow_chat_id)->first();
-                Log::info("Chat Confirm Ended - {$session->id} - {$session->customer->phone}");
+                $Log->info("Chat Confirm Ended - {$session->id} - {$session->customer->phone}");
             } else if ($session->alert_close === 1) {
                 $message = Message::where('hook', 'close_chat_not_response')->where('flow_chat_id', $device->flow_chat_id)->first();
-                Log::info("Chat Ended - {$session->id} - {$session->customer->phone}");
+                $Log->info("Chat Ended - {$session->id} - {$session->customer->phone}");
                 $session->ended_at = now();
             } else {
-                Log::info("Chat Ended - {$session->id} - {$session->customer->phone}");
+                $Log->info("Chat Ended - {$session->id} - {$session->customer->phone}");
                 continue;
             }
 
@@ -64,6 +68,6 @@ class AutoEndSessionChat extends Command
             }
         }
 
-        Log::info('Auto End Session Chat - OK');
+        $Log->info('Auto End Session Chat - OK');
     }
 }

@@ -63,9 +63,10 @@ class ChatBot
         }
 
         $session->customer->refresh();
+        $message_text = Wa::parseMessage($message->text, $session->customer->toArray());
         $res = Wa::send($device, [
             'phone' => $phone,
-            'message' => Wa::parseMessage($message->text, $session->customer->toArray()),
+            'message' => $message_text,
             'file_url' => $message->attachment,
         ]);
         try {
@@ -73,7 +74,7 @@ class ChatBot
                 'message_id' => $res['data']['messageid'],
                 'reference_message_id' => $message->id,
                 'from_me' => true,
-                'text' => $message->text,
+                'text' => $message_text,
                 'timestamp' => now()->timestamp,
                 'type' => $message->type,
                 'attachment' => $message->attachment,

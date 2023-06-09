@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 
@@ -28,11 +29,66 @@ class Sandbox extends Command
     {
         $this->info('Sandbox for testing');
 
-        dd(Str::startsWith('custome.name', 'customer.'));
+        $formates = [
+            '**baik kak**nanti aja**',
+        ];
 
+        $answer = "baik kak david nanti aa saya coba lagi ya kak";
+
+        // step 1: cheking word match
+        $format_mod1 = Str::of($formates[0])->replace('**', '(.*)')
+                    ->__toString();
+
+        $str = Str::of($answer)->isMatch("/{$format_mod1}/i");
+
+        dd($str);
+
+        // dd(Str::startsWith('custome.name', 'customer.'));
+
+        // siapa nama kamu?
+        $answer = "danu aja";
+
+        $formats = [
+            "{name:*} *{50:aja}* **",
+            // '*{10:saja}* {name:*}',
+            // 'panggil {value} saja **',
+            // "** panggil {value} {_:saja|aja|ajah} **",
+            // "** *{40:boleh nama}* saya {nama:*} **",
+            // "** nama saya {nama:*} **",
+            // "** saya {_:adalah|} {nama:*} **",
+            // "saya {_:adalah|} {nama:*} **",
+            // "{value} {_:aja|saja} kak **",
+            // "boleh {value} {_:aja|saja} kak **",
+            // "{value}",
+        ];
+
+        foreach ($formats as $format) {
+            // $this->info($format);
+            $ans = getVariableOnText($answer, $format);
+            if (is_array($ans) && count($ans) > 0) {
+                dd($ans);
+            }
+        }
+        dd('not found', false);
+        exit;
 
 
         dd(
+            $this->getVariableOnText(
+                'jangan dong kak, panggil david ajah kak ya', 
+                "** panggil {value} {_:saja|aja|ajah} **",
+            ),
+
+            $this->getVariableOnText(
+                'panggil heri saja kak sdfdsf', 
+                "panggil {value} saja **",
+            ),
+
+            $this->getVariableOnText(
+                'danu saja', 
+                "{value} saja **",
+            ),
+
             $this->getVariableOnText(
                 'Hello all, my name is david and I am 20 years old.',
                 "Hello *{50:all my name}* is {name:*} ** am {age:19|20|21} years **"
@@ -48,7 +104,7 @@ class Sandbox extends Command
                 "** *{40:boleh nama}* saya {nama:*} dan saya {umur:20|21|22} tahun.",
             ),
             $this->getVariableOnText(
-                'Lha buat apa kan nama saya david dan saya 20 tahun.',
+                'Lha buat apa kan nama saya rahasia.',
                 "** *{40:boleh nama}* saya {nama:*} dan saya {umur:20|21|22} tahun.",
             ),
         );
@@ -57,6 +113,7 @@ class Sandbox extends Command
 
     public function getVariableOnText(string $text, string $format): array|false
     {
+        return getVariableOnText($text, $format);
         $text = strtolower($text);
         // remove all special characters
         // $text = preg_replace('/[^a-z0-9\s]/', '', $text);
