@@ -163,7 +163,7 @@
                                                 </div>
                                                 <div class="col-4" id="select_event_value_column">
                                                     <label for="">Simpan ke kolom</label>
-                                                    @php($columns = explode(',', 'name,location'))
+                                                    @php($columns = explode(',', 'name,location,alamat,kecamatan,kelurahan,kota,golongan_darah'))
                                                     <select class="form-control" name="event_value" id="event_value">
                                                         @foreach ($columns as $column)
                                                             <option value="{{ $column }}" {{ $message && $message->event_value === $column ? 'selected' : '' }}>{{ strtoupper($column) }}</option>

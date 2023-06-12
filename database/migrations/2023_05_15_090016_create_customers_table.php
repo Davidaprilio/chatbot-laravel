@@ -22,6 +22,9 @@ return new class extends Migration
             $table->integer('usia')->nullable();
             $table->string('golongan_darah', 10)->nullable();
             $table->enum('jenis_kelamin', ['L', 'P'])->nullable();
+            $table->string('kelurahan')->nullable();
+            $table->string('kecamatan')->nullable();
+            $table->string('kota')->nullable();
             $table->text('alamat')->nullable();
             $table->json('more_data');
             $table->timestamps();
