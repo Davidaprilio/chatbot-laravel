@@ -87,6 +87,9 @@ class HookController extends Controller
         ]);
 
         $session->load('customer');
+        $session->update([
+            'alert_close' => 0,
+        ]);
 
         $session->chats()->create([
             'message_id' => $request->id,
