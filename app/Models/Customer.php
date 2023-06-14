@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Customer extends Model
 {
@@ -39,5 +41,15 @@ class Customer extends Model
     public function last_session()
     {
         return $this->hasOne(ChatSession::class)->latest();
+    }
+
+    public function details() {
+        $cusMore = CustomerDetail::user(Auth::id());
+        return $this->newHasOne($cusMore->newQuery(), $this, 'customer_id', 'id');
+    }
+
+    public function scopeUser(Builder $query, int $user_id)
+    {
+        return $query->where('user_id', $user_id ?? auth()->id());
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use App\Models\CustomerDetail;
 use App\Models\Kontak;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,8 +16,13 @@ class KontakController extends Controller
 {
     public function index(Request $request)
     {
+        $is_initialized = CustomerDetail::is_initiated(Auth::id());
         if($request->ajax()) {
-            $customers = Customer::where('user_id', Auth::id());
+            if($is_initialized) {
+                $customers = Customer::with('details')->user(Auth::id());                
+            } else {
+                $customers = Customer::user(Auth::id());
+            }
             $dt = DataTables::eloquent($customers);
             
             $dt->editColumn('created_at', fn ($customer) => $customer->created_at->format('d-m-Y H:i:s'));
@@ -27,6 +33,11 @@ class KontakController extends Controller
         }
 
         $column_names = $this->get_column_names();
+        $column_names = array_combine($column_names, $column_names);
+        foreach ($column_names as $k => $v) $column_names[$k] = str()->headline($v);
+        if($is_initialized) {
+            foreach (CustomerDetail::user(Auth::id())->getColumn() as $col) $column_names["details.{$col}"] = str()->headline($col);
+        }
         return view('whatsapp.kontak.index', compact('column_names'));
     }
 

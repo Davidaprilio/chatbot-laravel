@@ -56,9 +56,9 @@
                         <div class="dropdown-items">
                             <div class="dropdown-items__container">
                                 <ul class="dropdown-items__list" style="max-height: 60vh; overflow-y:auto;">
-                                    @foreach (array_merge(['No'], $column_names, ['Action']) as $index_col => $column)
+                                    @foreach (array_merge(['No'], $column_names, ['Action']) as $column)
                                         <li class="dropdown-items__item">
-                                            <a class="dropdown-items__link toggle-column-item" data-column="{{ $index_col }}">
+                                            <a class="dropdown-items__link toggle-column-item" data-column="{{ $loop->index }}">
                                                 <span class="dropdown-items__link-icon" style="width: 35px; height: 17px">
                                                     <span class="circle-check">
                                                         <i class="fa-regular fa-circle-check"></i>
@@ -67,7 +67,7 @@
                                                         <i class="fa-regular fa-circle"></i>
                                                     </span>
                                                 </span>
-                                                <span>{!! str_replace(' ', '&nbsp;', Str::headline($column)) !!}</span>
+                                                <span>{!! str_replace(' ', '&nbsp;', $column) !!}</span>
                                             </a>
                                         </li>
                                     @endforeach
@@ -103,7 +103,7 @@
                                             </th>
                                             @foreach ($column_names as $column)
                                                 <th class="" style="text-align: center">
-                                                    <span class="align-middle">{!! str_replace(' ', '&nbsp;', Str::headline($column)) !!}</span>
+                                                    <span class="align-middle">{!! str_replace(' ', '&nbsp;', $column) !!}</span>
                                                 </th>
                                             @endforeach
                                             <th class="table__actions">Action</th>
@@ -141,7 +141,7 @@
                         return meta.row + meta.settings._iDisplayStart + 1;
                     }
                 },
-                @foreach ($column_names as $column)
+                @foreach ($column_names as $column => $_)
                     {
                         data: '{{ $column }}',
                         name: '{{ $column }}',
@@ -193,7 +193,7 @@
             // get visibility column from local storage
             const columns_visible = localStorage.getItem('columns_visible_tale_contact')
             if (columns_visible) {
-                $('span.dropdown-items__link-icon span').addClass('d-none')
+                $('span.dropdown-items__link-icon span.circle').addClass('d-none')
                 const columns = columns_visible.split(',')
                 tableContact.columns().visible(false)
                 console.log(columns);
