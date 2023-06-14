@@ -1,5 +1,10 @@
 @extends('layouts.admin')
 @section('content')
+<style>
+    #datatables-kontak_wrapper {
+        min-height: 250px
+    }
+</style>
     <main class="page-content">
         <div class="container">
             <div class="page-header">
@@ -41,81 +46,70 @@
                 </div>
             </div>
             @include('layouts.alerts')
+
+            <div class="bg-white p-3 rounded mb-3">
+                <div class="d-flex align-items-center">
+                    <div class="items-more mr-3">
+                        <button class="items-more__button button-icon active">
+                            <x-svgicon link="icon-list" />
+                        </button>
+                        <div class="dropdown-items">
+                            <div class="dropdown-items__container">
+                                <ul class="dropdown-items__list" style="max-height: 60vh; overflow-y:auto;">
+                                    @foreach (array_merge(['No'], $column_names, ['Action']) as $index_col => $column)
+                                        <li class="dropdown-items__item">
+                                            <a class="dropdown-items__link toggle-column-item" data-column="{{ $index_col }}">
+                                                <span class="dropdown-items__link-icon" style="width: 35px; height: 17px">
+                                                    <span class="circle-check">
+                                                        <i class="fa-regular fa-circle-check"></i>
+                                                    </span>
+                                                    <span class="circle d-none">
+                                                        <i class="fa-regular fa-circle"></i>
+                                                    </span>
+                                                </span>
+                                                <span>{!! str_replace(' ', '&nbsp;', Str::headline($column)) !!}</span>
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <a href="#" id="export_data" class="btn btn-sm btn-primary mr-3">
+                            <i class="fa-solid fa-download"></i>
+                            Export
+                        </a>
+                    </div>
+                    <div>
+                        <a href="#" id="export_data" class="btn btn-sm btn-primary">
+                            <i class="fa-solid fa-plus"></i>
+                            Add Column
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <div class="card">
                 <div class="card__wrapper">
                     <div class="card__container pl-4 pr-4">
                         <div class="card__body">
-                            <div class="table-wrapper">
-                                <table class="table table--lines" id="datatables-kontak">
+                            <div class="table-wrapper table-responsive">
+                                <table class="table table--lines w-100" id="datatables-kontak">
                                     <thead class="table__header">
                                         <tr class="table__header-row text-center">
-                                            <th style="width: 50px;"><span>No</span></th>
-                                            <th class="" style="text-align: center"><span
-                                                    class="align-middle">Nama</span></th>
-                                            <th class="" style="text-align: center"><span
-                                                    class="align-middle">Kontak</span></th>
-                                            <th class="" style="text-align: center"><span
-                                                    class="align-middle">Kategori</span></th>
-                                            <th class="" style="text-align: center"><span
-                                                    class="align-middle">Alamat</span></th>
-                                            <th class="table__actions"></th>
+                                            <th style="width: 50px;">
+                                                <span>No</span>
+                                            </th>
+                                            @foreach ($column_names as $column)
+                                                <th class="" style="text-align: center">
+                                                    <span class="align-middle">{!! str_replace(' ', '&nbsp;', Str::headline($column)) !!}</span>
+                                                </th>
+                                            @endforeach
+                                            <th class="table__actions">Action</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        @foreach ($kontak as $item)
-                                            <tr class="table__row text-center">
-                                                <td class="table__td"><span class="text-grey">{{ $loop->iteration }}</span>
-                                                </td>
-                                                <td class="table__td">{{ $item->name ?? $item->pushname ?? '-' }}</td>
-                                                <td class="table__td">
-                                                    <small>                                                        
-                                                        {{ $item->phone ?? '-' }}
-                                                        {{ $item->email ? '<br>'.$item->email : '' }}
-                                                    </small>
-                                                </td>
-                                                <td class="table__td">{{ $item->kategori ?? '-' }}</td>
-                                                <td class="table__td">
-                                                    <small>{{ $item->alamat ?? '-' }}</small>
-                                                </td>
-                                                <td class="table__td table__actions">
-                                                    <div class="items-more">
-                                                        <button class="items-more__button">
-                                                            <svg class="icon-icon-more">
-                                                                <use xlink:href="#icon-more"></use>
-                                                            </svg>
-                                                        </button>
-                                                        <div class="dropdown-items dropdown-items--right">
-                                                            <div class="dropdown-items__container">
-                                                                <ul class="dropdown-items__list">
-                                                                    <li class="dropdown-items__item">
-                                                                        <a class="dropdown-items__link"
-                                                                            href="{{ url('kontak/credit?id=' . $item->id) }}">
-                                                                            <span class="dropdown-items__link-icon">
-                                                                                <svg class="icon-icon-view">
-                                                                                    <use xlink:href="#icon-view"></use>
-                                                                                </svg>
-                                                                            </span>Edit
-                                                                        </a>
-                                                                    </li>
-                                                                    <li class="dropdown-items__item">
-                                                                        <a class="dropdown-items__link"
-                                                                            href="javascript:void(0)"
-                                                                            onclick="removeKontak('{{ url('kontak/remove?id=' . $item->id) }}')">
-                                                                            <span class="dropdown-items__link-icon">
-                                                                                <svg class="icon-icon-trash">
-                                                                                    <use xlink:href="#icon-trash"></use>
-                                                                                </svg>
-                                                                            </span>Delete
-                                                                        </a>
-                                                                    </li>
-                                                                </ul>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
+                                    <tbody style="min-height: 300px"></tbody>
                                 </table>
                             </div>
                         </div>
@@ -127,10 +121,91 @@
 @endsection
 @section('js')
     <script>
-        $('#datatables-kontak').DataTable({
-            ordering: false,
+        const tableContact = $('#datatables-kontak').DataTable({
+            // ordering: false,
+            responsive: true,
+            processing: true,
+            serverSide: true,
             // scrollX: true,
+            ajax: {
+                url: url(),
+                type: "GET",
+            },
+            columns: [{
+                    data: '_no_iteration',
+                    name: '_no_iteration',
+                    className: 'text-center',
+                    searchable: false,
+                    orderable: false,
+                    render: function(data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+                },
+                @foreach ($column_names as $column)
+                    {
+                        data: '{{ $column }}',
+                        name: '{{ $column }}',
+                        defaultContent: '-',
+                        className: 'text-center'
+                    },
+                @endforeach {
+                    data: '_action',
+                    name: '_action',
+                    className: 'text-center table__td table__actions',
+                    searchable: false,
+                    orderable: false
+                },
+            ]
         });
+
+        $('.toggle-column-item').on('click', function(e) {
+            e.preventDefault();
+            const anchor = $(this)
+            const column = tableContact.column(anchor.attr('data-column'));
+            anchor.find('span.dropdown-items__link-icon span').addClass('d-none')
+            if (column.visible()) {
+                anchor.find('span.circle').removeClass('d-none')
+            } else {
+                anchor.find('span.circle-check').removeClass('d-none')
+            }
+            column.visible(!column.visible());
+
+            
+            const columns = changeExportUrl()
+            /// save to local storage
+            localStorage.setItem('columns_visible_tale_contact', columns.join(','))
+        });
+
+        function changeExportUrl() {
+            const columns_visible = getVisibilityColumnData()
+            $('#export_data').attr('href', url('/kontak/export?columns=' + columns_visible.join(',')))
+            return columns_visible
+        }
+        
+        function getVisibilityColumnData() {
+            return tableContact.columns().visible().toArray().map((visibility, index) => ({
+                data: tableContact.init().columns[index].data,
+                visibility
+            })).filter(column => column.visibility === true).map(column => column.data)
+        }
+
+        $(document).ready(function() {
+            // get visibility column from local storage
+            const columns_visible = localStorage.getItem('columns_visible_tale_contact')
+            if (columns_visible) {
+                $('span.dropdown-items__link-icon span').addClass('d-none')
+                const columns = columns_visible.split(',')
+                tableContact.columns().visible(false)
+                console.log(columns);
+                columns.forEach(column => {
+                    const index = tableContact.column(column + ':name').index()
+                    tableContact.column(index).visible(true)
+                    const anchor = $('.toggle-column-item[data-column="' + index + '"]')
+                    anchor.find('span.circle-check').removeClass('d-none')
+                })
+            }
+            const column = changeExportUrl()
+        })
 
         function removeKontak(url) {
             Swal.fire({

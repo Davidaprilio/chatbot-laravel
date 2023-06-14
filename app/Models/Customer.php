@@ -14,6 +14,10 @@ class Customer extends Model
         'more_data' => AsArrayObject::class
     ];
 
+    protected $fillable = [
+        'more_data',
+    ];
+
     protected $guarded = ['id'];
 
 

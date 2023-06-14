@@ -6,14 +6,28 @@ use App\Models\Customer;
 use App\Models\Kontak;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Rap2hpoutre\FastExcel\Facades\FastExcel;
+use Yajra\DataTables\Facades\DataTables;
 
 class KontakController extends Controller
 {
     public function index(Request $request)
     {
-        $kontak   = Customer::get();
-        return view('whatsapp.kontak.index', compact('kontak'));
+        if($request->ajax()) {
+            $customers = Customer::where('user_id', Auth::id());
+            $dt = DataTables::eloquent($customers);
+            
+            $dt->editColumn('created_at', fn ($customer) => $customer->created_at->format('d-m-Y H:i:s'));
+            $dt->editColumn('updated_at', fn ($customer) => $customer->updated_at->format('d-m-Y H:i:s'));
+
+            return $dt->addColumn('_action', fn ($customer) => view('whatsapp.kontak.table-action', compact('customer')))
+                ->make(true);
+        }
+
+        $column_names = $this->get_column_names();
+        return view('whatsapp.kontak.index', compact('column_names'));
     }
 
     public function credit(Request $request)
@@ -66,5 +80,23 @@ class KontakController extends Controller
         } catch (\Throwable $th) {
             return redirect('kontak')->with('error', 'Gagal menghapus data');
         }
+    }
+    
+    private function get_column_names()
+    {
+        $column_from_table = DB::getSchemaBuilder()->getColumnListing('customers');
+        return array_filter($column_from_table, fn ($column) => array_search($column, explode(',', "user_id,more_data")) === false);
+    }
+
+    public function export(Request $request)
+    {
+        $columns = explode(',', $request->columns);
+        $available_columns = array_intersect($columns, $this->get_column_names());
+
+        $is_with_iteration = $request->has('iteration');
+        $seletor = $request->has('alias') ? array_map(fn ($column) => $column . " as " .str()->headline($column), $available_columns) : $available_columns;
+        $customers = Customer::select($seletor)->where('user_id', Auth::id())->get();
+
+        return FastExcel::data($customers)->download('kontak.xlsx');
     }
 }

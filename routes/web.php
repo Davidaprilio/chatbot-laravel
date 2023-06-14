@@ -116,6 +116,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/credit', 'credit')->name('kontak.credit');
         Route::any('/store', 'store')->name('kontak.store');
         Route::any('/remove', 'remove')->name('kontak.remove');
+        Route::get('/export', 'export')->name('kontak.export');
     });
 
     Route::prefix('/device')->controller(DeviceController::class)->group(function () {
