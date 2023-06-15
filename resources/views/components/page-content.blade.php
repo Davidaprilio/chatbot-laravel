@@ -1,6 +1,7 @@
 @props([
     'title' => 'Title',
     'breadcrumbs' => [],
+    'withAlert' => true,
 ])
 
 
@@ -45,7 +46,7 @@
                 </div>
             </div>
         </div>
-        @include('layouts.alerts')
+        @includeWhen($withAlert, 'layouts.alerts')
         
         {{ $slot }}
     </div>

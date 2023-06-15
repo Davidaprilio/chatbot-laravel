@@ -42,53 +42,50 @@
                                 <span class="button__text">Tambah Kontak</span>
                             </a>
                         </div>
+                        <div class="page-tools__right-item">
+                            <a href="#" id="export_data" class="button button--primary">
+                                <i class="fa-solid mr-2 fa-download"></i>
+                                Export  
+                            </a>
+                        </div>
+                        <div class="page-tools__right-item">
+                            <a href="{{ route('kontak.custom_column') }}" class="button button--primary">
+                                <i class="fa-solid mr-2 fa-table"></i>
+                                Custom Column
+                            </a>
+                        </div>
+                        <div class="page-tools__right-item">
+                            <div class="items-more mr-3">
+                                <button class="items-more__button button-icon active">
+                                    <x-svgicon link="icon-list" />
+                                </button>
+                                <div class="dropdown-items dropdown-items--right">
+                                    <div class="dropdown-items__container">
+                                        <ul class="dropdown-items__list" style="max-height: 60vh; overflow-y:auto;">
+                                            @foreach (array_merge(['No'], $column_names, ['Action']) as $column)
+                                                <li class="dropdown-items__item">
+                                                    <a class="dropdown-items__link toggle-column-item" data-column="{{ $loop->index }}">
+                                                        <span class="dropdown-items__link-icon" style="width: 35px; height: 17px">
+                                                            <span class="circle-check">
+                                                                <i class="fa-regular fa-circle-check"></i>
+                                                            </span>
+                                                            <span class="circle d-none">
+                                                                <i class="fa-regular fa-circle"></i>
+                                                            </span>
+                                                        </span>
+                                                        <span>{!! str_replace(' ', '&nbsp;', $column) !!}</span>
+                                                    </a>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             @include('layouts.alerts')
-
-            <div class="bg-white p-3 rounded mb-3">
-                <div class="d-flex align-items-center">
-                    <div class="items-more mr-3">
-                        <button class="items-more__button button-icon active">
-                            <x-svgicon link="icon-list" />
-                        </button>
-                        <div class="dropdown-items">
-                            <div class="dropdown-items__container">
-                                <ul class="dropdown-items__list" style="max-height: 60vh; overflow-y:auto;">
-                                    @foreach (array_merge(['No'], $column_names, ['Action']) as $column)
-                                        <li class="dropdown-items__item">
-                                            <a class="dropdown-items__link toggle-column-item" data-column="{{ $loop->index }}">
-                                                <span class="dropdown-items__link-icon" style="width: 35px; height: 17px">
-                                                    <span class="circle-check">
-                                                        <i class="fa-regular fa-circle-check"></i>
-                                                    </span>
-                                                    <span class="circle d-none">
-                                                        <i class="fa-regular fa-circle"></i>
-                                                    </span>
-                                                </span>
-                                                <span>{!! str_replace(' ', '&nbsp;', $column) !!}</span>
-                                            </a>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <a href="#" id="export_data" class="btn btn-sm btn-primary mr-3">
-                            <i class="fa-solid fa-download"></i>
-                            Export
-                        </a>
-                    </div>
-                    <div>
-                        <a href="#" id="export_data" class="btn btn-sm btn-primary">
-                            <i class="fa-solid fa-plus"></i>
-                            Add Column
-                        </a>
-                    </div>
-                </div>
-            </div>
 
             <div class="card">
                 <div class="card__wrapper">
@@ -131,6 +128,9 @@
                 url: url(),
                 type: "GET",
             },
+            order: [
+                [1, 'asc']
+            ],
             columns: [{
                     data: '_no_iteration',
                     name: '_no_iteration',

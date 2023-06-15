@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Rap2hpoutre\FastExcel\Facades\FastExcel;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -109,5 +110,49 @@ class KontakController extends Controller
         $customers = Customer::select($seletor)->where('user_id', Auth::id())->get();
 
         return FastExcel::data($customers)->download('kontak.xlsx');
+    }
+
+    public function custom_column()
+    {
+        $column_names = CustomerDetail::user(Auth::id())->getColumn();
+
+        // get column total data in each column with Count in select
+        $selector = array_map(fn ($column) => DB::raw("COUNT(`{$column}`) as `{$column}`"), $column_names);
+        $columns = CustomerDetail::user(Auth::id())->select($selector)->first()->toArray();
+        // dd($columns ?? null);
+        return view('whatsapp.kontak.custom-column', [
+            'columns' => $columns
+        ]);
+    }
+
+    public function custom_column_post(Request $request)
+    {
+        $old_column_name = Str::snake($request->column_name);
+        $new_column_name = Str::snake($request->new_column);
+
+        $columns = CustomerDetail::user(Auth::id())->getColumn();
+        if ($old_column_name) {
+            if(!in_array($old_column_name, $columns)) return redirect()->back()->with('error', 'Kolom tidak ditemukan');
+            
+            CustomerDetail::user(Auth::id())->renameColumn($old_column_name, $new_column_name);
+            return redirect()->back()->with('success', 'Nama kolom berhasil diubah');
+        } else {
+            if(in_array($new_column_name, $columns)) return redirect()->back()->with('error', 'Kolom sudah ada');
+
+            CustomerDetail::user(Auth::id())->addColumn([$new_column_name]);
+            return redirect()->back()->with('success', 'Kolom berhasil ditambahkan');
+        }
+    }
+
+    public function custom_column_delete(Request $request)
+    {
+        $column = $request->column_name;
+        $columns = CustomerDetail::user(Auth::id())->getColumn();
+        if(!in_array($column, $columns)) return redirect()->back()->with('error', 'Kolom tidak ditemukan');
+
+        // delete column
+        CustomerDetail::user(Auth::id())->removeColumn([$column]);
+
+        return redirect()->back()->with('success', 'Kolom berhasil dihapus');
     }
 }

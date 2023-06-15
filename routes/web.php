@@ -117,6 +117,9 @@ Route::middleware('auth')->group(function () {
         Route::any('/store', 'store')->name('kontak.store');
         Route::any('/remove', 'remove')->name('kontak.remove');
         Route::get('/export', 'export')->name('kontak.export');
+        Route::get('/custom-column', 'custom_column')->name('kontak.custom_column');
+        Route::delete('/custom-column', 'custom_column_delete');
+        Route::post('/custom-column', 'custom_column_post');
     });
 
     Route::prefix('/device')->controller(DeviceController::class)->group(function () {
