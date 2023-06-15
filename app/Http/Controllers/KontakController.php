@@ -104,10 +104,49 @@ class KontakController extends Controller
     {
         $columns = explode(',', $request->columns);
         $available_columns = array_intersect($columns, $this->get_column_names());
-
+        $is_initialized = CustomerDetail::is_initiated(Auth::id());
+        
         $is_with_iteration = $request->has('iteration');
-        $seletor = $request->has('alias') ? array_map(fn ($column) => $column . " as " .str()->headline($column), $available_columns) : $available_columns;
-        $customers = Customer::select($seletor)->where('user_id', Auth::id())->get();
+        $selector = $request->has('alias') ? array_map(fn ($column) => $column . " as " .str()->headline($column), $available_columns) : $available_columns;
+        
+        $selector_detail = [];
+        if($is_initialized) {
+            $columns_detail = CustomerDetail::user(Auth::id())->getColumn();
+            
+            $columns_detail = array_intersect(array_map(fn ($column) => "details.{$column}", $columns_detail), $columns);
+            $columns_detail = array_map(fn ($column) => str_replace('details.', '', $column), $columns_detail);
+
+            foreach ($columns_detail as $col) $selector_detail[] = $request->has('alias') ? $col . " as " . str()->headline($col) : $col;
+        }
+        // dd($selector);
+        
+        if($is_initialized) {
+            $customers = Customer::with([
+                'details' => fn ($query) => $query->select(array_merge(['customer_id', 'id'], $selector_detail))
+            ])->select(
+                array_merge(['id'], $selector)
+            )->user(Auth::id());
+        } else {
+            $customers = Customer::select($selector)->user(Auth::id());
+        }
+        $customers = $customers->get()->toArray();
+        foreach ($customers as $i => $customer) {
+            // remove unnecessary data
+            if (isset($customer['id']) && isset($customer['Id'])) {
+                unset($customer['id']);
+            }
+            
+            if ($is_initialized) {
+                unset($customer['details']['customer_id']);
+                unset($customer['details']['id']);
+                foreach ($customer['details'] as $key => $value) {
+                    $customer[$key] = $value;
+                }
+                unset($customer['details']);
+            }
+
+            $customers[$i] = $customer;
+        }
 
         return FastExcel::data($customers)->download('kontak.xlsx');
     }
